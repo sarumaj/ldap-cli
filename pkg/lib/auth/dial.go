@@ -11,53 +11,35 @@ import (
 )
 
 type DialOptions struct {
-	Host       string `validate:"required"`
-	Port       uint   `validate:"required"`
-	SizeLimit  int
-	TimeLimit  time.Duration
-	MaxRetries uint
-	UseTLS     bool
+	Host       string        `validate:"required"`
+	Port       uint          `validate:"required"`
+	SizeLimit  int           `validate:"required" default:"10"`
+	TimeLimit  time.Duration `validate:"required" default:"10s"`
+	MaxRetries uint          `validate:"required" default:"3"`
+	TLSConfig  *tls.Config   `validate:"required" default:"{}"`
 }
 
 func (o *DialOptions) Default() error {
 	return defaults.Set(o)
 }
 
-func (o *DialOptions) SetDefaults() {
-	o.SizeLimit = 10
-	o.TimeLimit = 10 * time.Second
-	o.MaxRetries = 3
-	o.UseTLS = true
-}
-
 func (o *DialOptions) Validate() error { return util.FormatError(validate.Struct(o)) }
 
 func Dial(opts *DialOptions) (net.Conn, error) {
 	if err := defaults.Set(opts); err != nil {
-		opts.MaxRetries = 0
+		opts.MaxRetries = 0 // abort immediately
 		return nil, err
 	}
 
 	if err := opts.Validate(); err != nil {
-		opts.MaxRetries = 0
+		opts.MaxRetries = 0 // abort immediately
 		return nil, err
 	}
 
 	addr := fmt.Sprintf("%s:%d", opts.Host, opts.Port)
-	if opts.UseTLS {
-		return tls.DialWithDialer(
-			&net.Dialer{
-				Timeout: time.Duration(opts.TimeLimit) * time.Second,
-			},
-			"tcp",
-			addr,
-			&tls.Config{},
-		)
+	if opts.TLSConfig != nil {
+		return tls.DialWithDialer(&net.Dialer{Timeout: opts.TimeLimit}, "tcp", addr, opts.TLSConfig)
 	}
 
-	return net.DialTimeout(
-		"tcp",
-		addr,
-		time.Duration(opts.TimeLimit)*time.Second,
-	)
+	return net.DialTimeout("tcp", addr, opts.TimeLimit)
 }
