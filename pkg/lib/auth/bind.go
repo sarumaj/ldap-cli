@@ -18,7 +18,12 @@ type BindParameter struct {
 	User     string `validate:"required"`
 }
 
-func (p *BindParameter) SetDefaults()    { p.Type = SIMPLE }
+func (p *BindParameter) SetDefaults() {
+	if p.Type == 0 || !p.Type.IsValid() {
+		p.Type = SIMPLE
+	}
+}
+
 func (p *BindParameter) Validate() error { return util.FormatError(validate.Struct(p)) }
 
 func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) {
@@ -53,7 +58,7 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 	raw := strings.Split(conn.remoteHost, ":")
 	if addr, err := net.LookupAddr(raw[0]); err == nil && len(addr) > 0 {
 		fmt.Sprintln(addr)
-		conn.remoteHost = fmt.Sprintf("%s:%d", strings.Trim(addr[0], "."), conn.options.Port)
+		conn.remoteHost = fmt.Sprintf("%s:%s", strings.Trim(addr[0], "."), conn.options.URL.Port())
 	}
 
 	ldapConn := ldap.NewConn(c, true)
@@ -66,7 +71,7 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 		err = ldapConn.Bind(parameters.User, parameters.Password)
 
 	case MD5:
-		err = ldapConn.MD5Bind(conn.options.Host, parameters.User, parameters.Password)
+		err = ldapConn.MD5Bind(conn.options.URL.Host, parameters.User, parameters.Password)
 
 	case NTLM:
 		err = ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password)

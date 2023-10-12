@@ -1,5 +1,7 @@
 # Custom Dictionary Words
+contiwan
 creasty
 GSSAPI
+LDAPS
 NTLM
 sarumaj
