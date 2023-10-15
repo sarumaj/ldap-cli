@@ -3,31 +3,23 @@ package util
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"sync"
 
 	"github.com/go-playground/validator/v10"
 )
 
+type ValidatorInterface interface{ IsValid() bool }
+
 var validate = sync.Pool{New: func() any {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	validate.RegisterValidation("is_valid", func(fl validator.FieldLevel) bool {
-		method := fl.Field().MethodByName("IsValid")
-		if !method.IsValid() {
-			return false
+		v, ok := fl.Field().Interface().(ValidatorInterface)
+		if ok {
+			return v.IsValid()
 		}
 
-		results := method.Call(nil)
-		if len(results) == 0 {
-			return false
-		}
-
-		if results[0].Kind() != reflect.Bool {
-			return false
-		}
-
-		return results[0].Bool()
+		return false
 	})
 
 	return validate
@@ -46,6 +38,9 @@ func FormatError(err error) error {
 	var newErrs []error
 	for _, err := range errs {
 		switch err.Tag() {
+
+		case "gt":
+			newErrs = append(newErrs, fmt.Errorf("%s should be greater than %s", err.StructField(), err.Param()))
 
 		case "is_valid":
 			newErrs = append(newErrs, fmt.Errorf("%s is invalid: %v", err.StructField(), err.Value()))

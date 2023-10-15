@@ -2,9 +2,9 @@ package auth
 
 import (
 	"strings"
-)
 
-type Type int
+	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
 
 const (
 	SIMPLE = iota + 1
@@ -18,6 +18,11 @@ var typeTranslation = map[Type]string{
 	NTLM:   "NTLM",
 }
 
+var _ util.ValidatorInterface = Type(0)
+
+type Type int
+
+// Validate type
 func (t Type) IsValid() bool {
 	switch t {
 
@@ -30,6 +35,7 @@ func (t Type) IsValid() bool {
 	}
 }
 
+// Type as string
 func (t Type) String() string {
 	str, ok := typeTranslation[t]
 	if ok {
@@ -39,10 +45,11 @@ func (t Type) String() string {
 	return ""
 }
 
+// Parse type from string
 func TypeFromString(str string) Type {
 	str = strings.ToUpper(str)
 	for k, v := range typeTranslation {
-		if v == str {
+		if strings.EqualFold(v, str) {
 			return k
 		}
 	}

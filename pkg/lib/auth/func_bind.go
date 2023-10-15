@@ -11,21 +11,29 @@ import (
 	"github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// Bind parameters
 type BindParameter struct {
-	Type     Type   `validate:"required,is_valid"` // default: SIMPLE
-	Domain   string `validate:"required_if=Type NTLM"`
+	// Type of authentication
+	Type Type `validate:"required,is_valid"` // default: SIMPLE
+	// User's domain (required for NTLM authentication)
+	Domain string `validate:"required_if=Type NTLM"`
+	// User's password
 	Password string `validate:"required"`
-	User     string `validate:"required"`
+	// Username
+	User string `validate:"required"`
 }
 
+// Set default Type
 func (p *BindParameter) SetDefaults() {
 	if p.Type == 0 || !p.Type.IsValid() {
 		p.Type = SIMPLE
 	}
 }
 
+// Validate fields
 func (p *BindParameter) Validate() error { return util.FormatError(validate.Struct(p)) }
 
+// Establish connection with the server
 func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) {
 	if err := defaults.Set(parameters); err != nil {
 		return nil, err
@@ -53,6 +61,7 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 		return nil, err
 	}
 
+	// TODO: examine necessity
 	conn.remoteHost = c.RemoteAddr().String()
 	fmt.Sprintln(conn.remoteHost)
 	raw := strings.Split(conn.remoteHost, ":")
