@@ -7,26 +7,28 @@ import (
 )
 
 const (
-	SIMPLE = iota + 1
+	UNAUTHENTICATED = iota + 1
+	SIMPLE
 	MD5
 	NTLM
 )
 
-var typeTranslation = map[Type]string{
-	SIMPLE: "SIMPLE",
-	MD5:    "MD5",
-	NTLM:   "NTLM",
+var typeTranslation = map[AuthType]string{
+	UNAUTHENTICATED: "UNAUTHENTICATED",
+	SIMPLE:          "SIMPLE",
+	MD5:             "MD5",
+	NTLM:            "NTLM",
 }
 
-var _ util.ValidatorInterface = Type(0)
+var _ util.ValidatorInterface = AuthType(0)
 
-type Type int
+type AuthType int
 
 // Validate type
-func (t Type) IsValid() bool {
+func (t AuthType) IsValid() bool {
 	switch t {
 
-	case SIMPLE, MD5, NTLM:
+	case UNAUTHENTICATED, SIMPLE, MD5, NTLM:
 		return true
 
 	default:
@@ -36,7 +38,7 @@ func (t Type) IsValid() bool {
 }
 
 // Type as string
-func (t Type) String() string {
+func (t AuthType) String() string {
 	str, ok := typeTranslation[t]
 	if ok {
 		return str
@@ -46,7 +48,7 @@ func (t Type) String() string {
 }
 
 // Parse type from string
-func TypeFromString(str string) Type {
+func TypeFromString(str string) AuthType {
 	str = strings.ToUpper(str)
 	for k, v := range typeTranslation {
 		if strings.EqualFold(v, str) {
