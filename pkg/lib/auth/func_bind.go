@@ -108,6 +108,6 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 	return &Connection{
 		connection: ldapConn,
 		options:    options,
-		remoteHost: util.Resolve(c.RemoteAddr().String()),
+		remoteHost: util.LookupAddress(c.RemoteAddr().String()),
 	}, nil
 }
