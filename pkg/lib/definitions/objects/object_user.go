@@ -41,7 +41,7 @@ type User struct {
 	UserPrincipalName          string    `csv:"UserPrincipalName"`
 }
 
-func (u User) DN() string { return GetField(&u, "DistinguishedName") }
+func (u User) DN() string { return GetField[string](&u, "DistinguishedName") }
 
 func (u *User) Read(raw map[string]interface{}) error {
 	err := readMap(u, raw)
