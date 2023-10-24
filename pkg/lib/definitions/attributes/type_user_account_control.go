@@ -1,5 +1,7 @@
 package attributes
 
+import "slices"
+
 // https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol
 const (
 	USER_ACCOUNT_CONTROL_LOGON_SCRIPT                           UserAccountControl = 0x00000001 // The logon script is executed.
@@ -23,7 +25,6 @@ const (
 	USER_ACCOUNT_CONTROL_DONT_REQUIRE_PREAUTH                   UserAccountControl = 0x00400000 // This account does not require Kerberos pre-authentication for logon.
 	USER_ACCOUNT_CONTROL_PASSWORD_EXPIRED                       UserAccountControl = 0x00800000 // The user password has expired. This flag is created by the system using data from the Pwd-Last-Set attribute and the domain policy.
 	USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION UserAccountControl = 0x01000000 // The account is enabled for delegation. This is a security-sensitive setting; accounts with this option enabled should be strictly controlled. This setting enables a service running under the account to assume a client identity and authenticate as that user to other remote servers on the network.
-	USER_ACCOUNT_CONTROL_UNKNOWN                                UserAccountControl = 0xFFFFFFFF
 )
 
 var userAccountControlToString = map[UserAccountControl]string{
@@ -48,18 +49,18 @@ var userAccountControlToString = map[UserAccountControl]string{
 	USER_ACCOUNT_CONTROL_DONT_REQUIRE_PREAUTH:                   "DONT_REQUIRE_PREAUTH",
 	USER_ACCOUNT_CONTROL_PASSWORD_EXPIRED:                       "PASSWORD_EXPIRED",
 	USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: "TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION",
-	USER_ACCOUNT_CONTROL_UNKNOWN:                                "UNKNOWN",
 }
 
-type UserAccountControl int64
+type UserAccountControl uint32
 
 func (v UserAccountControl) Eval() (controls []string) {
 	for key, value := range userAccountControlToString {
-		if v&key != 0 {
+		if v&key == key {
 			controls = append(controls, value)
 		}
 	}
 
+	slices.Sort(controls)
 	return controls
 }
 
@@ -68,5 +69,5 @@ func (u UserAccountControl) String() string {
 		return v
 	}
 
-	return userAccountControlToString[USER_ACCOUNT_CONTROL_UNKNOWN]
+	return "UNKNOWN"
 }

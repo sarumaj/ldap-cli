@@ -60,7 +60,7 @@ func HasNotExpired(strict bool) Filter {
 		Filter{Attribute: AttributeAccountExpires, Value: fmt.Sprint(1<<63 - 1)},
 		Filter{
 			Attribute: AttributeAccountExpires,
-			Value:     fmt.Sprintf(">=%d", util.TimeSinceEpoch().Nanoseconds()/100),
+			Value:     fmt.Sprintf(">=%d", util.TimeSince1601().Nanoseconds()/100),
 		},
 	)
 
@@ -83,8 +83,6 @@ func IsEnabled() Filter {
 }
 
 func IsGroup() Filter { return Filter{AttributeObjectClass, "group", ""} }
-
-func IsOrganizationalUnit() Filter { return Filter{AttributeObjectClass, "organizationalUnit", ""} }
 
 func IsUser() Filter { return Filter{AttributeObjectClass, "user", ""} }
 
