@@ -10,7 +10,7 @@ import (
 )
 
 // Bind parameters
-type BindParameter struct {
+type BindParameters struct {
 	// Type of authentication
 	AuthType AuthType `validate:"required,is_valid"` // default: SIMPLE
 	// User's domain (required for NTLM authentication)
@@ -22,9 +22,9 @@ type BindParameter struct {
 }
 
 // Set default Type
-func (p *BindParameter) SetDefaults() {
+func (p *BindParameters) SetDefaults() {
 	if p.AuthType == 0 || !p.AuthType.IsValid() {
-		p.AuthType = SIMPLE
+		p.AuthType = UNAUTHENTICATED
 	}
 
 	if i := strings.Index(p.User, `\\`); i > 0 {
@@ -33,36 +33,36 @@ func (p *BindParameter) SetDefaults() {
 }
 
 // Set domain (required for NTLM-based authentication)
-func (p *BindParameter) SetDomain(domain string) *BindParameter {
+func (p *BindParameters) SetDomain(domain string) *BindParameters {
 	p.Domain = domain
 	return p
 }
 
 // Set password
-func (p *BindParameter) SetPassword(password string) *BindParameter {
+func (p *BindParameters) SetPassword(password string) *BindParameters {
 	p.Password = password
 	return p
 }
 
 // Set username
-func (p *BindParameter) SetUser(user string) *BindParameter {
+func (p *BindParameters) SetUser(user string) *BindParameters {
 	p.User = user
 	return p
 }
 
 // Set authentication type
-func (p *BindParameter) SetType(authType AuthType) *BindParameter {
+func (p *BindParameters) SetType(authType AuthType) *BindParameters {
 	p.AuthType = authType
 	return p
 }
 
 // Validate fields
-func (p *BindParameter) Validate() error { return util.FormatError(validate.Struct(p)) }
+func (p *BindParameters) Validate() error { return util.FormatError(validate.Struct(p)) }
 
 // Establish connection with the server
-func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) {
+func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error) {
 	if parameters == nil {
-		parameters = &BindParameter{AuthType: UNAUTHENTICATED}
+		parameters = NewBindParameters()
 	}
 
 	if err := defaults.Set(parameters); err != nil {
@@ -111,3 +111,5 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 		remoteHost:  util.LookupAddress(c.RemoteAddr().String()),
 	}, nil
 }
+
+func NewBindParameters() *BindParameters { return &BindParameters{AuthType: UNAUTHENTICATED} }

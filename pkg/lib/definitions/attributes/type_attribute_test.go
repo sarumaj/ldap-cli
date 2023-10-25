@@ -5,19 +5,19 @@ import (
 	"testing"
 )
 
-func TestAttributesToStringSlice(t *testing.T) {
+func TestAttributesToAttributeList(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		args []Attribute
+		args Attributes
 		want []string
 	}{
 		{"test#1", nil, nil},
 		{"test#2",
-			[]Attribute{AttributeAccountExpires, AttributeEnabled, AttributeCommonName},
-			[]string{"accountExpires", "cn", "userAccountControl"}},
+			[]Attribute{AttributeAccountExpires(), AttributeUserAccountControl(), AttributeCommonName()},
+			[]string{"accountexpires", "cn", "useraccountcontrol"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			got := AttributesToStringSlice(tt.args...)
+			got := tt.args.ToAttributeList()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf(`AttributesToStringSlice(...) failed: got: %v, want: %v`, got, tt.want)
 			}
