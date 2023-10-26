@@ -12,24 +12,25 @@ import (
 
 func TestDial(t *testing.T) {
 	for _, tt := range []struct {
-		name string
-		args *DialOptions
+		name    string
+		args    *DialOptions
+		wantErr bool
 	}{
-		{"test#1", NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true})},
-		{"test#2", NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true})},
+		{"test#1", NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}), false},
+		{"test#2", NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}), false},
+		{"test#3", nil, true},
 	} {
 
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.args.URL == nil {
-				t.Skipf("Skipping %s", tt.name)
-			}
-
 			conn, err := Dial(tt.args)
-			if err != nil {
+			if (err == nil) == tt.wantErr {
 				t.Errorf(`Dial(%v) failed: %v`, tt.args, err)
 				return
 			}
-			_ = conn.Close()
+
+			if conn != nil {
+				_ = conn.Close()
+			}
 		})
 	}
 }
