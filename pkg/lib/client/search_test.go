@@ -31,7 +31,7 @@ func TestSearch(t *testing.T) {
 		SearchArguments{
 			Attributes: nil,
 			Path:       fmt.Sprintf("DC=%s,DC=contiwan,DC=com", dom),
-			Filter:     filter.Filter{Attribute: attributes.AttributeSamAccountName(), Value: uid},
+			Filter:     filter.Filter{Attribute: attributes.SamAccountName(), Value: uid},
 		},
 	)
 	if err != nil {

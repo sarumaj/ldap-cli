@@ -8,7 +8,7 @@ import (
 func TestGroupTypeEval(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		args GroupType
+		args FlagsetGroupType
 		want []string
 	}{
 		{"test#1",

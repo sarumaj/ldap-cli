@@ -4,30 +4,30 @@ import "slices"
 
 // https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol
 const (
-	USER_ACCOUNT_CONTROL_LOGON_SCRIPT                           UserAccountControl = 0x00000001 // The logon script is executed.
-	USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE                        UserAccountControl = 0x00000002 // The user account is disabled.
-	USER_ACCOUNT_CONTROL_HOMEDIR_REQUIRED                       UserAccountControl = 0x00000008 // The home directory is required.
-	USER_ACCOUNT_CONTROL_LOCKOUT                                UserAccountControl = 0x00000010 // The account is currently locked out.
-	USER_ACCOUNT_CONTROL_PASSWORD_NOTREQD                       UserAccountControl = 0x00000020 // No password is required.
-	USER_ACCOUNT_CONTROL_PASSWORD_CANT_CHANGE                   UserAccountControl = 0x00000040 // The user cannot change the password.
-	USER_ACCOUNT_CONTROL_ENCRYPTED_TEXT_PASSWORD_ALLOWED        UserAccountControl = 0x00000080 // The user can send an encrypted password.
-	USER_ACCOUNT_CONTROL_TEMP_DUPLICATE_ACCOUNT                 UserAccountControl = 0x00000100 // This is an account for users whose primary account is in another domain. This account provides user access to this domain, but not to any domain that trusts this domain. Also known as a local user account.
-	USER_ACCOUNT_CONTROL_NORMAL_ACCOUNT                         UserAccountControl = 0x00000200 // This is a default account type that represents a typical user.
-	USER_ACCOUNT_CONTROL_INTERDOMAIN_TRUST_ACCOUNT              UserAccountControl = 0x00000800 // This is a permit to trust account for a system domain that trusts other domains.
-	USER_ACCOUNT_CONTROL_WORKSTATION_TRUST_ACCOUNT              UserAccountControl = 0x00001000 // This is a computer account for a computer that is a member of this domain.
-	USER_ACCOUNT_CONTROL_SERVER_TRUST_ACCOUNT                   UserAccountControl = 0x00002000 // This is a computer account for a system backup domain controller that is a member of this domain.
-	USER_ACCOUNT_CONTROL_DONT_EXPIRE_PASSWD                     UserAccountControl = 0x00010000 // The password for this account will never expire.
-	USER_ACCOUNT_CONTROL_MNS_LOGON_ACCOUNT                      UserAccountControl = 0x00020000 // This is an MNS logon account.
-	USER_ACCOUNT_CONTROL_SMARTCARD_REQUIRED                     UserAccountControl = 0x00040000 // The user must log on using a smart card.
-	USER_ACCOUNT_CONTROL_TRUSTED_FOR_DELEGATION                 UserAccountControl = 0x00080000 // The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation. Any such service can impersonate a client requesting the service.
-	USER_ACCOUNT_CONTROL_NOT_DELEGATED                          UserAccountControl = 0x00100000 // The security context of the user will not be delegated to a service even if the service account is set as trusted for Kerberos delegation.
-	USER_ACCOUNT_CONTROL_USE_DES_KEY_ONLY                       UserAccountControl = 0x00200000 // Restrict this principal to use only Data Encryption Standard (DES) encryption types for keys.
-	USER_ACCOUNT_CONTROL_DONT_REQUIRE_PREAUTH                   UserAccountControl = 0x00400000 // This account does not require Kerberos pre-authentication for logon.
-	USER_ACCOUNT_CONTROL_PASSWORD_EXPIRED                       UserAccountControl = 0x00800000 // The user password has expired. This flag is created by the system using data from the Pwd-Last-Set attribute and the domain policy.
-	USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION UserAccountControl = 0x01000000 // The account is enabled for delegation. This is a security-sensitive setting; accounts with this option enabled should be strictly controlled. This setting enables a service running under the account to assume a client identity and authenticate as that user to other remote servers on the network.
+	USER_ACCOUNT_CONTROL_LOGON_SCRIPT                           FlagsetUserAccountControl = 0x00000001 // The logon script is executed.
+	USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE                        FlagsetUserAccountControl = 0x00000002 // The user account is disabled.
+	USER_ACCOUNT_CONTROL_HOMEDIR_REQUIRED                       FlagsetUserAccountControl = 0x00000008 // The home directory is required.
+	USER_ACCOUNT_CONTROL_LOCKOUT                                FlagsetUserAccountControl = 0x00000010 // The account is currently locked out.
+	USER_ACCOUNT_CONTROL_PASSWORD_NOTREQD                       FlagsetUserAccountControl = 0x00000020 // No password is required.
+	USER_ACCOUNT_CONTROL_PASSWORD_CANT_CHANGE                   FlagsetUserAccountControl = 0x00000040 // The user cannot change the password.
+	USER_ACCOUNT_CONTROL_ENCRYPTED_TEXT_PASSWORD_ALLOWED        FlagsetUserAccountControl = 0x00000080 // The user can send an encrypted password.
+	USER_ACCOUNT_CONTROL_TEMP_DUPLICATE_ACCOUNT                 FlagsetUserAccountControl = 0x00000100 // This is an account for users whose primary account is in another domain. This account provides user access to this domain, but not to any domain that trusts this domain. Also known as a local user account.
+	USER_ACCOUNT_CONTROL_NORMAL_ACCOUNT                         FlagsetUserAccountControl = 0x00000200 // This is a default account type that represents a typical user.
+	USER_ACCOUNT_CONTROL_INTERDOMAIN_TRUST_ACCOUNT              FlagsetUserAccountControl = 0x00000800 // This is a permit to trust account for a system domain that trusts other domains.
+	USER_ACCOUNT_CONTROL_WORKSTATION_TRUST_ACCOUNT              FlagsetUserAccountControl = 0x00001000 // This is a computer account for a computer that is a member of this domain.
+	USER_ACCOUNT_CONTROL_SERVER_TRUST_ACCOUNT                   FlagsetUserAccountControl = 0x00002000 // This is a computer account for a system backup domain controller that is a member of this domain.
+	USER_ACCOUNT_CONTROL_DONT_EXPIRE_PASSWD                     FlagsetUserAccountControl = 0x00010000 // The password for this account will never expire.
+	USER_ACCOUNT_CONTROL_MNS_LOGON_ACCOUNT                      FlagsetUserAccountControl = 0x00020000 // This is an MNS logon account.
+	USER_ACCOUNT_CONTROL_SMARTCARD_REQUIRED                     FlagsetUserAccountControl = 0x00040000 // The user must log on using a smart card.
+	USER_ACCOUNT_CONTROL_TRUSTED_FOR_DELEGATION                 FlagsetUserAccountControl = 0x00080000 // The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation. Any such service can impersonate a client requesting the service.
+	USER_ACCOUNT_CONTROL_NOT_DELEGATED                          FlagsetUserAccountControl = 0x00100000 // The security context of the user will not be delegated to a service even if the service account is set as trusted for Kerberos delegation.
+	USER_ACCOUNT_CONTROL_USE_DES_KEY_ONLY                       FlagsetUserAccountControl = 0x00200000 // Restrict this principal to use only Data Encryption Standard (DES) encryption types for keys.
+	USER_ACCOUNT_CONTROL_DONT_REQUIRE_PREAUTH                   FlagsetUserAccountControl = 0x00400000 // This account does not require Kerberos pre-authentication for logon.
+	USER_ACCOUNT_CONTROL_PASSWORD_EXPIRED                       FlagsetUserAccountControl = 0x00800000 // The user password has expired. This flag is created by the system using data from the Pwd-Last-Set attribute and the domain policy.
+	USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION FlagsetUserAccountControl = 0x01000000 // The account is enabled for delegation. This is a security-sensitive setting; accounts with this option enabled should be strictly controlled. This setting enables a service running under the account to assume a client identity and authenticate as that user to other remote servers on the network.
 )
 
-var userAccountControlToString = map[UserAccountControl]string{
+var userAccountControlToString = map[FlagsetUserAccountControl]string{
 	USER_ACCOUNT_CONTROL_LOGON_SCRIPT:                           "LOGON_SCRIPT",
 	USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE:                        "ACCOUNT_DISABLE",
 	USER_ACCOUNT_CONTROL_HOMEDIR_REQUIRED:                       "HOMEDIR_REQUIRED",
@@ -51,9 +51,9 @@ var userAccountControlToString = map[UserAccountControl]string{
 	USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: "TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION",
 }
 
-type UserAccountControl uint32
+type FlagsetUserAccountControl uint32
 
-func (v UserAccountControl) Eval() (controls []string) {
+func (v FlagsetUserAccountControl) Eval() (controls []string) {
 	for key, value := range userAccountControlToString {
 		if v&key == key {
 			controls = append(controls, value)
@@ -64,7 +64,7 @@ func (v UserAccountControl) Eval() (controls []string) {
 	return controls
 }
 
-func (u UserAccountControl) String() string {
+func (u FlagsetUserAccountControl) String() string {
 	if v, ok := userAccountControlToString[u]; ok {
 		return v
 	}

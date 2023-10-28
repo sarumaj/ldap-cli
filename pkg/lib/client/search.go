@@ -100,7 +100,7 @@ type SearchArguments struct {
 	Filter     filter.Filter
 }
 
-func Search(conn *auth.Connection, args SearchArguments) (results attributes.AttributeMaps, err error) {
+func Search(conn *auth.Connection, args SearchArguments) (results attributes.Maps, err error) {
 	defer func() {
 		if recovered := recover(); recovered != nil {
 			err = fmt.Errorf("%v", err)
@@ -126,7 +126,7 @@ func Search(conn *auth.Connection, args SearchArguments) (results attributes.Att
 
 	for id, s := range sr.Entries {
 		result := make(map[string][]string)
-		converted := make(attributes.AttributeMap)
+		converted := make(attributes.Map)
 		for _, attr := range s.Attributes {
 
 			// retrieve ranged attribute recursively
@@ -152,7 +152,7 @@ func Search(conn *auth.Connection, args SearchArguments) (results attributes.Att
 		}
 
 		for k, v := range result {
-			attr := attributes.LookupAttributeByLDAPDisplayName(k)
+			attr := attributes.Lookup(k)
 			if attr == nil {
 				continue
 			}

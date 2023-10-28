@@ -8,7 +8,7 @@ import (
 func TestSAMAccountTypeEval(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		args SAMAccountType
+		args FlagSAMAccountType
 		want []string
 	}{
 		{"test#1",
