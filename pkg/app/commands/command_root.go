@@ -10,7 +10,7 @@ import (
 var loggerEntry = apputil.Logger.WithFields(logrus.Fields{"mod": "commands"})
 
 var rootCmd = func() *cobra.Command {
-	cmd := &cobra.Command{
+	rootCmd := &cobra.Command{
 		Use:   "ldap-cli",
 		Short: "ldap-cli is cross-platform compatible client application based on the lightweight directory access control (LDAP)",
 		Run: func(cmd *cobra.Command, _ []string) {
@@ -20,9 +20,9 @@ var rootCmd = func() *cobra.Command {
 		Version: internalVersion,
 	}
 
-	cmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(searchCmd, versionCmd)
 
-	return cmd
+	return rootCmd
 }()
 
 // Execute executes the root command.

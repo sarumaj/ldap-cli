@@ -1,13 +1,14 @@
 package auth
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 const (
-	UNAUTHENTICATED = iota + 1
+	UNAUTHENTICATED AuthType = iota + 1
 	SIMPLE
 	MD5
 	NTLM
@@ -45,6 +46,19 @@ func (t AuthType) String() string {
 	}
 
 	return ""
+}
+
+func ListSupportedAuthTypes(quote bool) []string {
+	var list []string
+	for _, v := range typeTranslation {
+		if quote {
+			list = append(list, fmt.Sprintf("%q", v))
+		} else {
+			list = append(list, v)
+		}
+	}
+
+	return list
 }
 
 // Parse type from string
