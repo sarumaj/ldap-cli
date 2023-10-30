@@ -203,14 +203,44 @@ func (a Attribute) String() string {
 
 type Attributes []Attribute
 
-func (a Attributes) ToAttributeList() []string {
-	var list []string
+func (a Attributes) Sort() {
+	slices.SortStableFunc(a, func(a, b Attribute) int {
+		l, r := a.LDAPDisplayName, b.LDAPDisplayName
+		if l == "" {
+			l = a.PrettyName
+		}
+
+		if r == "" {
+			r = b.PrettyName
+		}
+
+		switch {
+		case l > r:
+			return 1
+
+		case l < r:
+			return -1
+
+		default:
+			return 0
+
+		}
+	})
+}
+
+func (a Attributes) ToAttributeList() (list []string) {
+	seen := make(map[Attribute]bool)
 	for _, attr := range a {
+		if seen[attr] {
+			continue
+		}
+
 		if attr.LDAPDisplayName != "" {
 			list = append(list, strings.ToLower(attr.LDAPDisplayName))
 		} else {
 			list = append(list, strings.ToLower(attr.PrettyName))
 		}
+		seen[attr] = true
 	}
 
 	slices.Sort(list)
@@ -306,4 +336,16 @@ func Lookup(in string) *Attribute {
 	}
 
 	return nil
+}
+
+func LookupMany(in ...string) (list Attributes) {
+	seen := make(map[Attribute]bool)
+	for _, s := range in {
+		if attr := Lookup(s); attr != nil && !seen[*attr] {
+			list, seen[*attr] = append(list, *attr), true
+		}
+	}
+
+	list.Sort()
+	return list
 }

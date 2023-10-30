@@ -336,3 +336,21 @@ func TestLookup(t *testing.T) {
 		})
 	}
 }
+
+func TestLookupMany(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		args []string
+		want Attributes
+	}{
+		{"test#1", []string{"name", "name", "accountExpires"}, Attributes{accountExpires, name}},
+		{"test#2", []string{"invalid"}, nil},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got := LookupMany(tt.args...)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf(`LookupMany(%v) failed: got: %v, want: %v`, tt.args, got, tt.want)
+			}
+		})
+	}
+}
