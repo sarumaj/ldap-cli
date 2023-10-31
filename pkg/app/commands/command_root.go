@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
@@ -77,7 +79,39 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 }
 
-func rootRun(cmd *cobra.Command, args []string) {
+func rootRun(cmd *cobra.Command, _ []string) {
+	if rootFlags.authType == auth.UNAUTHENTICATED.String() {
+		var confirm bool
+		supererrors.Except(survey.AskOne(&survey.Confirm{
+			Message: "Running in UNAUTHENTICATED mode, proceed?",
+			Default: false,
+		}, &confirm), terminal.InterruptErr)
+
+		if !confirm {
+			var args []string
+			supererrors.Except(apputil.AskString(cmd, "url", &args, false, survey.WithValidator(func(ans interface{}) error {
+				_, err := auth.URLFromString(fmt.Sprint(ans))
+				return err
+			})))
+
+			supererrors.Except(apputil.AskString(cmd, "auth-type", &args, false, survey.WithValidator(func(ans interface{}) error {
+				if !auth.TypeFromString(fmt.Sprint(ans)).IsValid() {
+					return fmt.Errorf("invalid auth type: %q", fmt.Sprint(ans))
+				}
+				return nil
+			})))
+
+			if args[len(args)-1] == auth.NTLM.String() {
+				supererrors.Except(apputil.AskString(cmd, "domain", &args, false))
+			}
+
+			supererrors.Except(apputil.AskString(cmd, "user", &args, false))
+			supererrors.Except(apputil.AskString(cmd, "password", &args, true))
+
+			supererrors.Except(cmd.ParseFlags(args))
+		}
+	}
+
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getCmd)))
 
 	if child.PersistentPreRun != nil {
