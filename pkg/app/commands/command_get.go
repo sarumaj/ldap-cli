@@ -6,24 +6,23 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/AlecAivazis/survey/v2"
 	color "github.com/fatih/color"
-	"github.com/goccy/go-yaml"
-	"github.com/goccy/go-yaml/lexer"
-	"github.com/goccy/go-yaml/printer"
+	yaml "github.com/goccy/go-yaml"
+	lexer "github.com/goccy/go-yaml/lexer"
+	printer "github.com/goccy/go-yaml/printer"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	"github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 	cobra "github.com/spf13/cobra"
 )
 
 var defaultGetAttributes = map[string]attributes.Attributes{
-	"custom": defaultCustomGetAttributes,
-	"group":  defaultGroupGetAttributes,
-	"user":   defaultUserGetAttributes,
+	getCustomCmd.Name(): defaultCustomGetAttributes,
+	getGroupCmd.Name():  defaultGroupGetAttributes,
+	getUserCmd.Name():   defaultUserGetAttributes,
 }
 
 var getFlags struct {
@@ -60,7 +59,7 @@ func getPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	if getFlags.searchArguments.Path == "" {
 		var components []string
-		for _, dc := range strings.Split(dialOptions.URL.Host, ".") {
+		for _, dc := range strings.Split(rootFlags.dialOptions.URL.Host, ".") {
 			if dc == "" {
 				continue
 			}
@@ -80,25 +79,16 @@ func getPersistentPreRun(cmd *cobra.Command, _ []string) {
 }
 
 func getRun(cmd *cobra.Command, args []string) {
-	var x string
-	supererrors.Except(survey.AskOne(&survey.Select{
-		Message: "What do you want to search for?",
-		Options: []string{getCustomCmd.Name(), getGroupCmd.Name(), getUserCmd.Name()},
-	}, &x))
+	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getUserCmd)))
+	switch child {
 
-	var child *cobra.Command
-	switch x {
-
-	case getCustomCmd.Name():
-		child = getCustomCmd
+	case getCustomCmd:
 		supererrors.Except(apputil.AskString(child, "filter", &args))
 
-	case getGroupCmd.Name():
-		child = getGroupCmd
+	case getGroupCmd:
 		supererrors.Except(apputil.AskString(child, "group-id", &args))
 
-	case getUserCmd.Name():
-		child = getUserCmd
+	case getUserCmd:
 		supererrors.Except(apputil.AskString(child, "user-id", &args))
 		supererrors.Except(apputil.AskBool(child, "enabled", &args))
 		supererrors.Except(apputil.AskBool(child, "expired", &args))
@@ -123,20 +113,20 @@ func getXRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithField("command", cmd.CommandPath())
 
 	logger.WithFields(logrus.Fields{
-		"bindParameters.AuthType":         bindParameters.AuthType.String(),
-		"bindParameters.Domain":           bindParameters.Domain,
-		"bindParameters.User":             bindParameters.User,
-		"bindParameters.PasswordProvided": len(bindParameters.Password) > 0,
-		"dialOptions.MaxRetries":          dialOptions.MaxRetries,
-		"dialOptions.SizeLimit":           dialOptions.SizeLimit,
-		"dialOptions.TLSEnabled":          dialOptions.TLSConfig != nil && !dialOptions.TLSConfig.InsecureSkipVerify,
-		"dialOptions.TimeLimit":           dialOptions.TimeLimit,
-		"dialOptions.URL":                 dialOptions.URL.String(),
+		"bindParameters.AuthType":         rootFlags.bindParameters.AuthType.String(),
+		"bindParameters.Domain":           rootFlags.bindParameters.Domain,
+		"bindParameters.User":             rootFlags.bindParameters.User,
+		"bindParameters.PasswordProvided": len(rootFlags.bindParameters.Password) > 0,
+		"dialOptions.MaxRetries":          rootFlags.dialOptions.MaxRetries,
+		"dialOptions.SizeLimit":           rootFlags.dialOptions.SizeLimit,
+		"dialOptions.TLSEnabled":          rootFlags.dialOptions.TLSConfig != nil && !rootFlags.dialOptions.TLSConfig.InsecureSkipVerify,
+		"dialOptions.TimeLimit":           rootFlags.dialOptions.TimeLimit,
+		"dialOptions.URL":                 rootFlags.dialOptions.URL.String(),
 	}).Debug("Connecting")
 
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
-		bindParameters,
-		dialOptions,
+		&rootFlags.bindParameters,
+		&rootFlags.dialOptions,
 	)))
 
 	logger.WithFields(logrus.Fields{
@@ -162,34 +152,18 @@ func getXRun(cmd *cobra.Command, _ []string) {
 		supererrors.Except(csv.NewWriter(apputil.Stdout()).WriteAll(lines))
 
 	case "yaml":
-		maps := make([]map[string]any, len(results))
-		for i, r := range results {
-			maps[i] = make(map[string]any)
-			for _, a := range attributes.Map(r).Keys() {
-				maps[i][a.String()] = r[a]
-			}
-		}
-
-		if len(maps) == 1 {
-			supererrors.Except(yaml.NewEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(maps[0]))
+		if len(results) == 1 {
+			supererrors.Except(yaml.NewEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(results[0]))
 		} else {
-			supererrors.Except(yaml.NewEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(map[string]any{"Results": maps}))
+			supererrors.Except(yaml.NewEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(map[string]any{"Results": results}))
 		}
 
 	default:
-		maps := make([]map[string]any, len(results))
-		for i, r := range results {
-			maps[i] = make(map[string]any)
-			for _, a := range attributes.Map(r).Keys() {
-				maps[i][a.String()] = r[a]
-			}
-		}
-
 		buffer := bytes.NewBuffer(nil)
-		if len(maps) == 1 {
-			supererrors.Except(yaml.NewEncoder(buffer, yaml.Indent(2)).Encode(maps[0]))
+		if len(results) == 1 {
+			supererrors.Except(yaml.NewEncoder(buffer, yaml.Indent(2)).Encode(results[0]))
 		} else {
-			supererrors.Except(yaml.NewEncoder(buffer, yaml.Indent(2)).Encode(map[string]any{"Results": maps}))
+			supererrors.Except(yaml.NewEncoder(buffer, yaml.Indent(2)).Encode(map[string]any{"Results": results}))
 		}
 
 		tokens := lexer.Tokenize(buffer.String())
