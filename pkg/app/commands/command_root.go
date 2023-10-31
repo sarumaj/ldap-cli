@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlecAivazis/survey/v2"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
@@ -13,8 +14,14 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var cmdLogger = apputil.Logger.WithFields(logrus.Fields{"mod": "commands"})
-
+var rootFlags struct {
+	Address        string
+	AuthType       string
+	BindParameters auth.BindParameters
+	Debug          bool
+	DialOptions    auth.DialOptions
+	DisableTLS     bool
+}
 var address string
 var authType string
 var bindParameters = &auth.BindParameters{}
@@ -24,32 +31,12 @@ var disableTLS bool
 
 var rootCmd = func() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "ldap-cli",
-		Short: "ldap-cli is cross-platform compatible client application based on the lightweight directory access control (LDAP)",
-		PersistentPreRun: func(cmd *cobra.Command, _ []string) {
-			if debug {
-				apputil.Logger.SetLevel(logrus.DebugLevel)
-			}
-
-			if _ = dialOptions.SetURL(address); dialOptions.URL.Scheme == auth.LDAPS {
-				_ = dialOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: disableTLS})
-			}
-
-			switch _ = bindParameters.SetType(auth.TypeFromString(authType)); {
-
-			case len(bindParameters.User)*len(bindParameters.Password) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
-				_ = bindParameters.SetType(auth.SIMPLE)
-
-			case len(bindParameters.User)*len(bindParameters.Password)*len(bindParameters.Domain) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
-				_ = bindParameters.SetType(auth.NTLM)
-
-			}
-		},
-		Run: func(cmd *cobra.Command, _ []string) {
-			supererrors.Except(cmd.Help())
-		},
-		Example: "ldap-cli <subcommand>",
-		Version: internalVersion,
+		Use:              "ldap-cli",
+		Short:            "ldap-cli is cross-platform compatible client application based on the lightweight directory access control (LDAP)",
+		PersistentPreRun: rootPersistentPreRun,
+		Run:              rootRun,
+		Example:          `ldap-cli --user "DOMAIN\\user" --password "password" --url "ldaps://example.com:636" <command>`,
+		Version:          internalVersion,
 	}
 
 	flags := rootCmd.PersistentFlags()
@@ -68,18 +55,60 @@ var rootCmd = func() *cobra.Command {
 	flags.StringVar(&bindParameters.Password, "password", "", fmt.Sprintf("Set password (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
 	flags.StringVar(&bindParameters.User, "user", "", fmt.Sprintf("Set username (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
 
-	rootCmd.AddCommand(searchCmd, versionCmd)
+	rootCmd.AddCommand(getCmd, versionCmd)
 
 	return rootCmd
 }()
+
+func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
+	if debug {
+		apputil.Logger.SetLevel(logrus.DebugLevel)
+	}
+
+	if _ = dialOptions.SetURL(address); dialOptions.URL.Scheme == auth.LDAPS {
+		_ = dialOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: disableTLS})
+	}
+
+	switch _ = bindParameters.SetType(auth.TypeFromString(authType)); {
+
+	case len(bindParameters.User)*len(bindParameters.Password) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
+		_ = bindParameters.SetType(auth.SIMPLE)
+
+	case len(bindParameters.User)*len(bindParameters.Password)*len(bindParameters.Domain) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
+		_ = bindParameters.SetType(auth.NTLM)
+
+	}
+}
+
+func rootRun(cmd *cobra.Command, args []string) {
+	var x string
+	supererrors.Except(survey.AskOne(&survey.Select{
+		Message: "Select command from below:",
+		Options: []string{getCmd.Name()},
+		Default: getCmd.Name(),
+	}, &x))
+
+	var child *cobra.Command
+	switch x {
+
+	case getCmd.Name():
+		child = getCmd
+
+	default:
+		return
+	}
+
+	child.PersistentPreRun(child, nil)
+	child.Run(child, nil)
+}
 
 // Execute executes the root command.
 func Execute(version, buildDate string) {
 	internalVersion, internalBuildDate = version, buildDate
 
-	cmdLogger.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, apputil.GetExecutablePath())
+	apputil.Logger.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, apputil.GetExecutablePath())
 
 	if err := rootCmd.Execute(); err != nil {
-		cmdLogger.Debugf("Execution failed: %v", err)
+		apputil.Logger.Debugf("Execution failed: %v", err)
 	}
 }

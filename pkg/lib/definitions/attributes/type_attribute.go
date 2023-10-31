@@ -332,6 +332,20 @@ func Lookup(in string) *Attribute {
 }
 
 func LookupMany(in ...string) (list Attributes) {
+	var asterisk bool
+	for _, s := range in {
+		if s == "*" {
+			asterisk = true
+			break
+		}
+	}
+
+	if asterisk {
+		list = append(list, registry...)
+		list.Sort()
+		return
+	}
+
 	seen := make(map[Attribute]bool)
 	for _, s := range in {
 		if attr := Lookup(s); attr != nil && !seen[*attr] {

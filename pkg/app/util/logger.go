@@ -16,7 +16,10 @@ var Logger = func() *logrus.Logger {
 	l := logrus.New()
 	l.SetLevel(logrus.WarnLevel)
 	l.SetOutput(Stdout())
-	l.SetFormatter(&logrus.JSONFormatter{PrettyPrint: true})
+	l.SetFormatter(&logrus.JSONFormatter{
+		DisableHTMLEscape: true,
+		PrettyPrint:       true,
+	})
 
 	supererrors.RegisterCallback(func(err error) {
 		l.SetOutput(Stderr())
@@ -45,6 +48,7 @@ var Logger = func() *logrus.Logger {
 		}
 
 		l.SetFormatter(&logrus.TextFormatter{
+			ForceColors:            IsColorEnabled(),
 			DisableTimestamp:       true,
 			DisableLevelTruncation: true,
 		})
