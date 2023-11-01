@@ -6,10 +6,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/creasty/defaults"
+	defaults "github.com/creasty/defaults"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 func TestBind(t *testing.T) {
+	libutil.SkipOAT(t)
+
 	type args struct {
 		*DialOptions
 		*BindParameters
@@ -41,7 +44,11 @@ func TestBind(t *testing.T) {
 				return
 			}
 
-			if conn != nil {
+			if err == nil && conn != nil {
+				if got := conn.RemoteHost(); len(got) == 0 {
+					t.Errorf(`conn.RemoteAddr() failed`)
+				}
+
 				_ = conn.Close()
 			}
 		})

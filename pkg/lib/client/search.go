@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
-	"strings"
 
-	"github.com/go-ldap/ldap/v3"
-	"github.com/sarumaj/ldap-cli/pkg/lib/auth"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+	ldap "github.com/go-ldap/ldap/v3"
+	ldif "github.com/go-ldap/ldif"
+	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
+	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 var searchRangeRegex = regexp.MustCompile(`(\w+);range\=(?P<from>\d+)\-(?P<to>\d+)`)
@@ -24,7 +24,7 @@ type searchRecursivelyArguments struct {
 
 func searchRecursively(conn *auth.Connection, args searchRecursivelyArguments, result map[string][]string) error {
 	var rName string
-	standardizedName := strings.ToLower(args.AttributeName)
+	standardizedName := libutil.ToTitleNoLower(args.AttributeName)
 	if !args.Repeat {
 		// to retrieve remaining attribute values,
 		// the limit must be enforced by server and not by the requestor
@@ -100,15 +100,15 @@ type SearchArguments struct {
 	Filter     filter.Filter
 }
 
-func Search(conn *auth.Connection, args SearchArguments) (results attributes.Maps, err error) {
-	defer func() {
+func Search(conn *auth.Connection, args SearchArguments) (results attributes.Maps, requests *ldif.LDIF, err error) {
+	defer func(err *error) {
 		if recovered := recover(); recovered != nil {
-			err = fmt.Errorf("%v", err)
+			*err = fmt.Errorf("%v", err)
 		}
-	}()
+	}(&err)
 
 	if conn == nil {
-		return nil, util.ErrBindFirst
+		return nil, nil, ldap.ErrNilConnection
 	}
 
 	sr, err := conn.SearchWithPaging(ldap.NewSearchRequest(
@@ -121,10 +121,12 @@ func Search(conn *auth.Connection, args SearchArguments) (results attributes.Map
 		nil,                               // []ldap.Control
 	), 1000)
 	if err != nil {
-		return nil, err
+		return nil, nil, libutil.Handle(err)
 	}
 
+	requests = &ldif.LDIF{}
 	for id, s := range sr.Entries {
+		requests.Entries = append(requests.Entries, &ldif.Entry{Entry: s})
 		result := make(map[string][]string)
 		converted := make(attributes.Map)
 		for _, attr := range s.Attributes {
@@ -143,21 +145,24 @@ func Search(conn *auth.Connection, args SearchArguments) (results attributes.Map
 					Repeat:        true,
 				}, result); err != nil {
 
-					return nil, err
+					return nil, nil, err
 				}
 
 			} else {
-				result[strings.ToLower(attr.Name)] = attr.Values
+				result[attr.Name] = attr.Values
 			}
 		}
 
 		for k, v := range result {
-			attr := attributes.Lookup(k)
-			if attr == nil {
+			// parse registered attribute
+			if attr := attributes.Lookup(k); attr != nil {
+				attr.Parse(v, &converted)
 				continue
 			}
 
-			attr.Parse(v, &converted)
+			// parse unknown attributes
+			attributes.Raw(libutil.ToTitleNoLower(k), "", attributes.TypeRaw).Parse(v, &converted)
+
 		}
 
 		results = append(results, converted)

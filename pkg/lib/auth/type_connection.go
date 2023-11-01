@@ -1,6 +1,6 @@
 package auth
 
-import "github.com/go-ldap/ldap/v3"
+import ldap "github.com/go-ldap/ldap/v3"
 
 // Connection object
 type Connection struct {

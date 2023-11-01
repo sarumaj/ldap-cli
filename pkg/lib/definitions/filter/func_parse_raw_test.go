@@ -8,12 +8,12 @@ func TestParseRaw(t *testing.T) {
 		args    string
 		wantErr bool
 	}{
-		{"test#1", `(cn=test)`, false},
-		{"test#2", `(&(!(cn=test#1))(cn=test#2))`, false},
-		{"test#3", `(|(!(cn=test#1))(unknown=test#2))`, false},
-		{"test#4", `(&(!(cn=test#1))(cn=test#2)`, true},
-		{"test#5", `(&(!(cn=test#1))(cn:test#2))`, true},
-		{"test#6", `(cn:test)`, true},
+		{"test#1", `(CN=test)`, false},
+		{"test#2", `(&(!(CN=test#1))(CN=test#2))`, false},
+		{"test#3", `(|(!(CN=test#1))(Unknown=test#2))`, false},
+		{"test#4", `(&(!(CN=test#1))(CN=test#2)`, true},
+		{"test#5", `(&(!(CN=test#1))(CN:test#2))`, true},
+		{"test#6", `(CN:test)`, true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseRaw(tt.args)

@@ -63,11 +63,3 @@ func (v FlagsetUserAccountControl) Eval() (controls []string) {
 	slices.Sort(controls)
 	return controls
 }
-
-func (u FlagsetUserAccountControl) String() string {
-	if v, ok := userAccountControlToString[u]; ok {
-		return v
-	}
-
-	return "UNKNOWN"
-}
