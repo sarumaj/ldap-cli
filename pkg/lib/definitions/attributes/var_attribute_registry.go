@@ -150,6 +150,7 @@ func UserPrincipalName() Attribute       { return userPrincipalName }
 func WhenChanged() Attribute             { return whenChanged }
 func WhenCreated() Attribute             { return whenCreated }
 
+func Any() Attribute { return Attribute{"*", "", "", TypeRaw} }
 func Raw(LDAPName, prettyName string, attrType Type) Attribute {
 	return Attribute{"", LDAPName, prettyName, attrType}
 }
@@ -171,7 +172,7 @@ func Lookup(in string) *Attribute {
 	return nil
 }
 
-func LookupMany(in ...string) (list Attributes) {
+func LookupMany(strict bool, in ...string) (list Attributes) {
 	var asterisk bool
 	for _, s := range in {
 		if s == "*" {
@@ -181,8 +182,12 @@ func LookupMany(in ...string) (list Attributes) {
 	}
 
 	if asterisk {
-		list = append(list, registry...)
-		list.Sort()
+		if strict {
+			list = append(list, registry...)
+			list.Sort()
+		} else {
+			list = append(list, Raw("*", "", TypeRaw))
+		}
 		return
 	}
 

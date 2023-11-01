@@ -132,7 +132,7 @@ func getPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	if len(getFlags.selectAttributes) > 0 {
 		selected := supererrors.ExceptFn(supererrors.W(libutil.RebuildStringSliceFlag(getFlags.selectAttributes, ',')))
-		getFlags.searchArguments.Attributes = attributes.LookupMany(selected...)
+		getFlags.searchArguments.Attributes = attributes.LookupMany(false, selected...)
 		logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
 	}
 }
@@ -165,7 +165,7 @@ func getRun(cmd *cobra.Command, _ []string) {
 
 	}
 
-	supererrors.Except(apputil.AskStrings(child, "select", attributes.LookupMany("*").ToAttributeList(), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
+	supererrors.Except(apputil.AskStrings(child, "select", append([]string{"*"}, attributes.LookupMany(true, "*").ToAttributeList()...), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
 	supererrors.Except(apputil.AskString(child, "path", &args, false))
 	supererrors.Except(apputil.AskStrings(child, "format", []string{"csv", "default", "ldif", "yaml"}, []string{"default"}, &args))
 	logger.WithFields(apputil.Fields{"flags": []string{"select", "path", "format"}, "args": args}).Debug("Asked")
