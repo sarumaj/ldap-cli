@@ -1,18 +1,17 @@
 package commands
 
 import (
-	ldap "github.com/go-ldap/ldap/v3"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	cobra "github.com/spf13/cobra"
 )
 
-var editUserFlags struct {
+var editUserFlags = &struct {
 	id       string
 	password string
-}
+}{}
 
 var editUserCmd = func() *cobra.Command {
 	editUserCmd := &cobra.Command{
@@ -64,10 +63,7 @@ func editUserRun(cmd *cobra.Command, _ []string) {
 		return
 	}
 
-	request := ldap.NewModifyRequest(entry.Entry.DN, nil)
-	request.Replace(attributes.UserPassword().String(), []string{editUserFlags.password})
-
-	entry.Modify = request
+	entry.Modify = client.ModifyPasswordRequest(entry.Entry.DN, editUserFlags.password)
 	requests.Entries[0] = entry
 	editFlags.requests = requests
 

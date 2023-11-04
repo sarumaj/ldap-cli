@@ -240,6 +240,8 @@ func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args
 		return err
 	}
 
-	*args = append(*args, "--"+flagName, strings.Join(discard, ","))
+	for _, arg := range discard {
+		*args = append(*args, "--"+flagName, arg)
+	}
 	return nil
 }

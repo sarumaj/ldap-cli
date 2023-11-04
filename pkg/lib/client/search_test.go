@@ -32,7 +32,7 @@ func TestSearch(t *testing.T) {
 	result, _, err := Search(
 		conn,
 		SearchArguments{
-			Attributes: attributes.Attributes{attributes.Raw("*", "", attributes.TypeRaw)},
+			Attributes: attributes.Attributes{attributes.Any()},
 			Path:       fmt.Sprintf("DC=%s,DC=contiwan,DC=com", dom),
 			Filter:     filter.Filter{Attribute: attributes.SamAccountName(), Value: uid},
 		},

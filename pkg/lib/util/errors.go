@@ -22,6 +22,7 @@ var errorMapping = map[uint16]error{
 	ldap.LDAPResultSizeLimitExceeded:                  ErrQuotaExceeded,
 	ldap.LDAPResultAuthMethodNotSupported:             ErrAuthenticationFailed,
 	ldap.LDAPResultStrongAuthRequired:                 ErrAuthenticationFailed,
+	ldap.LDAPResultReferral:                           ErrOperationFailed,
 	ldap.LDAPResultAdminLimitExceeded:                 ErrQuotaExceeded,
 	ldap.LDAPResultUnavailableCriticalExtension:       ErrOperationFailed,
 	ldap.LDAPResultConfidentialityRequired:            ErrAuthenticationFailed,

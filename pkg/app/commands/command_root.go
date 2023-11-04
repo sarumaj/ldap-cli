@@ -16,14 +16,14 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var rootFlags struct {
+var rootFlags = &struct {
 	address        string
 	authType       string
 	bindParameters auth.BindParameters
 	debug          bool
 	dialOptions    auth.DialOptions
 	disableTLS     bool
-}
+}{}
 
 var rootCmd = func() *cobra.Command {
 	rootCmd := &cobra.Command{
@@ -115,10 +115,11 @@ func rootRun(cmd *cobra.Command, _ []string) {
 
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getCmd)))
 
+	// since the flags could have changed, pre run must be invoked again
+	cmd.PersistentPreRun(cmd, nil)
 	if child.PersistentPreRun != nil {
 		child.PersistentPreRun(child, nil)
 	}
-
 	child.Run(child, nil)
 }
 

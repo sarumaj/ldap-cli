@@ -25,11 +25,11 @@ var defaultGetAttributes = map[string]attributes.Attributes{
 	getUserCmd.Name():   defaultUserGetAttributes,
 }
 
-var getFlags struct {
+var getFlags = &struct {
 	format           string
 	searchArguments  client.SearchArguments
 	selectAttributes []string
-}
+}{}
 
 var getCmd = func() *cobra.Command {
 	getCmd := &cobra.Command{
@@ -46,7 +46,7 @@ var getCmd = func() *cobra.Command {
 	flags := getCmd.PersistentFlags()
 	flags.StringVar(&getFlags.format, "format", "default", fmt.Sprintf("Output format (supported: [%v])", apputil.ListSupportedFormats(true)))
 	flags.StringVar(&getFlags.searchArguments.Path, "path", "", "Specify the query path to search the directory objects in (per default path is derivated from the address of domain controller)")
-	flags.StringArrayVar(&getFlags.selectAttributes, "select", nil, "Select specific object attributes (if not provided default attributes are being selected)")
+	flags.StringArrayVar(&getFlags.selectAttributes, "select", []string{}, "Select specific object attributes (if not provided default attributes are being selected)")
 
 	getCmd.AddCommand(getCustomCmd, getGroupCmd, getUserCmd)
 
@@ -165,7 +165,8 @@ func getRun(cmd *cobra.Command, _ []string) {
 
 	}
 
-	supererrors.Except(apputil.AskStrings(child, "select", append([]string{"*"}, attributes.LookupMany(true, "*").ToAttributeList()...), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
+	options, defaults := append([]string{"*"}, attributes.LookupMany(true, "*").ToAttributeList()...), defaultGetAttributes[child.Name()].ToAttributeList()
+	supererrors.Except(apputil.AskStrings(child, "select", options, defaults, &args))
 	supererrors.Except(apputil.AskString(child, "path", &args, false))
 	supererrors.Except(apputil.AskStrings(child, "format", []string{"csv", "default", "ldif", "yaml"}, []string{"default"}, &args))
 	logger.WithFields(apputil.Fields{"flags": []string{"select", "path", "format"}, "args": args}).Debug("Asked")
@@ -173,9 +174,8 @@ func getRun(cmd *cobra.Command, _ []string) {
 	supererrors.Except(child.ParseFlags(args))
 	logger.Debug("Parsed")
 
-	if child.PersistentPreRun != nil {
-		child.PersistentPreRun(child, nil)
-	}
-
+	// since the flags could have changed, pre run must be invoked again
+	cmd.PersistentPreRun(cmd, nil)
+	child.PersistentPreRun(child, nil)
 	child.Run(child, nil)
 }

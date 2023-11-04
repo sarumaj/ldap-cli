@@ -43,7 +43,7 @@ func TestLookupMany(t *testing.T) {
 		{"test#2", args{true, []string{"invalid"}}, nil},
 		{"test#3", args{true, []string{"userPassword"}}, Attributes{userPassword}},
 		{"test#4", args{true, []string{"*"}}, copyRegistry},
-		{"test#5", args{false, []string{"*"}}, Attributes{Raw("*", "", TypeRaw)}},
+		{"test#5", args{false, []string{"*"}}, Attributes{Any()}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := LookupMany(tt.args.strict, tt.args.attrs...)
