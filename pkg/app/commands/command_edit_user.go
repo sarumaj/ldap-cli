@@ -4,13 +4,15 @@ import (
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
+	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	cobra "github.com/spf13/cobra"
 )
 
 var editUserFlags = &struct {
-	id       string
-	password string
+	id           string
+	password     string
+	pwdAttribute string
 }{}
 
 var editUserCmd = func() *cobra.Command {
@@ -31,6 +33,7 @@ var editUserCmd = func() *cobra.Command {
 	flags := editUserCmd.Flags()
 	flags.StringVar(&editUserFlags.id, "user-id", "", "Specify user ID (common name, DN, SAN or UPN)")
 	flags.StringVar(&editUserFlags.password, "password", "", "Provide new password for the user to change (leave empty to keep current)")
+	flags.StringVar(&editUserFlags.pwdAttribute, "password-attribute", attributes.UnicodePassword().String(), "Configure custom attribute name for variant directory schema")
 
 	return editUserCmd
 }()
@@ -63,7 +66,7 @@ func editUserRun(cmd *cobra.Command, _ []string) {
 		return
 	}
 
-	entry.Modify = client.ModifyPasswordRequest(entry.Entry.DN, editUserFlags.password)
+	entry.Modify = client.ModifyPasswordRequest(entry.Entry.DN, editUserFlags.password, attributes.Attribute{LDAPDisplayName: editUserFlags.pwdAttribute})
 	requests.Entries[0] = entry
 	editFlags.requests = requests
 

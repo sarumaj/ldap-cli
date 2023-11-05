@@ -68,9 +68,9 @@ var (
 	samAccountType          = Attribute{"", "SAMAccountType", "", TypeSAMaccountType}.Register()
 	surname                 = Attribute{"", "SN", "Surname", TypeString}.Register()
 	streetAddress           = Attribute{"", "StreetAddress", "", TypeString}.Register()
+	unicodePassword         = Attribute{"", "UnicodePwd", "UnicodePassword", TypeString}.Register()
 	userAccountControl      = Attribute{"", "UserAccountControl", "", TypeUserAccountControl}.Register()
 	userCertificate         = Attribute{"", "UserCertificate", "", TypeHexString}.Register()
-	userPassword            = Attribute{"", "userPassword", "", TypeString}.Register()
 	userPrincipalName       = Attribute{"", "UserPrincipalName", "", TypeString}.Register()
 	whenChanged             = Attribute{"", "WhenChanged", "", TypeTime}.Register()
 	whenCreated             = Attribute{"", "WhenCreated", "", TypeTime}.Register()
@@ -143,9 +143,9 @@ func SamAccountName() Attribute          { return samAccountName }
 func SamAccountType() Attribute          { return samAccountType }
 func Surname() Attribute                 { return surname }
 func StreetAddress() Attribute           { return streetAddress }
+func UnicodePassword() Attribute         { return unicodePassword }
 func UserAccountControl() Attribute      { return userAccountControl }
 func UserCertificate() Attribute         { return userCertificate }
-func UserPassword() Attribute            { return userPassword }
 func UserPrincipalName() Attribute       { return userPrincipalName }
 func WhenChanged() Attribute             { return whenChanged }
 func WhenCreated() Attribute             { return whenCreated }

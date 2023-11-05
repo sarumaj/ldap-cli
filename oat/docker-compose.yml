@@ -1,22 +1,37 @@
-version: '2'
+version: "3.7"
 services:
-  ldap:
+  openldap:
     image: osixia/openldap:latest
-    container_name: ldap
+    container_name: openldap
     command: "--copy-service --loglevel debug"
     environment:
-      - LDAP_ORGANISATION=mock-ad
-      - LDAP_DOMAIN=mock-ad.com
-      - "LDAP_BASE_DN=dc=mock-ad,dc=com"
+      - LDAP_ORGANISATION=mock.ad
+      - LDAP_DOMAIN=mock.ad.com
+      - "LDAP_BASE_DN=dc=mock,dc=ad,dc=com"
+      - LDAP_ADMIN_USERNAME=admin
       - LDAP_ADMIN_PASSWORD=admin
     volumes:
-      - ./users.ldif:/container/service/slapd/assets/config/bootstrap/ldif/users.ldif
-      - ./groups.ldif:/container/service/slapd/assets/config/bootstrap/ldif/groups.ldif
-      - ./assignments.ldif:/container/service/slapd/assets/config/bootstrap/ldif/assignments.ldif
+      - ./ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom
     ports:
       - 389:389
       - 636:636
-volumes:
-  - ./users.ldif
-  - ./groups.ldif
-  - ./assignments.ldif
+    networks:
+      - openldap
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: phpldapadmin
+    hostname: phpldapadmin
+    ports:
+      - "80:80"
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=openldap
+      - PHPLDAPADMIN_HTTPS=false
+    depends_on:
+      - openldap
+    networks:
+      - openldap
+
+networks:
+  openldap:
+    driver: bridge

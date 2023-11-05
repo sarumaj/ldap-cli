@@ -5,26 +5,26 @@ import (
 	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 )
 
-func ModifyGroupMembersRequest(dn string, add, delete, replace []string) *ldap.ModifyRequest {
+func ModifyGroupMembersRequest(dn string, add, delete, replace []string, memberAttribute attributes.Attribute) *ldap.ModifyRequest {
 	request := ldap.NewModifyRequest(dn, nil)
 	if len(add) > 0 {
-		request.Add(attributes.Members().String(), add)
+		request.Add(memberAttribute.String(), add)
 	}
 
 	if len(delete) > 0 {
-		request.Delete(attributes.Members().String(), delete)
+		request.Delete(memberAttribute.String(), delete)
 	}
 
 	if len(replace) > 0 {
-		request.Replace(attributes.Members().String(), replace)
+		request.Replace(memberAttribute.String(), replace)
 	}
 
 	return request
 
 }
 
-func ModifyPasswordRequest(dn, newPassword string) *ldap.ModifyRequest {
+func ModifyPasswordRequest(dn, newPassword string, passwordAttribute attributes.Attribute) *ldap.ModifyRequest {
 	request := ldap.NewModifyRequest(dn, nil)
-	request.Replace(attributes.UserPassword().String(), []string{newPassword})
+	request.Replace(passwordAttribute.String(), []string{newPassword})
 	return request
 }
