@@ -15,10 +15,10 @@ import (
 
 var splitByNewLineRegex = regexp.MustCompile("\r?\n")
 
-func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) error {
+func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {
-		return fmt.Errorf("flag %q not defined", flagName)
+		return false, fmt.Errorf("flag %q not defined", flagName)
 	}
 
 	description := f.Usage
@@ -28,6 +28,7 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey
 	description += ":"
 
 	var discard string
+	var set bool
 	err := survey.AskOne(&survey.Select{
 		Message: description,
 		Options: []string{"true", "false", "skip"},
@@ -36,20 +37,22 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey
 		switch answerOption := answer.(core.OptionAnswer); answerOption.Value {
 
 		case "true", "false":
-			*args = append(*args, "--"+flagName+"="+answerOption.Value)
-			return nil
-
-		default:
-			return nil
+			*args, set = append(*args, "--"+flagName+"="+answerOption.Value), true
 
 		}
+
+		return nil
 	}))...)
 
 	if errors.Is(err, terminal.InterruptErr) {
 		PrintlnAndExit("Aborted")
 	}
 
-	return err
+	if err != nil {
+		return false, err
+	}
+
+	return set, nil
 }
 
 func AskCommand(cmd *cobra.Command, def *cobra.Command, opts ...survey.AskOpt) (*cobra.Command, error) {
@@ -91,10 +94,10 @@ func AskCommand(cmd *cobra.Command, def *cobra.Command, opts ...survey.AskOpt) (
 	return def, nil
 }
 
-func AskLDAPDataInterchangeFormat(requests *ldif.LDIF, editor string) error {
+func AskLDAPDataInterchangeFormat(requests *ldif.LDIF, editor string) (bool, error) {
 	before, err := ldif.Marshal(requests)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	var after string
@@ -111,16 +114,64 @@ func AskLDAPDataInterchangeFormat(requests *ldif.LDIF, editor string) error {
 	}
 
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	return ldif.Unmarshal(strings.NewReader(after), requests)
+	err = ldif.Unmarshal(strings.NewReader(after), requests)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-func AskString(cmd *cobra.Command, flagName string, args *[]string, password bool, opts ...survey.AskOpt) error {
+func AskMultiline(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {
-		return fmt.Errorf("flag %q not defined", flagName)
+		return false, fmt.Errorf("flag %q not defined", flagName)
+	}
+
+	defValue := "empty"
+	if f.DefValue != "" {
+		defValue = f.DefValue
+	}
+
+	var discard string
+	err := survey.AskOne(&survey.Multiline{
+		Message: f.Usage + ":",
+		Default: defValue,
+	}, &discard, opts...)
+
+	if errors.Is(err, terminal.InterruptErr) {
+		PrintlnAndExit("Aborted")
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	switch discard {
+
+	case "", "empty", f.DefValue:
+		return false, nil
+
+	}
+
+	for _, entry := range splitByNewLineRegex.Split(discard, -1) {
+		if entry == "" {
+			continue
+		}
+
+		*args = append(*args, "--"+flagName, entry)
+	}
+
+	return true, nil
+}
+
+func AskString(cmd *cobra.Command, flagName string, args *[]string, password bool, opts ...survey.AskOpt) (bool, error) {
+	f := cmd.Flag(flagName)
+	if f == nil {
+		return false, fmt.Errorf("flag %q not defined", flagName)
 	}
 
 	var discard string
@@ -148,67 +199,24 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string, password boo
 	}
 
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	switch discard {
 
 	case "", "empty", f.DefValue:
-		return nil
+		return false, nil
 
 	}
 
 	*args = append(*args, "--"+flagName, discard)
-	return nil
+	return true, nil
 }
 
-func AskMultiline(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) error {
+func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args *[]string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {
-		return fmt.Errorf("flag %q not defined", flagName)
-	}
-
-	defValue := "empty"
-	if f.DefValue != "" {
-		defValue = f.DefValue
-	}
-
-	var discard string
-	err := survey.AskOne(&survey.Multiline{
-		Message: f.Usage + ":",
-		Default: defValue,
-	}, &discard, opts...)
-
-	if errors.Is(err, terminal.InterruptErr) {
-		PrintlnAndExit("Aborted")
-	}
-
-	if err != nil {
-		return err
-	}
-
-	switch discard {
-
-	case "", "empty", f.DefValue:
-		return nil
-
-	}
-
-	for _, entry := range splitByNewLineRegex.Split(discard, -1) {
-		if entry == "" {
-			continue
-		}
-
-		*args = append(*args, "--"+flagName, entry)
-	}
-
-	return nil
-}
-
-func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args *[]string, opts ...survey.AskOpt) error {
-	f := cmd.Flag(flagName)
-	if f == nil {
-		return fmt.Errorf("flag %q not defined", flagName)
+		return false, fmt.Errorf("flag %q not defined", flagName)
 	}
 
 	if len(def) == 1 {
@@ -218,11 +226,12 @@ func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args
 			Options: options,
 			Default: def[0],
 		}, &discard, opts...); err != nil {
-			return err
+
+			return false, err
 		}
 
 		*args = append(*args, "--"+flagName, discard)
-		return nil
+		return true, nil
 	}
 
 	var discard []string
@@ -237,11 +246,12 @@ func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args
 	}
 
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	for _, arg := range discard {
-		*args = append(*args, "--"+flagName, arg)
+	for _, entry := range discard {
+		*args = append(*args, "--"+flagName, entry)
 	}
-	return nil
+
+	return true, nil
 }
