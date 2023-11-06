@@ -19,9 +19,9 @@ var defaultCustomGetAttributes = attributes.Attributes{
 	attributes.SamAccountType(),
 }
 
-var getCustomFlags = &struct {
-	filterString string
-}{}
+var getCustomFlags struct {
+	filterString string `flag:"filter"`
+}
 
 var getCustomCmd = func() *cobra.Command {
 	getCustomCmd := &cobra.Command{
@@ -39,10 +39,23 @@ var getCustomCmd = func() *cobra.Command {
 }()
 
 func getCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
+	parent := cmd.Parent()
+	parent.PersistentPreRun(parent, nil)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getCustomPersistentPreRun"})
 	logger.Debug("Executing")
 
-	getFlags.searchArguments.Attributes.Append(defaultCustomGetAttributes...)
+	if getCustomFlags.filterString == "" {
+		var args []string
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "filter", &args, false)))
+		supererrors.Except(cmd.ParseFlags(args))
+		getFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(getCustomFlags.filterString)))
+		logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter).Debug("Asked")
+	}
+
+	if len(getFlags.searchArguments.Attributes) == 0 {
+		getFlags.searchArguments.Attributes.Append(defaultCustomGetAttributes...)
+	}
 	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
 
 	getFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(getCustomFlags.filterString)))

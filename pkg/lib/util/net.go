@@ -1,21 +1,20 @@
 package util
 
 import (
-	"context"
 	"net"
 	"strings"
 )
 
 // Resolve Internet Protocol address to domain name
 func LookupAddress(address string) string {
-	ip, port, found := strings.Cut(address, ":")
+	ip, port, found := strings.Cut(strings.Trim(address, "[]"), ":")
 
 	var names []string
 	var err error
-	if ctx := context.Background(); found {
-		names, err = net.DefaultResolver.LookupAddr(ctx, strings.Trim(ip, "[]"))
+	if found {
+		names, err = net.LookupAddr(strings.Trim(ip, "[]"))
 	} else {
-		names, err = net.DefaultResolver.LookupAddr(ctx, address)
+		names, err = net.LookupAddr(address)
 	}
 
 	if err == nil && len(names) > 0 {

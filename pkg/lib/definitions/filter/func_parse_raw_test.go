@@ -14,6 +14,7 @@ func TestParseRaw(t *testing.T) {
 		{"test#4", `(&(!(CN=test#1))(CN=test#2)`, true},
 		{"test#5", `(&(!(CN=test#1))(CN:test#2))`, true},
 		{"test#6", `(CN:test)`, true},
+		{"test#7", `(&(ObjectClass=user)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))`, false},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseRaw(tt.args)

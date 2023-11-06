@@ -7,9 +7,9 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var editCustomFlags = &struct {
-	filterString string
-}{}
+var editCustomFlags struct {
+	filterString string `flag:"filter"`
+}
 
 var editCustomCmd = func() *cobra.Command {
 	editCustomCmd := &cobra.Command{
@@ -29,8 +29,19 @@ var editCustomCmd = func() *cobra.Command {
 }()
 
 func editCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
+	parent := cmd.Parent()
+	parent.PersistentPreRun(parent, nil)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editCustomPersistentPreRun"})
 	logger.Debug("Executing")
+
+	if editCustomFlags.filterString == "" {
+		var args []string
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "filter", &args, false)))
+		supererrors.Except(cmd.ParseFlags(args))
+		editFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(getCustomFlags.filterString)))
+		logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter).Debug("Asked")
+	}
 
 	editFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(editCustomFlags.filterString)))
 	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Debug("Set")

@@ -189,7 +189,6 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string, password boo
 			Message: f.Usage + ":",
 			Default: defValue,
 		}
-
 	}
 
 	err := survey.AskOne(prompt, &discard, opts...)

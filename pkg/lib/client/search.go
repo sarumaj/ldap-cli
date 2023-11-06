@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -105,7 +106,10 @@ func Search(conn *auth.Connection, args SearchArguments) (results attributes.Map
 		return nil, nil, ldap.ErrNilConnection
 	}
 
-	sr, err := conn.SearchWithPaging(ldap.NewSearchRequest(
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sr := conn.SearchAsync(ctx, ldap.NewSearchRequest(
 		args.Path, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
 		int(conn.SizeLimit),               // SizeLimit
 		int(conn.TimeLimit.Seconds()),     // TimeLimit
@@ -113,18 +117,15 @@ func Search(conn *auth.Connection, args SearchArguments) (results attributes.Map
 		args.Filter.String(),              // LDAP Filter
 		args.Attributes.ToAttributeList(), // Attribute List
 		nil,                               // []ldap.Control
-	), 1000)
-	if err != nil {
-		return nil, nil, libutil.Handle(err)
-	}
+	), 64)
 
 	requests = &ldif.LDIF{}
-	for id, s := range sr.Entries {
+	for id := 0; sr.Next(); id++ {
+		s := sr.Entry()
 		requests.Entries = append(requests.Entries, &ldif.Entry{Entry: s})
 		result := make(map[string][]string)
 		converted := make(attributes.Map)
 		for _, attr := range s.Attributes {
-
 			// retrieve ranged attribute recursively
 			if searchRangeRegex.MatchString(attr.Name) {
 				from, _ := strconv.Atoi(searchRangeRegex.FindStringSubmatch(attr.Name)[2])
@@ -145,6 +146,10 @@ func Search(conn *auth.Connection, args SearchArguments) (results attributes.Map
 			} else {
 				result[attr.Name] = attr.Values
 			}
+		}
+
+		if err := sr.Err(); err != nil {
+			return nil, nil, err
 		}
 
 		for k, v := range result {
