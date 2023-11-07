@@ -22,3 +22,8 @@ go.work
 
 # test coverage
 cover.*
+
+# ignore output files
+*.csv
+*.ldif
+*.yaml
