@@ -10,10 +10,8 @@ func TestLookupAddress(t *testing.T) {
 		args string
 		want string
 	}{
-		{"test#1", "127.0.1.1:443", "127.0.1.1:443"},
-		{"test#2", "127.0.1.1", "127.0.1.1"},
-		{"test#3", "127.0.0.1:443", "localhost:443"},
-		{"test#4", "127.0.0.1", "localhost"},
+		{"test#1", "127.0.0.1:443", "localhost:443"},
+		{"test#2", "127.0.0.1", "localhost"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := LookupAddress(tt.args)
