@@ -12,6 +12,7 @@ import (
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	progressbar "github.com/schollz/progressbar/v3"
 )
 
 var searchRangeRegex = regexp.MustCompile(`(\w+);range\=(?P<from>\d+)\-(?P<to>\d+)`)
@@ -101,70 +102,90 @@ type SearchArguments struct {
 	Filter     filter.Filter
 }
 
-func Search(conn *auth.Connection, args SearchArguments) (results attributes.Maps, requests *ldif.LDIF, err error) {
+func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.ProgressBar) (results attributes.Maps, requests *ldif.LDIF, err error) {
 	if conn == nil {
 		return nil, nil, ldap.ErrNilConnection
+	}
+
+	if bar != nil {
+		bar.Describe("searching")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	sr := conn.SearchAsync(ctx, ldap.NewSearchRequest(
-		args.Path, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
-		int(conn.SizeLimit),               // SizeLimit
-		int(conn.TimeLimit.Seconds()),     // TimeLimit
-		false,                             // TypesOnly
-		args.Filter.String(),              // LDAP Filter
-		args.Attributes.ToAttributeList(), // Attribute List
-		nil,                               // []ldap.Control
-	), 64)
-
-	requests = &ldif.LDIF{}
-	for id := 0; sr.Next(); id++ {
-		s := sr.Entry()
-		requests.Entries = append(requests.Entries, &ldif.Entry{Entry: s})
-		result := make(map[string][]string)
-		converted := make(attributes.Map)
-		for _, attr := range s.Attributes {
-			// retrieve ranged attribute recursively
-			if searchRangeRegex.MatchString(attr.Name) {
-				from, _ := strconv.Atoi(searchRangeRegex.FindStringSubmatch(attr.Name)[2])
-				to, _ := strconv.Atoi(searchRangeRegex.FindStringSubmatch(attr.Name)[3])
-				if err := searchRecursively(conn, searchRecursivelyArguments{
-					From:          from,
-					To:            to,
-					ID:            id,
-					Path:          args.Path,
-					AttributeName: searchRangeRegex.FindStringSubmatch(attr.Name)[1],
-					Filter:        args.Filter,
-					Repeat:        true,
-				}, result); err != nil {
-
-					return nil, nil, err
-				}
-
-			} else {
-				result[attr.Name] = attr.Values
-			}
-		}
+	for id, pagingControl := 0, ldap.NewControlPaging(1); true; id++ {
+		sr := conn.SearchAsync(ctx, ldap.NewSearchRequest(
+			args.Path, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
+			int(conn.SizeLimit),               // SizeLimit
+			int(conn.TimeLimit.Seconds()),     // TimeLimit
+			false,                             // TypesOnly
+			args.Filter.String(),              // LDAP Filter
+			args.Attributes.ToAttributeList(), // Attribute List
+			[]ldap.Control{pagingControl},     // []ldap.Control
+		), 1)
 
 		if err := sr.Err(); err != nil {
 			return nil, nil, err
 		}
 
-		for k, v := range result {
-			// parse registered attribute
-			if attr := attributes.Lookup(k); attr != nil {
-				attr.Parse(v, &converted)
+		requests = &ldif.LDIF{}
+		for s := (*ldap.Entry)(nil); sr.Next(); s = sr.Entry() {
+			if s == nil {
 				continue
 			}
 
-			// parse unknown attributes
-			attributes.Raw(libutil.ToTitleNoLower(k), "", attributes.TypeRaw).Parse(v, &converted)
+			if bar != nil {
+				bar.Describe(fmt.Sprintf("[cyan][%d][reset]: found: [magenta]%s[reset]", id, s.DN))
+				bar.Add(1)
+			}
 
+			requests.Entries = append(requests.Entries, &ldif.Entry{Entry: s})
+			result := make(map[string][]string)
+			converted := make(attributes.Map)
+			for _, attr := range s.Attributes {
+				// retrieve ranged attribute recursively
+				if searchRangeRegex.MatchString(attr.Name) {
+					from, _ := strconv.Atoi(searchRangeRegex.FindStringSubmatch(attr.Name)[2])
+					to, _ := strconv.Atoi(searchRangeRegex.FindStringSubmatch(attr.Name)[3])
+					if err := searchRecursively(conn, searchRecursivelyArguments{
+						From:          from,
+						To:            to,
+						ID:            id,
+						Path:          args.Path,
+						AttributeName: searchRangeRegex.FindStringSubmatch(attr.Name)[1],
+						Filter:        args.Filter,
+						Repeat:        true,
+					}, result); err != nil {
+
+						return nil, nil, err
+					}
+
+				} else {
+					result[attr.Name] = attr.Values
+				}
+			}
+
+			for k, v := range result {
+				// parse registered attribute
+				if attr := attributes.Lookup(k); attr != nil {
+					attr.Parse(v, &converted)
+					continue
+				}
+
+				// parse unknown attributes
+				attributes.Raw(libutil.ToTitleNoLower(k), "", attributes.TypeRaw).Parse(v, &converted)
+
+			}
+
+			results = append(results, converted)
 		}
 
-		results = append(results, converted)
+		if ctrl, ok := ldap.FindControl(sr.Controls(), ldap.ControlTypePaging).(*ldap.ControlPaging); ok && ctrl != nil && len(ctrl.Cookie) > 0 {
+			pagingControl.SetCookie(ctrl.Cookie)
+		} else {
+			break
+		}
 	}
 
 	return

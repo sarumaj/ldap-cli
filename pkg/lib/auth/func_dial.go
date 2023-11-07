@@ -15,7 +15,7 @@ type DialOptions struct {
 	// Number of max retries if failing
 	MaxRetries uint `validate:"required" default:"3"`
 	// Limits number of objects returned by an LDAP query
-	SizeLimit int64 `validate:"required" default:"10"`
+	SizeLimit int64
 	// Timeout for connection handshake and LDAP queries
 	TimeLimit time.Duration `validate:"required" default:"10s"`
 	// Custom TLS config

@@ -45,7 +45,7 @@ func TestDialOptionsDefaults(t *testing.T) {
 	}{
 		{"test#1",
 			DialOptions{0, 0, 0, nil, nil},
-			DialOptions{3, 10, 10 * time.Second, nil, &URL{"ldap", "localhost", 389}}},
+			DialOptions{3, 0, 10 * time.Second, nil, &URL{"ldap", "localhost", 389}}},
 		{"test#2",
 			DialOptions{5, 20, time.Second, &tls.Config{}, &URL{"ldaps", "example.com", 389}},
 			DialOptions{5, 20, time.Second, &tls.Config{}, &URL{"ldaps", "example.com", 389}}},
@@ -85,7 +85,7 @@ func TestDialOptionsValidate(t *testing.T) {
 			true},
 		{"test#6",
 			DialOptions{5, 0, time.Second, nil, &URL{Scheme: "ldaps", Host: "example.com", Port: LDAPS_RW}},
-			true},
+			false},
 		{"test#7",
 			DialOptions{0, 20, time.Second, nil, &URL{Scheme: "ldaps", Host: "example.com", Port: LDAP_RW}},
 			true},
