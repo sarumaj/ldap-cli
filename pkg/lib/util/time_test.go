@@ -3,6 +3,8 @@ package util
 import (
 	"testing"
 	"time"
+
+	"bou.ke/monkey"
 )
 
 func TestTimeAfter1601(t *testing.T) {
@@ -25,7 +27,10 @@ func TestTimeAfter1601(t *testing.T) {
 }
 
 func TestTimeSince1601(t *testing.T) {
-	defer PatchForTimeNow().Unpatch()
+	defer monkey.Patch(
+		time.Now,
+		func() time.Time { return time.Date(2023, 9, 12, 16, 27, 13, 0, time.UTC) },
+	).Unpatch()
 
 	for _, tt := range []struct {
 		name string

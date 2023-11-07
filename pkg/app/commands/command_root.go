@@ -136,10 +136,14 @@ func rootRun(cmd *cobra.Command, _ []string) {
 }
 
 // Execute executes the root command.
-func Execute(version, buildDate string) {
+func Execute(version, buildDate string, args ...string) {
 	internalVersion, internalBuildDate = version, buildDate
 
 	apputil.Logger.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, libutil.GetExecutablePath())
+
+	if len(args) > 0 {
+		rootCmd.SetArgs(args)
+	}
 
 	if err := rootCmd.Execute(); err != nil {
 		apputil.Logger.Debugf("Execution failed: %v", err)
