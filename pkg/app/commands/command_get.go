@@ -105,18 +105,18 @@ func getRun(cmd *cobra.Command, args []string) {
 	switch child {
 
 	case getCustomCmd:
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "filter", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "filter", &args, false, "")))
 		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Debug("Asked")
 
 	case getGroupCmd:
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false, "")))
 		logger.WithFields(apputil.Fields{"flag": "group-id", "args": args}).Debug("Asked")
 
 	case getUserCmd:
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false, "")))
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskBool(child, "enabled", &args)))
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskBool(child, "expired", &args)))
-		if supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "member-of", &args, false))) {
+		if supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "member-of", &args))) {
 			_ = supererrors.ExceptFn(supererrors.W(apputil.AskBool(child, "recursively", &args)))
 		}
 		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "enabled", "expired", "member-of", "recursively"}, "args": args}).Debug("Asked")
@@ -125,7 +125,7 @@ func getRun(cmd *cobra.Command, args []string) {
 
 	options, defaults := append([]string{"*"}, attributes.LookupMany(true, "*").ToAttributeList()...), defaultGetAttributes[child.Name()].ToAttributeList()
 	_ = supererrors.ExceptFn(supererrors.W(apputil.AskStrings(child, "select", options, defaults, &args)))
-	_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "path", &args, false)))
+	_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "path", &args, false, rootFlags.dialOptions.URL.ToBaseDirectoryPath())))
 	_ = supererrors.ExceptFn(supererrors.W(apputil.AskStrings(child, "format", []string{"csv", "default", "ldif", "yaml"}, []string{"default"}, &args)))
 	logger.WithFields(apputil.Fields{"flags": []string{"select", "path", "format"}, "args": args}).Debug("Asked")
 

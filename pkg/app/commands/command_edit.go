@@ -127,11 +127,11 @@ func editRun(cmd *cobra.Command, _ []string) {
 	switch child {
 
 	case editCustomCmd:
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "filter", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "filter", &args, false, "")))
 		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Debug("Asked")
 
 	case editGroupCmd:
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false, "")))
 
 		switch {
 		case
@@ -139,21 +139,21 @@ func editRun(cmd *cobra.Command, _ []string) {
 			supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "remove-member", &args))),
 			supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "replace-member", &args))):
 
-			supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "member-attribute", &args, false)))
+			supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "member-attribute", &args, false, attributes.Members().String())))
 		}
 
 		logger.WithFields(apputil.Fields{"flags": []string{"group-id", "add-member", "remove-member", "replace-member"}, "args": args}).Debug("Asked")
 
 	case editUserCmd:
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false)))
-		if supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "new-password", &args, true))) {
-			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password-attribute", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false, "")))
+		if supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "new-password", &args, true, ""))) {
+			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password-attribute", &args, false, attributes.UnicodePassword().String())))
 		}
 		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "new-password", "password-attribute"}, "args": args}).Debug("Asked")
 
 	}
 
-	_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "path", &args, false)))
+	_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "path", &args, false, rootFlags.dialOptions.URL.ToBaseDirectoryPath())))
 	logger.WithFields(apputil.Fields{"flag": "path", "args": args}).Debug("Asked")
 
 	supererrors.Except(child.ParseFlags(args))

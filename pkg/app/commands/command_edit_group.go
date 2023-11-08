@@ -53,7 +53,7 @@ func editGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	if editGroupFlags.id == "" {
 		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "group-id", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "group-id", &args, false, "")))
 		supererrors.Except(cmd.ParseFlags(args))
 		editFlags.searchArguments.Filter = filter.ByID(getGroupFlags.id)
 		logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter).Debug("Asked")
