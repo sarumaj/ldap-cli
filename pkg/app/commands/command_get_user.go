@@ -5,6 +5,7 @@ import (
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -23,11 +24,11 @@ var defaultUserGetAttributes = attributes.Attributes{
 }
 
 var getUserFlags struct {
-	id          string `flag:"user-id"`
-	enabled     bool   `flag:"enabled"`
-	expired     bool   `flag:"expired"`
-	memberOf    string `flag:"member-of"`
-	recursively bool   `flag:"recursively"`
+	id          string   `flag:"user-id"`
+	enabled     bool     `flag:"enabled"`
+	expired     bool     `flag:"expired"`
+	memberOf    []string `flag:"member-of"`
+	recursively bool     `flag:"recursively"`
 }
 
 var getUserCmd = func() *cobra.Command {
@@ -45,7 +46,7 @@ var getUserCmd = func() *cobra.Command {
 	flags.StringVar(&getUserFlags.id, "user-id", "", "Specify user ID (common name, DN, SAN or UPN)")
 	flags.BoolVar(&getUserFlags.enabled, "enabled", false, "Search explicitly for enabled users")
 	flags.BoolVar(&getUserFlags.expired, "expired", false, "Search explicitly for expired users")
-	flags.StringVar(&getUserFlags.memberOf, "member-of", "", "Search users being member of given group")
+	flags.StringArrayVar(&getUserFlags.memberOf, "member-of", nil, "Search users being member of given group")
 	flags.BoolVar(&getUserFlags.recursively, "recursively", false, "Consider nested group membership")
 
 	return getUserCmd
@@ -94,8 +95,12 @@ func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	}
 
-	if getUserFlags.memberOf != "" {
-		filters = append(filters, filter.MemberOf(getUserFlags.memberOf, getUserFlags.recursively))
+	if len(getUserFlags.memberOf) > 0 {
+		getUserFlags.memberOf = supererrors.ExceptFn(supererrors.W(libutil.RebuildStringSliceFlag(getUserFlags.memberOf, ';')))
+	}
+
+	for _, memberOf := range getUserFlags.memberOf {
+		filters = append(filters, filter.MemberOf(memberOf, getUserFlags.recursively))
 	}
 
 	getFlags.searchArguments.Filter = filter.And(filter.IsUser(), filters...)

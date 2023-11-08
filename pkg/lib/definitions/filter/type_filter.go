@@ -20,7 +20,23 @@ type Filter struct {
 	Rule      attributes.MatchingRule
 }
 
+func (o Filter) ExpandAlias() Filter {
+	if o.Attribute.Alias != "" {
+		return Or(o, Filter{
+			Attribute: attributes.Attribute{LDAPDisplayName: o.Attribute.Alias, Type: o.Attribute.Type},
+			Value:     o.Value,
+			Rule:      o.Rule,
+		})
+	}
+
+	return o
+}
+
 func (o Filter) String() string {
+	if o.Attribute.LDAPDisplayName == complexFilterSyntax {
+		return o.Value
+	}
+
 	op, value := "=", strings.TrimPrefix(o.Value, "=")
 	if notDefaultOperatorWithValueRegex.MatchString(value) {
 		op, value = value[:2], value[2:]
@@ -59,9 +75,6 @@ func (o Filter) String() string {
 
 	switch {
 
-	case o.Attribute.LDAPDisplayName == complexFilterSyntax:
-		return o.Value
-
 	case o.Rule != "":
 		return fmt.Sprintf("(%s:%s:%s%s)", libutil.ToTitleNoLower(o.Attribute.LDAPDisplayName), o.Rule, op, value)
 
@@ -73,6 +86,10 @@ func (o Filter) String() string {
 
 // Build complex filter from filters, where all must match
 func And(property Filter, properties ...Filter) Filter {
+	if len(properties) == 0 {
+		return property
+	}
+
 	var value string
 	for _, property := range append([]Filter{property}, properties...) {
 		value += property.String()
@@ -97,6 +114,10 @@ func Not(property Filter) Filter {
 
 // Build complex filter from filters, where at least one must match
 func Or(property Filter, properties ...Filter) Filter {
+	if len(properties) == 0 {
+		return property
+	}
+
 	var value string
 	for _, property := range append([]Filter{property}, properties...) {
 		value += property.String()
