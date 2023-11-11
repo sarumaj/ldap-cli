@@ -79,9 +79,11 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 func rootRun(cmd *cobra.Command, args []string) {
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getCmd)))
+
 	if child.PersistentPreRun != nil {
 		child.PersistentPreRun(child, nil)
 	}
+
 	child.Run(child, nil)
 }
 
