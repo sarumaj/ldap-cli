@@ -1,7 +1,14 @@
 # Custom Dictionary Words
 contiwan
 creasty
+DONT
 GSSAPI
+Hexify
+INTERDOMAIN
 LDAPS
+NOTREQD
 NTLM
+PREAUTH
 sarumaj
+SMARTCARD
+Unhexify
