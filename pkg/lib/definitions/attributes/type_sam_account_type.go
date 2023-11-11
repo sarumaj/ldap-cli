@@ -1,7 +1,5 @@
 package attributes
 
-import "strings"
-
 // https://docs.microsoft.com/en-us/windows/win32/adschema/a-samaccounttype
 const (
 	SAM_ACCOUNT_TYPE_DOMAIN_OBJECT             FlagSAMAccountType = 0x00000000
@@ -39,16 +37,6 @@ func (v FlagSAMAccountType) Eval() []string {
 		if v == key {
 			return value
 		}
-	}
-
-	return nil
-}
-
-func (s FlagSAMAccountType) String() string { return strings.Join(s.Strings(), " | ") }
-
-func (s FlagSAMAccountType) Strings() []string {
-	if v, ok := samAccountTypeToString[s]; ok {
-		return v
 	}
 
 	return nil

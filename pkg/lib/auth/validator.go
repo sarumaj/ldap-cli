@@ -3,13 +3,13 @@ package auth
 import (
 	"reflect"
 
-	"github.com/go-playground/validator/v10"
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+	validator "github.com/go-playground/validator/v10"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 // For internal usage
 var validate = func() *validator.Validate {
-	validate := util.Validate()
+	validate := libutil.Validate()
 
 	// custom type validator for Type
 	// string is casted to typeString which implements util.ValidatorInterface
@@ -24,7 +24,8 @@ var validate = func() *validator.Validate {
 /*
  * String as util.ValidatorInterface for Type
  */
-var _ util.ValidatorInterface = typeString("")
+
+var _ libutil.ValidatorInterface = typeString("")
 
 type typeString string
 

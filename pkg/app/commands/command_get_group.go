@@ -1,6 +1,7 @@
 package commands
 
 import (
+	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	cobra "github.com/spf13/cobra"
@@ -32,7 +33,7 @@ var getGroupCmd = func() *cobra.Command {
 			"get --path \"DC=example,DC=com\" --select \"sAmAccountName,Members\" " +
 			"group --group-id \"uix12345\"",
 		PersistentPreRun: getGroupPersistentPreRun,
-		Run:              getXRun,
+		Run:              getChildCommandRun,
 	}
 
 	flags := getGroupCmd.Flags()
@@ -42,20 +43,17 @@ var getGroupCmd = func() *cobra.Command {
 }()
 
 func getGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
-	parent := cmd.Parent()
-	parent.PersistentPreRun(parent, nil)
+	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getGroupPersistentPreRun"})
+	logger.Debug("Executing")
 
-	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultGroupGetAttributes...)
+	getFlags.searchArguments.Attributes.Append(defaultGroupGetAttributes...)
+	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
 
 	var filters []filter.Filter
 	if getGroupFlags.id != "" {
-		filters = append(filters, filter.Or(
-			filter.Filter{Attribute: attributes.SamAccountName(), Value: getGroupFlags.id},
-			filter.Filter{Attribute: attributes.UserPrincipalName(), Value: getGroupFlags.id},
-			filter.Filter{Attribute: attributes.Name(), Value: getGroupFlags.id},
-			filter.Filter{Attribute: attributes.DistinguishedName(), Value: getGroupFlags.id},
-		))
+		filters = append(filters, filter.ByID(getGroupFlags.id))
 	}
 
 	getFlags.searchArguments.Filter = filter.And(filter.IsGroup(), filters...)
+	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Debug("Set")
 }

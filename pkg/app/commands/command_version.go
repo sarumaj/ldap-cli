@@ -8,6 +8,7 @@ import (
 	selfupdate "github.com/rhysd/go-github-selfupdate/selfupdate"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -42,6 +43,6 @@ var versionCmd = &cobra.Command{
 
 		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
 		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Built at: %s", internalBuildDate))))
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Executable path: %s", apputil.GetExecutablePath()))))
+		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Executable path: %s", libutil.GetExecutablePath()))))
 	},
 }

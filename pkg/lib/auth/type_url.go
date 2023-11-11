@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 var validURLRegex = regexp.MustCompile(`^(?P<Scheme>[^:]+)://(?P<Host>[^:]+):(?P<Port>\d+)`)
+
+var _ libutil.ValidatorInterface = URL{}
 
 // Server's URL
 type URL struct {
@@ -23,6 +26,9 @@ type URL struct {
 // Get server's hostname and port in form <hostname>:<port>
 func (u URL) HostPort() string { return fmt.Sprintf("%s:%d", u.Host, u.Port) }
 
+// Implement util.ValidatorInterface
+func (u URL) IsValid() bool { return validate.Struct(&u) == nil }
+
 // Set scheme
 func (u *URL) SetScheme(s Scheme) *URL { u.Scheme = s; return u }
 
@@ -35,8 +41,22 @@ func (u *URL) SetPort(p Port) *URL { u.Port = p; return u }
 // Render URL as <scheme>://<hostname>:<port>
 func (u URL) String() string { return fmt.Sprintf("%s://%s:%d", u.Scheme, u.Host, u.Port) }
 
+// Build base DN from host
+func (u URL) ToBaseDirectoryPath() string {
+	var components []string
+	for _, dc := range strings.Split(u.Host, ".") {
+		if dc == "" {
+			continue
+		}
+
+		components = append(components, "DC="+dc)
+	}
+
+	return strings.Join(components, ",")
+}
+
 // Validate fields
-func (u *URL) Validate() error { return util.FormatError(validate.Struct(u)) }
+func (u *URL) Validate() error { return libutil.FormatError(validate.Struct(u)) }
 
 // Make empty URL
 func NewURL() *URL { return &URL{} }

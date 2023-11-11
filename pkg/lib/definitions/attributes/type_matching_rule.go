@@ -10,5 +10,3 @@ const (
 )
 
 type MatchingRule string
-
-func (f MatchingRule) String() string { return string(f) }

@@ -7,6 +7,7 @@ import (
 
 	ldap "github.com/go-ldap/ldap/v3"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 const complexFilterSyntax = "complex"
@@ -62,10 +63,10 @@ func (o Filter) String() string {
 		return o.Value
 
 	case o.Rule != "":
-		return fmt.Sprintf("(%s:%s:%s%s)", strings.ToLower(o.Attribute.LDAPDisplayName), o.Rule, op, value)
+		return fmt.Sprintf("(%s:%s:%s%s)", libutil.ToTitleNoLower(o.Attribute.LDAPDisplayName), o.Rule, op, value)
 
 	default:
-		return fmt.Sprintf("(%s%s%s)", strings.ToLower(o.Attribute.LDAPDisplayName), op, value)
+		return fmt.Sprintf("(%s%s%s)", libutil.ToTitleNoLower(o.Attribute.LDAPDisplayName), op, value)
 
 	}
 }

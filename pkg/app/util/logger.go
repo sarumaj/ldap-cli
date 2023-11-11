@@ -7,6 +7,8 @@ import (
 
 	color "github.com/fatih/color"
 	supererrors "github.com/sarumaj/go-super/errors"
+	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
+	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	logrus "github.com/sirupsen/logrus"
 	tracerr "github.com/ztrue/tracerr"
 )
@@ -57,6 +59,45 @@ var Logger = func() *logrus.Logger {
 
 	return l
 }()
+
+type Fields = logrus.Fields
+
+func GetFieldsForBind(bindParameters *auth.BindParameters, dialOptions *auth.DialOptions) logrus.Fields {
+	fields := make(logrus.Fields)
+	if bindParameters == nil {
+		fields["bindParameters"] = nil
+	} else {
+		fields["bindParameters.AuthType"] = bindParameters.AuthType.String()
+		fields["bindParameters.Domain"] = bindParameters.Domain
+		fields["bindParameters.User"] = bindParameters.User
+		fields["bindParameters.PasswordProvided"] = len(bindParameters.Password) > 0
+	}
+
+	if dialOptions == nil {
+		fields["dialOptions"] = nil
+	} else {
+		fields["dialOptions.MaxRetries"] = dialOptions.MaxRetries
+		fields["dialOptions.SizeLimit"] = dialOptions.SizeLimit
+		fields["dialOptions.TLSEnabled"] = dialOptions.TLSConfig != nil && !dialOptions.TLSConfig.InsecureSkipVerify
+		fields["dialOptions.TimeLimit"] = dialOptions.TimeLimit
+		fields["dialOptions.URL"] = dialOptions.URL.String()
+	}
+
+	return fields
+}
+
+func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
+	fields := make(logrus.Fields)
+	if searchArguments == nil {
+		fields["searchArguments"] = nil
+	} else {
+		fields["searchArguments.Attributes"] = searchArguments.Attributes.ToAttributeList()
+		fields["searchArguments.Filter"] = searchArguments.Filter.String()
+		fields["searchArguments.Path"] = searchArguments.Path
+	}
+
+	return fields
+}
 
 // Print to Stdout and exit.
 func PrintlnAndExit(format string, a ...any) {

@@ -1,13 +1,13 @@
 package auth
 
-import "github.com/sarumaj/ldap-cli/pkg/lib/util"
+import libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 
 const (
 	LDAP  Scheme = "ldap"
 	LDAPS Scheme = "ldaps"
 )
 
-var _ util.ValidatorInterface = Scheme("")
+var _ libutil.ValidatorInterface = Scheme("")
 
 type Scheme string
 

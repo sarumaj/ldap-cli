@@ -3,13 +3,17 @@ package util
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	survey "github.com/AlecAivazis/survey/v2"
 	core "github.com/AlecAivazis/survey/v2/core"
 	terminal "github.com/AlecAivazis/survey/v2/terminal"
+	ldif "github.com/go-ldap/ldif"
 	cobra "github.com/spf13/cobra"
 )
+
+var splitByNewLineRegex = regexp.MustCompile("\r?\n")
 
 func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) error {
 	f := cmd.Flag(flagName)
@@ -17,9 +21,15 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey
 		return fmt.Errorf("flag %q not defined", flagName)
 	}
 
+	description := f.Usage
+	if f.DefValue != "" {
+		description += " (" + f.DefValue + ")"
+	}
+	description += ":"
+
 	var discard string
 	err := survey.AskOne(&survey.Select{
-		Message: f.Usage + ":",
+		Message: description,
 		Options: []string{"true", "false", "skip"},
 		Default: "skip",
 	}, &discard, append(opts, survey.WithValidator(func(answer any) error {
@@ -81,6 +91,32 @@ func AskCommand(cmd *cobra.Command, def *cobra.Command, opts ...survey.AskOpt) (
 	return def, nil
 }
 
+func AskLDAPDataInterchangeFormat(requests *ldif.LDIF, editor string) error {
+	before, err := ldif.Marshal(requests)
+	if err != nil {
+		return err
+	}
+
+	var after string
+	err = survey.AskOne(&survey.Editor{
+		Message:       "Modify object in LDAP Interchange Format (LDIF)",
+		FileName:      "*.ldif",
+		Default:       before,
+		AppendDefault: true,
+		Editor:        editor,
+	}, &after)
+
+	if errors.Is(err, terminal.InterruptErr) {
+		PrintlnAndExit("Aborted")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return ldif.Unmarshal(strings.NewReader(after), requests)
+}
+
 func AskString(cmd *cobra.Command, flagName string, args *[]string, password bool, opts ...survey.AskOpt) error {
 	f := cmd.Flag(flagName)
 	if f == nil {
@@ -91,12 +127,20 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string, password boo
 	var prompt survey.Prompt
 	if password {
 		prompt = &survey.Password{Message: f.Usage + ":"}
+
 	} else {
+		defValue := "empty"
+		if f.DefValue != "" {
+			defValue = f.DefValue
+		}
+
 		prompt = &survey.Input{
 			Message: f.Usage + ":",
-			Default: "empty",
+			Default: defValue,
 		}
+
 	}
+
 	err := survey.AskOne(prompt, &discard, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
@@ -107,11 +151,57 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string, password boo
 		return err
 	}
 
-	if discard == "empty" || discard == "" {
+	switch discard {
+
+	case "", "empty", f.DefValue:
 		return nil
+
 	}
 
 	*args = append(*args, "--"+flagName, discard)
+	return nil
+}
+
+func AskMultiline(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) error {
+	f := cmd.Flag(flagName)
+	if f == nil {
+		return fmt.Errorf("flag %q not defined", flagName)
+	}
+
+	defValue := "empty"
+	if f.DefValue != "" {
+		defValue = f.DefValue
+	}
+
+	var discard string
+	err := survey.AskOne(&survey.Multiline{
+		Message: f.Usage + ":",
+		Default: defValue,
+	}, &discard, opts...)
+
+	if errors.Is(err, terminal.InterruptErr) {
+		PrintlnAndExit("Aborted")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	switch discard {
+
+	case "", "empty", f.DefValue:
+		return nil
+
+	}
+
+	for _, entry := range splitByNewLineRegex.Split(discard, -1) {
+		if entry == "" {
+			continue
+		}
+
+		*args = append(*args, "--"+flagName, entry)
+	}
+
 	return nil
 }
 

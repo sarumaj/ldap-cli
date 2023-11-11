@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/creasty/defaults"
-	"github.com/go-ldap/ldap/v3"
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+	defaults "github.com/creasty/defaults"
+	ldap "github.com/go-ldap/ldap/v3"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 // Bind parameters
@@ -57,7 +57,7 @@ func (p *BindParameters) SetType(authType AuthType) *BindParameters {
 }
 
 // Validate fields
-func (p *BindParameters) Validate() error { return util.FormatError(validate.Struct(p)) }
+func (p *BindParameters) Validate() error { return libutil.FormatError(validate.Struct(p)) }
 
 // Establish connection with the server
 func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error) {
@@ -79,7 +79,7 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 		c, err = Dial(options)
 	}
 	if err != nil {
-		return nil, err
+		return nil, libutil.Handle(err)
 	}
 
 	ldapConn := ldap.NewConn(c, true)
@@ -89,16 +89,16 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 	switch parameters.AuthType {
 
 	case UNAUTHENTICATED:
-		err = ldapConn.UnauthenticatedBind(parameters.User)
+		err = libutil.Handle(ldapConn.UnauthenticatedBind(parameters.User))
 
 	case SIMPLE:
-		err = ldapConn.Bind(parameters.User, parameters.Password)
+		err = libutil.Handle(ldapConn.Bind(parameters.User, parameters.Password))
 
 	case MD5:
-		err = ldapConn.MD5Bind(options.URL.Host, parameters.User, parameters.Password)
+		err = libutil.Handle(ldapConn.MD5Bind(options.URL.Host, parameters.User, parameters.Password))
 
 	case NTLM:
-		err = ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password)
+		err = libutil.Handle(ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password))
 
 	}
 	if err != nil {
@@ -108,7 +108,7 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 	return &Connection{
 		Conn:        ldapConn,
 		DialOptions: options,
-		remoteHost:  util.LookupAddress(c.RemoteAddr().String()),
+		remoteHost:  libutil.LookupAddress(c.RemoteAddr().String()),
 	}, nil
 }
 

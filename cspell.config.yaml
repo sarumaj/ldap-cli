@@ -8,6 +8,7 @@ dictionaries:
   - custom-dictionary
 words: []
 ignoreWords:
+  - abcdefghijklmnoprstuwyxyz
   - accountexpires
   - displayname
   - memberof

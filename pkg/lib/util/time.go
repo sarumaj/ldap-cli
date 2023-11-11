@@ -16,14 +16,12 @@ func TimeAfter1601(offset int64) time.Time {
 	elapsed := big.NewInt(offset)
 
 	// convert to µs
-	µs, ns := elapsed.DivMod(elapsed, big.NewInt(10), big.NewInt(10))
+	µs, rem := elapsed.DivMod(elapsed, big.NewInt(10), big.NewInt(10))
 
-	if r := begin.Add(begin, µs); r.IsInt64() {
-		return time.UnixMicro(r.Int64()).Add(time.Duration(ns.Mul(ns, big.NewInt(1000)).Int64()))
-	}
+	// add µs, get elapsed ns
+	sum, ns := begin.Add(begin, µs).Int64(), rem.Mul(rem, big.NewInt(1000)).Int64()
 
-	// handle overflow
-	return time.UnixMicro(1<<63 - 1)
+	return time.UnixMicro(sum).Add(time.Duration(ns))
 }
 
 func TimeSince1601() time.Duration {

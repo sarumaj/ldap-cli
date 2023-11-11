@@ -1,0 +1,9 @@
+dn: cn=group01,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: top
+objectClass: posixGroup
+gidNumber: 678
+
+dn: cn=group02,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: top
+objectClass: posixGroup
+gidNumber: 679
