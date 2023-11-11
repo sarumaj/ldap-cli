@@ -58,7 +58,7 @@ func (o *DialOptions) Validate() error { return util.FormatError(validate.Struct
 // Dial in
 func Dial(opts *DialOptions) (net.Conn, error) {
 	if opts == nil {
-		opts = &DialOptions{}
+		opts = NewDialOptions()
 	}
 
 	if err := defaults.Set(opts); err != nil {
@@ -81,3 +81,5 @@ func Dial(opts *DialOptions) (net.Conn, error) {
 
 	return net.DialTimeout("tcp", opts.URL.HostPort(), opts.TimeLimit)
 }
+
+func NewDialOptions() *DialOptions { return &DialOptions{} }

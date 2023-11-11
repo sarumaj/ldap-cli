@@ -15,8 +15,8 @@ func TestDial(t *testing.T) {
 		name string
 		args *DialOptions
 	}{
-		{"test#1", (&DialOptions{}).SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true})},
-		{"test#2", (&DialOptions{}).SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true})},
+		{"test#1", NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true})},
+		{"test#2", NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true})},
 	} {
 
 		t.Run(tt.name, func(t *testing.T) {
