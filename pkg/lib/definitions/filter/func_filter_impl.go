@@ -9,10 +9,12 @@ import (
 
 func ByID(id string) Filter {
 	return Or(
+		Filter{Attribute: attributes.CommonName(), Value: id},
+		Filter{Attribute: attributes.DisplayName(), Value: id},
+		Filter{Attribute: attributes.DistinguishedName(), Value: id}.ExpandAlias(),
+		Filter{Attribute: attributes.Name(), Value: id},
 		Filter{Attribute: attributes.SamAccountName(), Value: id},
 		Filter{Attribute: attributes.UserPrincipalName(), Value: id},
-		Filter{Attribute: attributes.Name(), Value: id},
-		Filter{Attribute: attributes.DistinguishedName(), Value: id},
 	)
 }
 
