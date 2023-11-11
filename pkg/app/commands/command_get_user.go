@@ -45,9 +45,7 @@ var getUserCmd = func() *cobra.Command {
 	flags.BoolVar(&getUserFlags.enabled, "enabled", false, "Search explicitly for enabled users")
 	flags.BoolVar(&getUserFlags.expired, "expired", false, "Search explicitly for expired users")
 	flags.StringVar(&getUserFlags.memberOf, "member-of", "", "Search users being member of given group")
-	if getUserFlags.memberOf != "" {
-		flags.BoolVar(&getUserFlags.recursively, "recursively", false, "Consider nested group membership")
-	}
+	flags.BoolVar(&getUserFlags.recursively, "recursively", false, "Consider nested group membership")
 
 	return getUserCmd
 }()

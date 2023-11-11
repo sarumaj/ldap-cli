@@ -120,24 +120,24 @@ func editRun(cmd *cobra.Command, _ []string) {
 	switch child {
 
 	case editCustomCmd:
-		supererrors.Except(apputil.AskString(child, "filter", &args, false))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "filter", &args, false)))
 		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Debug("Asked")
 
 	case editGroupCmd:
-		supererrors.Except(apputil.AskString(child, "group-id", &args, false))
-		supererrors.Except(apputil.AskMultiline(child, "add-member", &args))
-		supererrors.Except(apputil.AskMultiline(child, "remove-member", &args))
-		supererrors.Except(apputil.AskMultiline(child, "replace-member", &args))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "add-member", &args)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "remove-member", &args)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "replace-member", &args)))
 		logger.WithFields(apputil.Fields{"flags": []string{"group-id", "add-member", "remove-member", "replace-member"}, "args": args}).Debug("Asked")
 
 	case editUserCmd:
-		supererrors.Except(apputil.AskString(child, "user-id", &args, false))
-		supererrors.Except(apputil.AskString(child, "password", &args, true))
-		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "password"}, "args": args}).Debug("Asked")
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password", &args, true)))
+		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "new-password", "old-password"}, "args": args}).Debug("Asked")
 
 	}
 
-	supererrors.Except(apputil.AskString(child, "path", &args, false))
+	_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "path", &args, false)))
 	logger.WithFields(apputil.Fields{"flag": "path", "args": args}).Debug("Asked")
 
 	supererrors.Except(child.ParseFlags(args))
