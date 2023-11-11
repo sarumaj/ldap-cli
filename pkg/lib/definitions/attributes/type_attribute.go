@@ -176,8 +176,8 @@ func (a Attribute) Parse(values []string, attributeMap *AttributeMap) {
 		if err == nil {
 			userAccountControl := UserAccountControl(parsed)
 			(*attributeMap)[a] = userAccountControl.Eval()
-			(*attributeMap)[Attribute{"", "Enabled", TypeBool}] = userAccountControl&USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE == 0
-			(*attributeMap)[Attribute{"", "LockedOut", TypeBool}] = userAccountControl&USER_ACCOUNT_CONTROL_LOCKOUT != 0
+			(*attributeMap)[AttributeRaw("", "Enabled", TypeBool).register()] = userAccountControl&USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE == 0
+			(*attributeMap)[AttributeRaw("", "LockedOut", TypeBool).register()] = userAccountControl&USER_ACCOUNT_CONTROL_LOCKOUT != 0
 		} else {
 			(*attributeMap)[a] = values
 		}
@@ -283,6 +283,10 @@ func AttributeUserCertificate() Attribute         { return attributeUserCertific
 func AttributeUserPrincipalName() Attribute       { return attributeUserPrincipalName }
 func AttributeWhenChanged() Attribute             { return attributeWhenChanged }
 func AttributeWhenCreated() Attribute             { return attributeWhenCreated }
+
+func AttributeRaw(LDAPName, prettyName string, attrType AttributeType) Attribute {
+	return Attribute{LDAPName, prettyName, attrType}
+}
 
 func LookupAttributeByLDAPDisplayName(in string) *Attribute {
 	for _, attr := range attributeRegistry {
