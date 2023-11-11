@@ -21,13 +21,13 @@ var defaultUserGetAttributes = attributes.Attributes{
 	attributes.UserPrincipalName(),
 }
 
-var getUserFlags struct {
+var getUserFlags = &struct {
 	id          string
 	enabled     bool
 	expired     bool
 	memberOf    string
 	recursively bool
-}
+}{}
 
 var getUserCmd = func() *cobra.Command {
 	getUserCmd := &cobra.Command{
@@ -45,7 +45,9 @@ var getUserCmd = func() *cobra.Command {
 	flags.BoolVar(&getUserFlags.enabled, "enabled", false, "Search explicitly for enabled users")
 	flags.BoolVar(&getUserFlags.expired, "expired", false, "Search explicitly for expired users")
 	flags.StringVar(&getUserFlags.memberOf, "member-of", "", "Search users being member of given group")
-	flags.BoolVar(&getUserFlags.recursively, "recursively", false, "Consider nested group membership")
+	if getUserFlags.memberOf != "" {
+		flags.BoolVar(&getUserFlags.recursively, "recursively", false, "Consider nested group membership")
+	}
 
 	return getUserCmd
 }()

@@ -150,7 +150,7 @@ func UserPrincipalName() Attribute       { return userPrincipalName }
 func WhenChanged() Attribute             { return whenChanged }
 func WhenCreated() Attribute             { return whenCreated }
 
-func Any() Attribute { return Attribute{"*", "", "", TypeRaw} }
+func Any() Attribute { return Attribute{"", "*", "", TypeRaw} }
 func Raw(LDAPName, prettyName string, attrType Type) Attribute {
 	return Attribute{"", LDAPName, prettyName, attrType}
 }
@@ -186,7 +186,7 @@ func LookupMany(strict bool, in ...string) (list Attributes) {
 			list = append(list, registry...)
 			list.Sort()
 		} else {
-			list = append(list, Raw("*", "", TypeRaw))
+			list = append(list, Any())
 		}
 		return
 	}

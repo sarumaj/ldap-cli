@@ -13,14 +13,13 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var editFlags struct {
+var editFlags = &struct {
 	editor          string
 	requests        *ldif.LDIF
 	searchArguments client.SearchArguments
-}
+}{}
 
 var editCmd = func() *cobra.Command {
-
 	editCmd := &cobra.Command{
 		Use:   "edit",
 		Short: "Edit a directory object",
@@ -144,17 +143,10 @@ func editRun(cmd *cobra.Command, _ []string) {
 	supererrors.Except(child.ParseFlags(args))
 	logger.Debug("Parsed")
 
-	if child.PersistentPreRun != nil {
-		child.PersistentPreRun(child, nil)
-	}
-
-	if child.PreRun != nil {
-		child.PreRun(child, nil)
-	}
-
+	// since the flags could have changed, pre run must be invoked again
+	cmd.PersistentPreRun(cmd, nil)
+	child.PersistentPreRun(child, nil)
+	child.PreRun(child, nil)
 	child.Run(child, nil)
-
-	if child.PostRun != nil {
-		child.PostRun(child, nil)
-	}
+	child.PostRun(child, nil)
 }

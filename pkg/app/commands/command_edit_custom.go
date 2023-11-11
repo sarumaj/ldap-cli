@@ -7,9 +7,9 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var editCustomFlags struct {
+var editCustomFlags = &struct {
 	filterString string
-}
+}{}
 
 var editCustomCmd = func() *cobra.Command {
 	editCustomCmd := &cobra.Command{

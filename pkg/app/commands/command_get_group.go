@@ -21,9 +21,9 @@ var defaultGroupGetAttributes = attributes.Attributes{
 	attributes.UserPrincipalName(),
 }
 
-var getGroupFlags struct {
+var getGroupFlags = &struct {
 	id string
-}
+}{}
 
 var getGroupCmd = func() *cobra.Command {
 	getGroupCmd := &cobra.Command{

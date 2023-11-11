@@ -101,12 +101,6 @@ type SearchArguments struct {
 }
 
 func Search(conn *auth.Connection, args SearchArguments) (results attributes.Maps, requests *ldif.LDIF, err error) {
-	defer func(err *error) {
-		if recovered := recover(); recovered != nil {
-			*err = fmt.Errorf("%v", err)
-		}
-	}(&err)
-
 	if conn == nil {
 		return nil, nil, ldap.ErrNilConnection
 	}
