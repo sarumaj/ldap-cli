@@ -26,11 +26,7 @@ const (
 
 var supportedFormats = []string{CSV, DEFAULT, LDIF, YAML}
 
-func FlushToStdOut(results attributes.Maps, requests *ldif.LDIF, format string, out io.Writer) error {
-	if f, ok := out.(io.Closer); ok {
-		defer f.Close()
-	}
-
+func Flush(results attributes.Maps, requests *ldif.LDIF, format string, out io.Writer) error {
 	switch format {
 
 	case CSV:

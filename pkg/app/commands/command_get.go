@@ -68,10 +68,11 @@ func getChildCommandRun(cmd *cobra.Command, args []string) {
 
 	logger.WithField("format", getFlags.format).WithField("output", getFlags.output).Debug("Rendering")
 	if getFlags.output == "stdout" {
-		supererrors.Except(apputil.FlushToStdOut(results, requests, getFlags.format, apputil.Stdout()))
+		supererrors.Except(apputil.Flush(results, requests, getFlags.format, apputil.Stdout()))
 	} else {
 		f := supererrors.ExceptFn(supererrors.W(os.OpenFile(getFlags.output, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModePerm)))
-		supererrors.Except(apputil.FlushToStdOut(results, requests, apputil.SniffFormat(f.Name(), getFlags.format), f))
+		supererrors.Except(apputil.Flush(results, requests, apputil.SniffFormat(f.Name(), getFlags.format), f))
+		supererrors.Except(f.Close(), os.ErrClosed)
 	}
 
 }

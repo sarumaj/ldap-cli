@@ -23,26 +23,49 @@ var internalVersion string
 // It gets filled automatically at build time.
 var internalBuildDate string
 
-var versionCmd = &cobra.Command{
-	Use:     "version",
-	Short:   "Display version information",
-	Example: "ldap-cli version",
-	Run: func(*cobra.Command, []string) {
-		current := supererrors.ExceptFn(supererrors.W(semver.ParseTolerant(internalVersion)))
-		latest, found, err := selfupdate.DetectLatest(remoteRepository)
+var versionFlags struct {
+	update bool
+}
 
-		var vSuffix string
-		switch {
-		case err == nil && (!found || latest.Version.LTE(current)):
-			vSuffix = " (latest)"
+var versionCmd = func() *cobra.Command {
+	versionCmd := &cobra.Command{
+		Use:     "version",
+		Short:   "Display version information",
+		Example: "ldap-cli version",
+		Run:     versionRun,
+	}
 
-		case err == nil && (found || latest.Version.GT(current)):
-			vSuffix = " (newer version available: " + latest.Version.String() + ", run \"gh extension upgrade gr\" to update)"
+	flags := versionCmd.Flags()
+	flags.BoolVar(&versionFlags.update, "update", false, "Update application to the newest version")
+
+	return versionCmd
+}()
+
+func versionRun(*cobra.Command, []string) {
+	current := supererrors.ExceptFn(supererrors.W(semver.ParseTolerant(internalVersion)))
+	latest, found, err := selfupdate.DetectLatest(remoteRepository)
+
+	var vSuffix string
+	switch {
+	case err == nil && (!found || latest.Version.LTE(current)):
+		vSuffix = " (latest)"
+
+	case err == nil && (found || latest.Version.GT(current)):
+		if versionFlags.update {
+			up := supererrors.ExceptFn(supererrors.W(selfupdate.NewUpdater(selfupdate.Config{
+				Validator: &selfupdate.SHA2Validator{},
+			})))
+			_ = supererrors.ExceptFn(supererrors.W(up.UpdateSelf(current, remoteRepository)))
+			vSuffix = " (latest, successfully updated from: " + current.String() + ")"
+
+		} else {
+			vSuffix = " (newer version available: " + latest.Version.String() + ", run \"ldap-cli version --update\" to update)"
 
 		}
 
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Built at: %s", internalBuildDate))))
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Executable path: %s", libutil.GetExecutablePath()))))
-	},
+	}
+
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Built at: %s", internalBuildDate))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Executable path: %s", libutil.GetExecutablePath()))))
 }
