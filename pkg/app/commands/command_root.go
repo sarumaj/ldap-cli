@@ -105,12 +105,12 @@ func rootRun(cmd *cobra.Command, _ []string) {
 
 		if !confirm {
 			var args []string
-			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "url", &args, false, survey.WithValidator(func(ans interface{}) error {
+			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "url", &args, false, "", survey.WithValidator(func(ans interface{}) error {
 				_, err := auth.URLFromString(fmt.Sprint(ans))
 				return err
 			}))))
 
-			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "auth-type", &args, false, survey.WithValidator(func(ans interface{}) error {
+			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "auth-type", &args, false, "", survey.WithValidator(func(ans interface{}) error {
 				if !auth.TypeFromString(fmt.Sprint(ans)).IsValid() {
 					return fmt.Errorf("invalid auth type: %q", fmt.Sprint(ans))
 				}
@@ -118,11 +118,11 @@ func rootRun(cmd *cobra.Command, _ []string) {
 			}))))
 
 			if len(args) > 0 && args[len(args)-1] == auth.NTLM.String() {
-				_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "domain", &args, false)))
+				_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "domain", &args, false, "")))
 			}
 
-			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "user", &args, false)))
-			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "password", &args, true)))
+			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "user", &args, false, "")))
+			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "password", &args, true, "")))
 
 			supererrors.Except(cmd.ParseFlags(args))
 		}

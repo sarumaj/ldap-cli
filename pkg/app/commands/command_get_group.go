@@ -54,7 +54,7 @@ func getGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	if getGroupFlags.id == "" {
 		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "group-id", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "group-id", &args, false, "")))
 		supererrors.Except(cmd.ParseFlags(args))
 		getFlags.searchArguments.Filter = filter.ByID(getGroupFlags.id)
 		logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter).Debug("Asked")
