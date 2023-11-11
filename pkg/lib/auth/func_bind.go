@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"fmt"
-	"net"
 	"strings"
 	"time"
 
@@ -14,20 +12,48 @@ import (
 // Bind parameters
 type BindParameter struct {
 	// Type of authentication
-	Type Type `validate:"required,is_valid"` // default: SIMPLE
+	AuthType AuthType `validate:"required,is_valid"` // default: SIMPLE
 	// User's domain (required for NTLM authentication)
-	Domain string `validate:"required_if=Type NTLM"`
+	Domain string `validate:"required_if=AuthType NTLM"`
 	// User's password
-	Password string `validate:"required"`
+	Password string `validate:"required_unless=AuthType UNAUTHENTICATED"`
 	// Username
-	User string `validate:"required"`
+	User string `validate:"required_unless=AuthType UNAUTHENTICATED"`
 }
 
 // Set default Type
 func (p *BindParameter) SetDefaults() {
-	if p.Type == 0 || !p.Type.IsValid() {
-		p.Type = SIMPLE
+	if p.AuthType == 0 || !p.AuthType.IsValid() {
+		p.AuthType = SIMPLE
 	}
+
+	if i := strings.Index(p.User, `\\`); i > 0 {
+		p.User = strings.Replace(p.User, `\\`, `\`, 1)
+	}
+}
+
+// Set domain (required for NTLM-based authentication)
+func (p *BindParameter) SetDomain(domain string) *BindParameter {
+	p.Domain = domain
+	return p
+}
+
+// Set password
+func (p *BindParameter) SetPassword(password string) *BindParameter {
+	p.Password = password
+	return p
+}
+
+// Set username
+func (p *BindParameter) SetUser(user string) *BindParameter {
+	p.User = user
+	return p
+}
+
+// Set authentication type
+func (p *BindParameter) SetType(authType AuthType) *BindParameter {
+	p.AuthType = authType
+	return p
 }
 
 // Validate fields
@@ -35,6 +61,10 @@ func (p *BindParameter) Validate() error { return util.FormatError(validate.Stru
 
 // Establish connection with the server
 func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) {
+	if parameters == nil {
+		parameters = &BindParameter{AuthType: UNAUTHENTICATED}
+	}
+
 	if err := defaults.Set(parameters); err != nil {
 		return nil, err
 	}
@@ -43,44 +73,29 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 		return nil, err
 	}
 
-	conn := &Connection{
-		options: options,
-	}
-
-	var c net.Conn
-	var err error
-	for i, d := uint(0), time.Second; i < conn.options.MaxRetries; i, d = i+1, d*2 {
-		c, err = Dial(conn.options)
-		if err == nil {
-			break
-		}
-
-		time.Sleep(d)
+	c, err := Dial(options)
+	for i, d := uint(0), time.Second; i < options.MaxRetries && err != nil; i, d = i+1, d*2 {
+		<-time.After(d)
+		c, err = Dial(options)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: examine necessity
-	conn.remoteHost = c.RemoteAddr().String()
-	fmt.Sprintln(conn.remoteHost)
-	raw := strings.Split(conn.remoteHost, ":")
-	if addr, err := net.LookupAddr(raw[0]); err == nil && len(addr) > 0 {
-		fmt.Sprintln(addr)
-		conn.remoteHost = fmt.Sprintf("%s:%d", strings.Trim(addr[0], "."), conn.options.URL.Port)
-	}
-
 	ldapConn := ldap.NewConn(c, true)
-	ldapConn.SetTimeout(conn.options.TimeLimit)
+	ldapConn.SetTimeout(options.TimeLimit)
 	ldapConn.Start()
 
-	switch parameters.Type {
+	switch parameters.AuthType {
+
+	case UNAUTHENTICATED:
+		err = ldapConn.UnauthenticatedBind(parameters.User)
 
 	case SIMPLE:
 		err = ldapConn.Bind(parameters.User, parameters.Password)
 
 	case MD5:
-		err = ldapConn.MD5Bind(conn.options.URL.Host, parameters.User, parameters.Password)
+		err = ldapConn.MD5Bind(options.URL.Host, parameters.User, parameters.Password)
 
 	case NTLM:
 		err = ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password)
@@ -90,6 +105,9 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 		return nil, err
 	}
 
-	conn.connection = ldapConn
-	return conn, nil
+	return &Connection{
+		connection: ldapConn,
+		options:    options,
+		remoteHost: util.Resolve(c.RemoteAddr().String()),
+	}, nil
 }

@@ -3,6 +3,7 @@ package util
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/go-playground/validator/v10"
@@ -39,17 +40,29 @@ func FormatError(err error) error {
 	for _, err := range errs {
 		switch err.Tag() {
 
-		case "gt":
-			newErrs = append(newErrs, fmt.Errorf("%s should be greater than %s", err.StructField(), err.Param()))
+		case "gt", "gte", "lt", "lte":
+			condition := map[string]string{
+				"gt":  "greater than",
+				"gte": "greater than or equal to",
+				"lt":  "less than",
+				"lte": "less than or equal to",
+			}[err.Tag()]
+			newErrs = append(newErrs, fmt.Errorf("%q should be %s %s", err.StructField(), condition, err.Param()))
 
 		case "is_valid":
-			newErrs = append(newErrs, fmt.Errorf("%s is invalid: %v", err.StructField(), err.Value()))
+			newErrs = append(newErrs, fmt.Errorf("%q is invalid: %v", err.StructField(), err.Value()))
 
 		case "required":
-			newErrs = append(newErrs, fmt.Errorf("%s is required", err.StructField()))
+			newErrs = append(newErrs, fmt.Errorf("%q is required", err.StructField()))
 
-		case "required_if":
-			newErrs = append(newErrs, fmt.Errorf("%s is required, since %s", err.StructField(), err.Param()))
+		case "required_if", "required_unless":
+			condition := strings.TrimPrefix(err.Tag(), "required_")
+			field, value, found := strings.Cut(err.Param(), " ")
+			if found {
+				newErrs = append(newErrs, fmt.Errorf("%q is required, %s %q is %q", err.StructField(), condition, field, value))
+			} else {
+				newErrs = append(newErrs, fmt.Errorf("%q is required, %s %q", err.StructField(), condition, err.Param()))
+			}
 
 		default:
 			newErrs = append(newErrs, err)
