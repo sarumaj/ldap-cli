@@ -46,7 +46,7 @@ jobs:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPORTER_ID }}
         with:
           coverageCommand: gocov test ./... -coverprofile=c.out
-          coverageLocations: ${{ github.workspace }}/c.out:gocov
+          coverageLocations: ./c.out:gocov
           debug: true
           prefix: github.com/${{ github.repository }}
       - name: Precompile binaries and upload assets
