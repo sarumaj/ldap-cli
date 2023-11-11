@@ -19,7 +19,7 @@ import (
 var rootFlags struct {
 	address        string `flag:"url"`
 	authType       string `flag:"auth-type"`
-	bindParameters auth.BindParameters 
+	bindParameters auth.BindParameters
 	debug          bool `flag:"Debug"`
 	dialOptions    auth.DialOptions
 	disableTLS     bool `flag:"disable-tls"`

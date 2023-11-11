@@ -24,14 +24,17 @@ LDAPS
 LDIF
 libutil
 logrus
+moshable
 NOTREQD
 NTLM
 pflag
 posix
 PREAUTH
+progressbar
 rhysd
 sarumaj
 Sasl
+schollz
 selfupdate
 sirupsen
 SMARTCARD

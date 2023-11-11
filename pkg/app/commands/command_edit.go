@@ -10,6 +10,7 @@ import (
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	"github.com/schollz/progressbar/v3"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -54,7 +55,10 @@ func editChildCommandPreRun(cmd *cobra.Command, _ []string) {
 	)))
 
 	logger.WithFields(apputil.GetFieldsForSearch(&editFlags.searchArguments)).Debug("Querying")
-	_, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, editFlags.searchArguments)))
+	_, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, editFlags.searchArguments, progressbar.NewOptions(-1,
+		progressbar.OptionSetWriter(apputil.Stdout()),
+		progressbar.OptionEnableColorCodes(apputil.IsColorEnabled()),
+	))))
 
 	if len(requests.Entries) == 0 {
 		apputil.PrintlnAndExit("There is nothing to edit matching: %q", editFlags.searchArguments.Filter)
