@@ -16,14 +16,14 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var rootFlags = &struct {
-	address        string
-	authType       string
-	bindParameters auth.BindParameters
-	debug          bool
+var rootFlags struct {
+	address        string `flag:"url"`
+	authType       string `flag:"auth-type"`
+	bindParameters auth.BindParameters 
+	debug          bool `flag:"Debug"`
 	dialOptions    auth.DialOptions
-	disableTLS     bool
-}{}
+	disableTLS     bool `flag:"disable-tls"`
+}
 
 var rootCmd = func() *cobra.Command {
 	rootCmd := &cobra.Command{
@@ -56,31 +56,46 @@ var rootCmd = func() *cobra.Command {
 	return rootCmd
 }()
 
-func rootPersistentPreRun(*cobra.Command, []string) {
+func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 	if rootFlags.debug {
 		apputil.Logger.SetLevel(logrus.DebugLevel)
 	}
 
-	if _ = rootFlags.dialOptions.SetURL(rootFlags.address); rootFlags.dialOptions.URL.Scheme == auth.LDAPS {
+	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootPersistentPreRun"})
+	logger.Debug("Executing")
+
+	_ = rootFlags.dialOptions.SetURL(rootFlags.address)
+	logger.WithField("dialOptions.URL", rootFlags.dialOptions.URL.String()).Debug("Set")
+	if rootFlags.dialOptions.URL.Scheme == auth.LDAPS {
 		_ = rootFlags.dialOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: rootFlags.disableTLS})
+		logger.WithField("dialOptions.TLSConfig.InsecureSkipVerify", rootFlags.dialOptions.TLSConfig.InsecureSkipVerify).Debug("Set")
 	}
 
 	switch _ = rootFlags.bindParameters.SetType(auth.TypeFromString(rootFlags.authType)); {
 
-	case len(rootFlags.bindParameters.User)*len(rootFlags.bindParameters.Password) != 0 &&
-		rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
+	case
+		len(rootFlags.bindParameters.User)*len(rootFlags.bindParameters.Password) != 0 &&
+			rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
 
 		_ = rootFlags.bindParameters.SetType(auth.SIMPLE)
+		logger.WithField("bindParameters.Type", rootFlags.bindParameters.AuthType.String()).Debug("Set")
 
-	case len(rootFlags.bindParameters.User)*len(rootFlags.bindParameters.Password)*len(rootFlags.bindParameters.Domain) != 0 &&
-		rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
+	case
+		len(rootFlags.bindParameters.User)*len(rootFlags.bindParameters.Password)*len(rootFlags.bindParameters.Domain) != 0 &&
+			rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
 
 		_ = rootFlags.bindParameters.SetType(auth.NTLM)
+		logger.WithField("bindParameters.Type", rootFlags.bindParameters.AuthType.String()).Debug("Set")
 
 	}
+
+	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Options")
 }
 
 func rootRun(cmd *cobra.Command, _ []string) {
+	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootRun"})
+	logger.Debug("Executing")
+
 	if rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED {
 		var confirm bool
 		supererrors.Except(survey.AskOne(&survey.Confirm{
@@ -114,9 +129,6 @@ func rootRun(cmd *cobra.Command, _ []string) {
 	}
 
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getCmd)))
-
-	// since the flags could have changed, pre run must be invoked again
-	cmd.PersistentPreRun(cmd, nil)
 	if child.PersistentPreRun != nil {
 		child.PersistentPreRun(child, nil)
 	}

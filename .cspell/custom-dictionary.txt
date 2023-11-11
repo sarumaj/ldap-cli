@@ -17,6 +17,7 @@ gecos
 goccy
 GSSAPI
 Hexify
+Infof
 INTERDOMAIN
 jszwec
 LDAPS

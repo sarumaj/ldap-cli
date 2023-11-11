@@ -1,6 +1,7 @@
 package commands
 
 import (
+	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
@@ -21,13 +22,13 @@ var defaultUserGetAttributes = attributes.Attributes{
 	attributes.UserPrincipalName(),
 }
 
-var getUserFlags = &struct {
-	id          string
-	enabled     bool
-	expired     bool
-	memberOf    string
-	recursively bool
-}{}
+var getUserFlags struct {
+	id          string `flag:"user-id"`
+	enabled     bool   `flag:"enabled"`
+	expired     bool   `flag:"expired"`
+	memberOf    string `flag:"member-of"`
+	recursively bool   `flag:"recursively"`
+}
 
 var getUserCmd = func() *cobra.Command {
 	getUserCmd := &cobra.Command{
@@ -51,10 +52,23 @@ var getUserCmd = func() *cobra.Command {
 }()
 
 func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
+	parent := cmd.Parent()
+	parent.PersistentPreRun(parent, nil)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getUserPersistentPreRun"})
 	logger.Debug("Executing")
 
-	getFlags.searchArguments.Attributes.Append(defaultUserGetAttributes...)
+	if getUserFlags.id == "" {
+		var args []string
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "user-id", &args, false)))
+		supererrors.Except(cmd.ParseFlags(args))
+		getFlags.searchArguments.Filter = filter.ByID(getUserFlags.id)
+		logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter).Debug("Asked")
+	}
+
+	if len(getFlags.searchArguments.Attributes) == 0 {
+		getFlags.searchArguments.Attributes.Append(defaultUserGetAttributes...)
+	}
 	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
 
 	var filters []filter.Filter
