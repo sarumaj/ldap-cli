@@ -9,22 +9,17 @@ func Time1601() time.Time { return time.Date(1601, time.January, 1, 0, 0, 0, 0, 
 
 // Retrieve date by applying offset. It should be in 0.1 µs
 func TimeAfter1601(offset int64) time.Time {
-	begin := Time1601()
-
 	// µs since UNIX epoch
-	n := big.NewInt(begin.UnixMicro())
+	begin := big.NewInt(Time1601().UnixMicro())
 
 	// offset in 0.1 µs
-	n2 := big.NewInt(offset)
+	elapsed := big.NewInt(offset)
 
 	// convert to µs
-	n2 = n2.Div(n2, big.NewInt(10))
+	µs, ns := elapsed.DivMod(elapsed, big.NewInt(10), big.NewInt(10))
 
-	// result
-	r := n.Add(n, n2)
-
-	if r.IsInt64() {
-		return time.UnixMicro(r.Int64())
+	if r := begin.Add(begin, µs); r.IsInt64() {
+		return time.UnixMicro(r.Int64()).Add(time.Duration(ns.Mul(ns, big.NewInt(1000)).Int64()))
 	}
 
 	// handle overflow
