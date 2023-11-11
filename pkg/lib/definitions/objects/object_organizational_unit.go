@@ -12,7 +12,7 @@ type OrganizationalUnit struct {
 	OrganizationalUnit []string `ldap_attr:"ou" csv:"OrganizationalUnit"`
 }
 
-func (o OrganizationalUnit) DN() string { return GetField(&o, "DistinguishedName") }
+func (o OrganizationalUnit) DN() string { return GetField[string](&o, "DistinguishedName") }
 
 func (o *OrganizationalUnit) Read(raw map[string]any) error {
 	err := readMap(o, raw)

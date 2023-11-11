@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -10,16 +11,31 @@ import (
 )
 
 func GetDistinguishedNames[T any](objects []T) []string {
-	var names []string
-	for _, o := range objects {
-		names = append(names, GetField(&o, "DistinguishedName"))
-	}
-
-	return names
+	return GetProperties[string](objects, "DistinguishedName")
 }
 
-func GetField[T any](o *T, prop string) string {
-	return reflect.Indirect(reflect.ValueOf(o)).FieldByName(prop).String()
+func GetField[S, T any](o *T, property string) S {
+	to := reflect.New(reflect.TypeOf((*S)(nil)).Elem())
+	toValue := reflect.Indirect(to)
+	field := reflect.Indirect(reflect.ValueOf(o)).FieldByName(property)
+
+	if toValue.CanConvert(field.Type()) {
+		toValue.Set(toValue.Convert(field.Type()))
+	}
+
+	if toValue.CanSet() && field.Type().AssignableTo(toValue.Type()) {
+		toValue.Set(field)
+	}
+
+	return toValue.Interface().(S)
+}
+
+func GetProperties[S, T any](objects []T, property string) (properties []S) {
+	for _, o := range objects {
+		properties = append(properties, GetField[S](&o, property))
+	}
+
+	return
 }
 
 func hexify(s string) string {
@@ -31,9 +47,10 @@ func hexify(s string) string {
 	return strings.Join(chars, "")
 }
 
-func readMap[T any](o *T, raw map[string]any) (err error) {
+func readMap[T any](o *T, raw map[string]any) error {
 	v := reflect.ValueOf(o).Elem()
 
+	var errs []error
 	for j := 0; j < v.NumField(); j++ {
 		field := v.Field(j)
 
@@ -50,10 +67,11 @@ func readMap[T any](o *T, raw map[string]any) (err error) {
 		}
 
 		if value, ok := raw[strings.ToLower(map_key)]; ok && field.IsValid() {
+
 			// handle panic
 			defer func() {
 				if recovered := recover(); recovered != nil {
-					err = fmt.Errorf("%v", recovered)
+					errs = append(errs, fmt.Errorf("%v", recovered))
 				}
 			}()
 
@@ -91,7 +109,7 @@ func readMap[T any](o *T, raw map[string]any) (err error) {
 		}
 	}
 
-	return
+	return errors.Join(errs...)
 }
 
 func Unhexify(s string) string {

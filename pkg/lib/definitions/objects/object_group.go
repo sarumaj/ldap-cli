@@ -21,7 +21,7 @@ type Group struct {
 	SID               string   `ldap_attr:"objectSid" csv:"-"`
 }
 
-func (g Group) DN() string { return GetField(&g, "DistinguishedName") }
+func (g Group) DN() string { return GetField[string](&g, "DistinguishedName") }
 
 func (g *Group) Read(raw map[string]any) error {
 	err := readMap(g, raw)
