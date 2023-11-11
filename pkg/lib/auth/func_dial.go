@@ -72,14 +72,20 @@ func Dial(opts *DialOptions) (conn net.Conn, err error) {
 		return nil, err
 	}
 
-	// resolve DNS
-	addresses, err := net.LookupHost(opts.URL.Host)
-	if err != nil {
-		return nil, err
-	}
+	switch opts.URL.Host {
+	case "localhost": // ignore
 
-	// select random address and resolve back
-	opts.URL.Host = libutil.LookupAddress(addresses[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(addresses))])
+	default:
+		// resolve DNS
+		addresses, err := net.LookupHost(opts.URL.Host)
+		if err != nil {
+			return nil, err
+		}
+
+		// select random address and resolve back
+		opts.URL.Host = libutil.LookupAddress(addresses[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(addresses))])
+
+	}
 
 	if opts.URL.Scheme == LDAPS {
 		if opts.TLSConfig == nil {
