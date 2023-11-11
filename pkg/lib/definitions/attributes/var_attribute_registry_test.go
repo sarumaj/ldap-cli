@@ -29,18 +29,24 @@ func TestLookupMany(t *testing.T) {
 	_ = copy(copyRegistry, registry)
 	copyRegistry.Sort()
 
+	type args struct {
+		strict bool
+		attrs  []string
+	}
+
 	for _, tt := range []struct {
 		name string
-		args []string
+		args args
 		want Attributes
 	}{
-		{"test#1", []string{"name", "name", "accountExpires"}, Attributes{accountExpires, name}},
-		{"test#2", []string{"invalid"}, nil},
-		{"test#3", []string{"userPassword"}, Attributes{userPassword}},
-		{"test#4", []string{"*"}, copyRegistry},
+		{"test#1", args{true, []string{"name", "name", "accountExpires"}}, Attributes{accountExpires, name}},
+		{"test#2", args{true, []string{"invalid"}}, nil},
+		{"test#3", args{true, []string{"userPassword"}}, Attributes{userPassword}},
+		{"test#4", args{true, []string{"*"}}, copyRegistry},
+		{"test#5", args{false, []string{"*"}}, Attributes{Raw("*", "", TypeRaw)}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			got := LookupMany(tt.args...)
+			got := LookupMany(tt.args.strict, tt.args.attrs...)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf(`LookupMany(%v) failed: got: %v, want: %v`, tt.args, got, tt.want)
 			}

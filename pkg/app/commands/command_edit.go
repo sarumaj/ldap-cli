@@ -106,7 +106,7 @@ func editPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 
 	// select all properties, even the unregistered ones
-	editFlags.searchArguments.Attributes = attributes.Attributes{attributes.Raw("*", "", attributes.TypeRaw)}
+	editFlags.searchArguments.Attributes = attributes.LookupMany(false, "*")
 	logger.WithField("searchArguments.attributes", editFlags.searchArguments.Attributes).Debug("Set")
 }
 

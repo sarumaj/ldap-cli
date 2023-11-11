@@ -16,6 +16,7 @@ func TestAppend(t *testing.T) {
 		want Attributes
 	}{
 		{"test#1", Attributes{name, accountExpires, displayName, name}, Attributes{accountExpires, displayName, name}},
+		{"test#2", Attributes{Any()}, Attributes{Any()}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			var got Attributes
