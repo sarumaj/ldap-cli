@@ -40,13 +40,10 @@ for ((j = 0; j < ${#supported_platforms[@]}; j++)); do
         -o "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed" \
         "cmd/ldap-cli/main.go"
 
-    # since upx does not support win64/arm64 yet
-    # since upx does not work on freebsd with 64 bit arch
-    if [[ "$p" == windows-arm64 ]] || [[ "$p" == freebsd* ]]; then
-        mv "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed" "dist/ldap-cli_${VERSION}_${p}${ext}"
-    else
+    (
         upx --best -v "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed" -o "dist/ldap-cli_${VERSION}_${p}${ext}" &&
             rm "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed"
-    fi
+    ) || mv "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed" "dist/ldap-cli_${VERSION}_${p}${ext}"
+
     sha256sum "dist/ldap-cli_${VERSION}_${p}${ext}" | awk '{print $1}' >"dist/ldap-cli_${VERSION}_${p}${ext}.sha256"
 done
