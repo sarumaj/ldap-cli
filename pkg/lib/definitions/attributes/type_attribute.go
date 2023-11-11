@@ -17,6 +17,7 @@ type Attribute struct {
 	Type            Type
 }
 
+//gocyclo:ignore
 func (a Attribute) Parse(values []string, attrMap *Map) {
 	if len(values) == 0 || attrMap == nil {
 		return
