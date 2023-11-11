@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/goccy/go-yaml"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	"github.com/sirupsen/logrus"
 	cobra "github.com/spf13/cobra"
-	yaml "gopkg.in/yaml.v3"
 )
 
 var filterString string
@@ -63,12 +64,34 @@ var searchCmd = func() *cobra.Command {
 	return searchCmd
 }()
 
-func performSearch(*cobra.Command, []string) {
+func performSearch(cmd *cobra.Command, _ []string) {
+	command := []string{cmd.Name()}
+	for c := cmd.Parent(); c != nil; c.Parent() {
+		command = append(command, c.Name())
+	}
+
+	logger := cmdLogger.WithField("command", command)
+	logger.WithFields(logrus.Fields{
+		"bindParameters.AuthType":         bindParameters.AuthType.String(),
+		"bindParameters.Domain":           bindParameters.Domain,
+		"bindParameters.User":             bindParameters.User,
+		"bindParameters.PasswordProvided": len(bindParameters.Password) > 0,
+		"dialOptions.MaxRetries":          dialOptions.MaxRetries,
+		"dialOptions.SizeLimit":           dialOptions.SizeLimit,
+		"dialOptions.TLSEnabled":          dialOptions.TLSConfig != nil && !dialOptions.TLSConfig.InsecureSkipVerify,
+		"dialOptions.TimeLimit":           dialOptions.TimeLimit,
+		"dialOptions.URL":                 dialOptions.URL.String(),
+	}).Debug("Connecting")
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
 		bindParameters,
 		dialOptions,
 	)))
 
+	logger.WithFields(logrus.Fields{
+		"searchArguments.Attributes": searchArguments.Attributes.ToAttributeList(),
+		"searchArguments.Filter":     searchArguments.Filter.String(),
+		"searchArguments.Path":       searchArguments.Path,
+	}).Debug("Querying")
 	results := supererrors.ExceptFn(supererrors.W(client.Search(conn, *searchArguments)))
 
 	switch format {
@@ -86,8 +109,6 @@ func performSearch(*cobra.Command, []string) {
 		supererrors.Except(w.WriteAll(lines))
 
 	default:
-		e := yaml.NewEncoder(apputil.Stdout())
-		e.SetIndent(2)
 		maps := make([]map[string]any, len(results))
 		for i, r := range results {
 			maps[i] = make(map[string]any)
@@ -95,7 +116,7 @@ func performSearch(*cobra.Command, []string) {
 				maps[i][a.String()] = r[a]
 			}
 		}
-		supererrors.Except(e.Encode(maps))
+		supererrors.Except(apputil.NewColoredYAMLEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(maps))
 
 	}
 

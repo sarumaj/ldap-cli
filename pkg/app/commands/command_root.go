@@ -13,7 +13,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var loggerEntry = apputil.Logger.WithFields(logrus.Fields{"mod": "commands"})
+var cmdLogger = apputil.Logger.WithFields(logrus.Fields{"mod": "commands"})
 
 var address string
 var authType string
@@ -77,9 +77,9 @@ var rootCmd = func() *cobra.Command {
 func Execute(version, buildDate string) {
 	internalVersion, internalBuildDate = version, buildDate
 
-	loggerEntry.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, apputil.GetExecutablePath())
+	cmdLogger.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, apputil.GetExecutablePath())
 
 	if err := rootCmd.Execute(); err != nil {
-		loggerEntry.Debugf("Execution failed: %v", err)
+		cmdLogger.Debugf("Execution failed: %v", err)
 	}
 }
