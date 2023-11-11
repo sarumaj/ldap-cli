@@ -2,6 +2,7 @@ package commands
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -56,6 +57,8 @@ var rootCmd = func() *cobra.Command {
 	return rootCmd
 }()
 
+// Runs always before all executions (inherited by child commands provided).
+// Intelligently sets bind request options
 func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 	if rootFlags.debug {
 		apputil.Logger.SetLevel(logrus.DebugLevel)
@@ -92,16 +95,20 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Options")
 }
 
+// Runs in interactive mode by asking user to provide values for app parameters
 func rootRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootRun"})
 	logger.Debug("Executing")
 
 	if rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED {
 		var confirm bool
-		supererrors.Except(survey.AskOne(&survey.Confirm{
+		if err := survey.AskOne(&survey.Confirm{
 			Message: "Running in UNAUTHENTICATED mode, proceed?",
 			Default: false,
-		}, &confirm), terminal.InterruptErr)
+		}, &confirm); errors.Is(err, terminal.InterruptErr) {
+
+			apputil.PrintlnAndExit("Aborted")
+		}
 
 		if !confirm {
 			var args []string
@@ -136,6 +143,7 @@ func rootRun(cmd *cobra.Command, _ []string) {
 }
 
 // Execute executes the root command.
+// For test purpose, command arguments can be provided
 func Execute(version, buildDate string, args ...string) {
 	internalVersion, internalBuildDate = version, buildDate
 

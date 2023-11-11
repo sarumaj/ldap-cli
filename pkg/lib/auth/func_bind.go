@@ -112,4 +112,5 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 	}, nil
 }
 
+// Create new bind parameters
 func NewBindParameters() *BindParameters { return &BindParameters{AuthType: UNAUTHENTICATED} }

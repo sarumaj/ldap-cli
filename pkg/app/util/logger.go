@@ -13,7 +13,7 @@ import (
 	tracerr "github.com/ztrue/tracerr"
 )
 
-// App logger (default format JSON).
+// App logger (default format JSON)
 var Logger = func() *logrus.Logger {
 	l := logrus.New()
 	l.SetLevel(logrus.WarnLevel)
@@ -60,8 +60,10 @@ var Logger = func() *logrus.Logger {
 	return l
 }()
 
+// Log fields in JSON format mode
 type Fields = logrus.Fields
 
+// Produce log fields describing a bind request
 func GetFieldsForBind(bindParameters *auth.BindParameters, dialOptions *auth.DialOptions) logrus.Fields {
 	fields := make(logrus.Fields)
 	if bindParameters == nil {
@@ -86,6 +88,7 @@ func GetFieldsForBind(bindParameters *auth.BindParameters, dialOptions *auth.Dia
 	return fields
 }
 
+// Produce log fields describing a search request
 func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
 	fields := make(logrus.Fields)
 	if searchArguments == nil {
@@ -99,8 +102,8 @@ func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
 	return fields
 }
 
-// Print to Stdout and exit.
+// Print to Stdout and exit
 func PrintlnAndExit(format string, a ...any) {
-	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(Stderr(), CheckColors(color.RedString, format, a...))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(Stderr(), PrintColors(color.RedString, format, a...))))
 	os.Exit(1)
 }

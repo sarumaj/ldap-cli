@@ -15,6 +15,7 @@ import (
 
 var splitByNewLineRegex = regexp.MustCompile("\r?\n")
 
+// Ask to provide a boolean value for given flag, while offering the option to deny answer (skip)
 func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {
@@ -55,6 +56,7 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey
 	return set, nil
 }
 
+// Ask to select a sub-command while providing a default sub-command
 func AskCommand(cmd *cobra.Command, def *cobra.Command, opts ...survey.AskOpt) (*cobra.Command, error) {
 	var options []string
 	for _, child := range cmd.Commands() {
@@ -94,6 +96,7 @@ func AskCommand(cmd *cobra.Command, def *cobra.Command, opts ...survey.AskOpt) (
 	return def, nil
 }
 
+// Ask to modify an object in LDAP Interchange Data Format
 func AskLDAPDataInterchangeFormat(requests *ldif.LDIF, editor string) (bool, error) {
 	before, err := ldif.Marshal(requests)
 	if err != nil {
@@ -125,6 +128,7 @@ func AskLDAPDataInterchangeFormat(requests *ldif.LDIF, editor string) (bool, err
 	return true, nil
 }
 
+// Ask to provide answers for given flag in multiline text mode (each option is separated by a new line)
 func AskMultiline(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {
@@ -168,6 +172,9 @@ func AskMultiline(cmd *cobra.Command, flagName string, args *[]string, opts ...s
 	return true, nil
 }
 
+// Ask a string value for given flag, while offering a default value.
+// If default value is not provided, the default value of the flag will be used.
+// Password mode (sensitive input mode) is supported
 func AskString(cmd *cobra.Command, flagName string, args *[]string, password bool, def string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {
@@ -214,6 +221,9 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string, password boo
 	return true, nil
 }
 
+// Ask to select one or many option from many fro given flag, default options may be provided.
+// If just one default option is being provided, a selection of only one option is foreseen,
+// otherwise multiple selection is possible.
 func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args *[]string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {

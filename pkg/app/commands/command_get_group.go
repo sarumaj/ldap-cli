@@ -8,6 +8,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Default attributes for search query
 var defaultGroupGetAttributes = attributes.Attributes{
 	attributes.CommonName(),
 	attributes.Description(),
@@ -22,10 +23,12 @@ var defaultGroupGetAttributes = attributes.Attributes{
 	attributes.UserPrincipalName(),
 }
 
+// Command options
 var getGroupFlags struct {
 	id string `flag:"group-id"`
 }
 
+// "group" command
 var getGroupCmd = func() *cobra.Command {
 	getGroupCmd := &cobra.Command{
 		Use:   "group",
@@ -45,6 +48,7 @@ var getGroupCmd = func() *cobra.Command {
 	return getGroupCmd
 }()
 
+// Runs always prior to "run"
 func getGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)

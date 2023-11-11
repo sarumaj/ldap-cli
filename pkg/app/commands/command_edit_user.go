@@ -9,12 +9,14 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Command options
 var editUserFlags struct {
 	id           string `flag:"user-id"`
 	password     string `flag:"new-password"`
 	pwdAttribute string `flag:"password-attribute"`
 }
 
+// "user" command
 var editUserCmd = func() *cobra.Command {
 	editUserCmd := &cobra.Command{
 		Use:   "user",
@@ -38,6 +40,7 @@ var editUserCmd = func() *cobra.Command {
 	return editUserCmd
 }()
 
+// Runs always prior to "run"
 func editUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)
@@ -62,6 +65,7 @@ func editUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Debug("Set")
 }
 
+// Actual "run" prepares a modify request
 func editUserRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editUserRun"})
 	logger.Debug("Executing")

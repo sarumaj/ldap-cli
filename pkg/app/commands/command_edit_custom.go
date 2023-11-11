@@ -9,10 +9,12 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Command options
 var editCustomFlags struct {
 	filterString string `flag:"filter"`
 }
 
+// "custom" command
 var editCustomCmd = func() *cobra.Command {
 	editCustomCmd := &cobra.Command{
 		Use:   "custom",
@@ -37,6 +39,7 @@ var editCustomCmd = func() *cobra.Command {
 	return editCustomCmd
 }()
 
+// Runs always prior to "run"
 func editCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)
@@ -56,6 +59,7 @@ func editCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Debug("Set")
 }
 
+// Actual "run" prepares a modify request
 func editCustomRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editCustomRun"})
 	logger.Debug("Executing")

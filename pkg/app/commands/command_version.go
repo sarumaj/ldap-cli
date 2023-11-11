@@ -41,6 +41,7 @@ var versionCmd = func() *cobra.Command {
 	return versionCmd
 }()
 
+// Check app version or/and update to the latest
 func versionRun(*cobra.Command, []string) {
 	current := supererrors.ExceptFn(supererrors.W(semver.ParseTolerant(internalVersion)))
 	latest, found, err := selfupdate.DetectLatest(remoteRepository)
@@ -65,7 +66,7 @@ func versionRun(*cobra.Command, []string) {
 
 	}
 
-	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
-	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Built at: %s", internalBuildDate))))
-	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Executable path: %s", libutil.GetExecutablePath()))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Built at: %s", internalBuildDate))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Executable path: %s", libutil.GetExecutablePath()))))
 }

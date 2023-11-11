@@ -14,12 +14,14 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Default attributes for search queries
 var defaultGetAttributes = map[string]attributes.Attributes{
 	getCustomCmd.Name(): defaultCustomGetAttributes,
 	getGroupCmd.Name():  defaultGroupGetAttributes,
 	getUserCmd.Name():   defaultUserGetAttributes,
 }
 
+// Command options
 var getFlags struct {
 	format           string `flag:"format"`
 	searchArguments  client.SearchArguments
@@ -27,6 +29,7 @@ var getFlags struct {
 	output           string
 }
 
+// "get" command
 var getCmd = func() *cobra.Command {
 	getCmd := &cobra.Command{
 		Use:   "get",
@@ -50,11 +53,13 @@ var getCmd = func() *cobra.Command {
 	return getCmd
 }()
 
+// Runner for a sub-command of the "get" command.
+// It will bind to a domain controller and execute the search query
 func getChildCommandRun(cmd *cobra.Command, args []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getChildCommandRun"})
 	logger.Debug("Executing")
 
-	//logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
+	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
 		&rootFlags.bindParameters,
 		&rootFlags.dialOptions,
@@ -77,6 +82,8 @@ func getChildCommandRun(cmd *cobra.Command, args []string) {
 
 }
 
+// Runs always prior to "run" (inherited by child commands of the "get" command).
+// Search request parameters will be set from command options
 func getPersistentPreRun(cmd *cobra.Command, args []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, args)
@@ -96,6 +103,7 @@ func getPersistentPreRun(cmd *cobra.Command, args []string) {
 	}
 }
 
+// Runs "get" command in interactive mode by asking user to provide values for command parameters
 func getRun(cmd *cobra.Command, args []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getRun"})
 	logger.Debug("Executing")

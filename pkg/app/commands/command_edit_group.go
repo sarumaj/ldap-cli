@@ -10,6 +10,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Command options
 var editGroupFlags struct {
 	id               string   `flag:"group-id"`
 	addMembers       []string `flag:"add-member"`
@@ -18,6 +19,7 @@ var editGroupFlags struct {
 	membersAttribute string   `flag:"member-attribute"`
 }
 
+// "group" command
 var editGroupCmd = func() *cobra.Command {
 	editGroupCmd := &cobra.Command{
 		Use:   "group",
@@ -44,6 +46,7 @@ var editGroupCmd = func() *cobra.Command {
 	return editGroupCmd
 }()
 
+// Runs always prior to "run"
 func editGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)
@@ -80,6 +83,7 @@ func editGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Debug("Set")
 }
 
+// Actual "run" prepares a modify request
 func editGroupRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editGroupRun"})
 	logger.Debug("Executing")

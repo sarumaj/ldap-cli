@@ -9,5 +9,5 @@ type Connection struct {
 	remoteHost string
 }
 
-func (c Connection) Close() error       { return c.Conn.Close() }
-func (c Connection) RemoteHost() string { return c.remoteHost }
+func (c Connection) Close() error       { return c.Conn.Close() } // Close TCP connection
+func (c Connection) RemoteHost() string { return c.remoteHost }   // retrieve address of current domain controller

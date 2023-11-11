@@ -10,6 +10,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Default attributes for search query
 var defaultCustomGetAttributes = attributes.Attributes{
 	attributes.CommonName(),
 	attributes.DisplayName(),
@@ -21,10 +22,12 @@ var defaultCustomGetAttributes = attributes.Attributes{
 	attributes.SamAccountType(),
 }
 
+// Command options
 var getCustomFlags struct {
 	filterString string `flag:"filter"`
 }
 
+// "custom" command
 var getCustomCmd = func() *cobra.Command {
 	getCustomCmd := &cobra.Command{
 		Use:   "custom",
@@ -48,6 +51,7 @@ var getCustomCmd = func() *cobra.Command {
 	return getCustomCmd
 }()
 
+// Runs always prior to "run"
 func getCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)

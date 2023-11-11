@@ -18,14 +18,17 @@ import (
 )
 
 const (
-	CSV     = "csv"
-	DEFAULT = "default"
-	LDIF    = "ldif"
-	YAML    = "yaml"
+	CSV     = "csv"     // CSV format, "," being used as delimiter
+	DEFAULT = "default" // Colorful YAML output
+	LDIF    = "ldif"    // LDAP Data Interchange Format
+	YAML    = "yaml"    // YAML
 )
 
 var supportedFormats = []string{CSV, DEFAULT, LDIF, YAML}
 
+// Encode results into given format.
+// Writer is supposed to be either stdout or a file.
+// Per default, colorful YAML format takes precedences and is being emitted to stdout
 func Flush(results attributes.Maps, requests *ldif.LDIF, format string, out io.Writer) error {
 	switch format {
 
@@ -93,6 +96,7 @@ func Flush(results attributes.Maps, requests *ldif.LDIF, format string, out io.W
 	}
 }
 
+// List supported formats
 func ListSupportedFormats(quote bool) (list []string) {
 	for _, f := range supportedFormats {
 		if quote {
@@ -106,6 +110,7 @@ func ListSupportedFormats(quote bool) (list []string) {
 	return
 }
 
+// Detect expected format from file extension
 func SniffFormat(filename, format string) string {
 	switch format := strings.TrimPrefix(filepath.Ext(filename), "."); format {
 

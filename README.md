@@ -12,7 +12,14 @@ Developed as Computer Science Project for IU (www.iu-fernstudium.de).
 
 ## Installation
 
-Download executable binary from the release section and add its location to the $PATH environment variable.
+Download executable binary from the [release section](https://github.com/sarumaj/ldap-cli/releases/latest), e.g.:
+
+```console
+$ latest=$(curl -fsSI https://github.com/sarumaj/ldap-cli/releases/latest | grep -i location | sed 's/\r$//' | awk -F/ '{print $NF}') && \
+  curl -fsSL "https://github.com/sarumaj/ldap-cli/releases/download/${latest}/ldap-cli_${latest}_linux-amd64" -o /usr/local/bin/ldap-cli
+$ chmod +x /usr/local/bin/ldap-cli
+```
+
 Alternatively, build from source code (requires go 1.21.x runtime):
 
 ```console
@@ -22,9 +29,9 @@ $ go build \
     -trimpath \
     -ldflags="-s -w -X 'main.Version=$(git describe --tags --abbrev=0)' -X 'main.BuildDate=$(date -u "+%Y-%m-%d %H:%M:%S UTC")' -extldflags=-static" \
     -tags="osusergo netgo static_build" \
-    -o ldap-cli \
+    -o /usr/local/bin/ldap-cli \
     "cmd/ldap-cli/main.go"
-
+$ chmod +x /usr/local/bin/ldap-cli
 ```
 
 ## Features

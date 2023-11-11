@@ -100,4 +100,5 @@ func Dial(opts *DialOptions) (conn net.Conn, err error) {
 	return conn, libutil.Handle(err)
 }
 
+// Create new dial-in options
 func NewDialOptions() *DialOptions { return &DialOptions{} }

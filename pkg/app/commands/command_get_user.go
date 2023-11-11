@@ -9,6 +9,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Default attributes for search query
 var defaultUserGetAttributes = attributes.Attributes{
 	attributes.CommonName(),
 	attributes.DisplayName(),
@@ -23,6 +24,7 @@ var defaultUserGetAttributes = attributes.Attributes{
 	attributes.UserPrincipalName(),
 }
 
+// Command options
 var getUserFlags struct {
 	id          string   `flag:"user-id"`
 	enabled     bool     `flag:"enabled"`
@@ -31,6 +33,7 @@ var getUserFlags struct {
 	recursively bool     `flag:"recursively"`
 }
 
+// "user" command
 var getUserCmd = func() *cobra.Command {
 	getUserCmd := &cobra.Command{
 		Use:   "user",
@@ -52,6 +55,7 @@ var getUserCmd = func() *cobra.Command {
 	return getUserCmd
 }()
 
+// Runs always prior to "run"
 func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)

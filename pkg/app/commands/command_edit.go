@@ -14,12 +14,14 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// Command options
 var editFlags struct {
 	editor          string `flag:"editor"`
 	requests        *ldif.LDIF
 	searchArguments client.SearchArguments
 }
 
+// "edit" command
 var editCmd = func() *cobra.Command {
 	editCmd := &cobra.Command{
 		Use:   "edit",
@@ -44,6 +46,7 @@ var editCmd = func() *cobra.Command {
 	return editCmd
 }()
 
+// Runs prior to "run" and executes search query for a child command
 func editChildCommandPreRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editChildCommandPreRun"})
 	logger.Debug("Executing")
@@ -71,6 +74,7 @@ func editChildCommandPreRun(cmd *cobra.Command, _ []string) {
 	editFlags.requests = requests
 }
 
+// Runs after a "run" and executes a modify request for a child command
 func editChildCommandPostRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editChildCommandPostRun"})
 	logger.Debug("Executing")
@@ -99,6 +103,7 @@ func editChildCommandPostRun(cmd *cobra.Command, _ []string) {
 	}
 }
 
+// Runs prior to "run" and sets search query options (inherited by child commands)
 func editPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)
@@ -116,6 +121,7 @@ func editPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger.WithField("searchArguments.attributes", editFlags.searchArguments.Attributes).Debug("Set")
 }
 
+// Runs in an interactive mode by asking user to provide options for the command
 func editRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editRun"})
 	logger.Debug("Executing")
