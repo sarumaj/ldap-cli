@@ -116,7 +116,7 @@ func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.Progre
 	defer cancel()
 
 	for id, pagingControl := 0, ldap.NewControlPaging(1); true; id++ {
-		sr := conn.SearchAsync(ctx, ldap.NewSearchRequest(
+		request := ldap.NewSearchRequest(
 			args.Path, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
 			int(conn.SizeLimit),               // SizeLimit
 			int(conn.TimeLimit.Seconds()),     // TimeLimit
@@ -124,12 +124,9 @@ func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.Progre
 			args.Filter.String(),              // LDAP Filter
 			args.Attributes.ToAttributeList(), // Attribute List
 			[]ldap.Control{pagingControl},     // []ldap.Control
-		), 1)
+		)
 
-		if err := sr.Err(); err != nil {
-			return nil, nil, err
-		}
-
+		sr := conn.SearchAsync(ctx, request, 1)
 		requests = &ldif.LDIF{}
 		for s := (*ldap.Entry)(nil); sr.Next(); s = sr.Entry() {
 			if s == nil {
@@ -180,6 +177,10 @@ func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.Progre
 			}
 
 			results = append(results, converted)
+		}
+
+		if err := sr.Err(); err != nil {
+			return nil, nil, err
 		}
 
 		if ctrl, ok := ldap.FindControl(sr.Controls(), ldap.ControlTypePaging).(*ldap.ControlPaging); ok && ctrl != nil && len(ctrl.Cookie) > 0 {

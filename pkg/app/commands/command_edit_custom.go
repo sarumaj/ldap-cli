@@ -46,7 +46,7 @@ func editCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	if editCustomFlags.filterString == "" {
 		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "filter", &args, false)))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "filter", &args, false, "")))
 		supererrors.Except(cmd.ParseFlags(args))
 		editFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(getCustomFlags.filterString)))
 		logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter).Debug("Asked")
