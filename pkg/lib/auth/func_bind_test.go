@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"crypto/tls"
-	"os"
 	"reflect"
 	"testing"
 
@@ -24,17 +22,13 @@ func TestBind(t *testing.T) {
 		wantErr bool
 	}{
 		{"test#1", args{
-			NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-			NewBindParameters().SetType(SIMPLE).SetDomain("").SetUser(os.Getenv("AD_DEFAULT_USER")).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
+			NewDialOptions().SetURL("ldap://localhost:389"),
+			NewBindParameters().SetType(SIMPLE).SetUser("cn=admin,dc=mock,dc=ad,dc=com").SetPassword("admin"),
 		}, false},
 		{"test#2", args{
-			NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-			nil,
-		}, false},
-		{"test#3", args{
 			func() *DialOptions { d := NewDialOptions(); d.SetDefaults(); return d }(),
 			NewBindParameters().SetType(UNAUTHENTICATED),
-		}, true},
+		}, false},
 	} {
 
 		t.Run(tt.name, func(t *testing.T) {

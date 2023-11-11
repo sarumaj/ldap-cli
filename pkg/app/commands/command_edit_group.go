@@ -4,16 +4,18 @@ import (
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
+	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 	cobra "github.com/spf13/cobra"
 )
 
 var editGroupFlags = &struct {
-	id             string
-	addMembers     []string
-	deleteMembers  []string
-	replaceMembers []string
+	id               string
+	addMembers       []string
+	deleteMembers    []string
+	replaceMembers   []string
+	membersAttribute string
 }{}
 
 var editGroupCmd = func() *cobra.Command {
@@ -37,6 +39,7 @@ var editGroupCmd = func() *cobra.Command {
 	flags.StringArrayVar(&editGroupFlags.addMembers, "add-member", nil, "Add member with given distinguished name to the group")
 	flags.StringArrayVar(&editGroupFlags.deleteMembers, "remove-member", nil, "Remove member with given distinguished name from the group")
 	flags.StringArrayVar(&editGroupFlags.replaceMembers, "replace-member", nil, "Replace members of the group with the provided ones identified by their distinguished names")
+	flags.StringVar(&editGroupFlags.membersAttribute, "member-attribute", attributes.Members().String(), "Configure custom attribute name for variant directory schema")
 
 	return editGroupCmd
 }()
@@ -78,6 +81,7 @@ func editGroupRun(cmd *cobra.Command, _ []string) {
 		editGroupFlags.addMembers,
 		editGroupFlags.deleteMembers,
 		editGroupFlags.replaceMembers,
+		attributes.Attribute{LDAPDisplayName: editGroupFlags.membersAttribute},
 	)
 
 	if len(request.Changes) == 0 {

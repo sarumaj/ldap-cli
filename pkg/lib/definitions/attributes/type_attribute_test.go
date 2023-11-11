@@ -296,8 +296,8 @@ func TestParse(t *testing.T) {
 			args{Raw("unknown", "", "unknown"), []string{"invalid"}},
 			nil},
 		{"test#85",
-			args{UserPassword(), []string{"pass"}},
-			Map{UserPassword(): "pass"}},
+			args{UnicodePassword(), []string{"pass"}},
+			Map{UnicodePassword(): "pass"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			attr, attrMap, values := tt.args.a, Map{}, tt.args.v

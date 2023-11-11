@@ -125,15 +125,24 @@ func editRun(cmd *cobra.Command, _ []string) {
 
 	case editGroupCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false)))
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "add-member", &args)))
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "remove-member", &args)))
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "replace-member", &args)))
+
+		switch {
+		case
+			supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "add-member", &args))),
+			supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "remove-member", &args))),
+			supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "replace-member", &args))):
+
+			supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "member-attribute", &args, false)))
+		}
+
 		logger.WithFields(apputil.Fields{"flags": []string{"group-id", "add-member", "remove-member", "replace-member"}, "args": args}).Debug("Asked")
 
 	case editUserCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false)))
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password", &args, true)))
-		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "new-password", "old-password"}, "args": args}).Debug("Asked")
+		if supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password", &args, true))) {
+			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password-attribute", &args, false)))
+		}
+		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "password", "password-attribute"}, "args": args}).Debug("Asked")
 
 	}
 

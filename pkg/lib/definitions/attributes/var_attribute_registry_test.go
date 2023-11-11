@@ -41,7 +41,7 @@ func TestLookupMany(t *testing.T) {
 	}{
 		{"test#1", args{true, []string{"name", "name", "accountExpires"}}, Attributes{accountExpires, name}},
 		{"test#2", args{true, []string{"invalid"}}, nil},
-		{"test#3", args{true, []string{"userPassword"}}, Attributes{userPassword}},
+		{"test#3", args{true, []string{"unicodePwd"}}, Attributes{unicodePassword}},
 		{"test#4", args{true, []string{"*"}}, copyRegistry},
 		{"test#5", args{false, []string{"*"}}, Attributes{Any()}},
 	} {
