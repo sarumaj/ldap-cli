@@ -78,27 +78,29 @@ func getPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 }
 
-func getRun(cmd *cobra.Command, args []string) {
+func getRun(cmd *cobra.Command, _ []string) {
+	var args []string
+
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getUserCmd)))
 	switch child {
 
 	case getCustomCmd:
-		supererrors.Except(apputil.AskString(child, "filter", &args))
+		supererrors.Except(apputil.AskString(child, "filter", &args, false))
 
 	case getGroupCmd:
-		supererrors.Except(apputil.AskString(child, "group-id", &args))
+		supererrors.Except(apputil.AskString(child, "group-id", &args, false))
 
 	case getUserCmd:
-		supererrors.Except(apputil.AskString(child, "user-id", &args))
+		supererrors.Except(apputil.AskString(child, "user-id", &args, false))
 		supererrors.Except(apputil.AskBool(child, "enabled", &args))
 		supererrors.Except(apputil.AskBool(child, "expired", &args))
-		supererrors.Except(apputil.AskString(child, "member-of", &args))
+		supererrors.Except(apputil.AskString(child, "member-of", &args, false))
 		supererrors.Except(apputil.AskBool(child, "recursively", &args))
 
 	}
 
 	supererrors.Except(apputil.AskStrings(child, "select", attributes.LookupMany("*").ToAttributeList(), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
-	supererrors.Except(apputil.AskString(child, "path", &args))
+	supererrors.Except(apputil.AskString(child, "path", &args, false))
 	supererrors.Except(apputil.AskStrings(child, "format", []string{"csv", "default", "yaml"}, []string{"default"}, &args))
 
 	supererrors.Except(child.ParseFlags(args))
