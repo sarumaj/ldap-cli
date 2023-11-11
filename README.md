@@ -12,7 +12,7 @@ Developed as Computer Science Project for IU (www.iu-fernstudium.de).
 
 ## Installation
 
-Download executable binary from the release section and add its location to the $PATH environment variable.
+Download executable binary from the [release section](https://github.com/sarumaj/ldap-cli/releases/latest) and add its location to the $PATH environment variable.
 Alternatively, build from source code (requires go 1.21.x runtime):
 
 ```console
