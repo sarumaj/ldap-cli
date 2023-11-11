@@ -40,10 +40,10 @@ func TestDialOptionsDefaults(t *testing.T) {
 	}{
 		{"test#1",
 			DialOptions{0, 0, 0, nil, nil},
-			DialOptions{3, 10, 10 * time.Second, nil, &URL{Scheme: "ldap", Host: "localhost", Port: 389}}},
+			DialOptions{3, 10, 10 * time.Second, nil, &URL{"ldap", "localhost", 389}}},
 		{"test#2",
-			DialOptions{5, 20, time.Second, &tls.Config{}, &URL{Scheme: "ldaps", Host: "example.com", Port: 389}},
-			DialOptions{5, 20, time.Second, &tls.Config{}, &URL{Scheme: "ldaps", Host: "example.com", Port: 389}}},
+			DialOptions{5, 20, time.Second, &tls.Config{}, &URL{"ldaps", "example.com", 389}},
+			DialOptions{5, 20, time.Second, &tls.Config{}, &URL{"ldaps", "example.com", 389}}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			opts := &tt.args
@@ -58,7 +58,7 @@ func TestDialOptionsDefaults(t *testing.T) {
 	}
 }
 
-func TestDialOptionsVerify(t *testing.T) {
+func TestDialOptionsValidate(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
 		args    DialOptions
@@ -89,7 +89,7 @@ func TestDialOptionsVerify(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			opts := &tt.args
 			err := opts.Validate()
-			if err != nil && !tt.wantErr {
+			if (err != nil) != tt.wantErr {
 				t.Errorf(`(%v).Validate() failed: %v`, tt.args, err)
 			}
 		})

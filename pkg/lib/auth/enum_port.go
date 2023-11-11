@@ -1,6 +1,6 @@
 package auth
 
-type Port uint
+type Port int
 
 const (
 	LDAP_RW  Port = 389
