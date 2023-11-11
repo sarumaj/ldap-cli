@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
@@ -15,19 +14,13 @@ import (
 )
 
 var rootFlags struct {
-	Address        string
-	AuthType       string
-	BindParameters auth.BindParameters
-	Debug          bool
-	DialOptions    auth.DialOptions
-	DisableTLS     bool
+	address        string
+	authType       string
+	bindParameters auth.BindParameters
+	debug          bool
+	dialOptions    auth.DialOptions
+	disableTLS     bool
 }
-var address string
-var authType string
-var bindParameters = &auth.BindParameters{}
-var debug bool
-var dialOptions = &auth.DialOptions{}
-var disableTLS bool
 
 var rootCmd = func() *cobra.Command {
 	rootCmd := &cobra.Command{
@@ -40,20 +33,20 @@ var rootCmd = func() *cobra.Command {
 	}
 
 	flags := rootCmd.PersistentFlags()
-	flags.BoolVar(&debug, "debug", false, "Set log level to debug")
+	flags.BoolVar(&rootFlags.debug, "debug", false, "Set log level to debug")
 
 	// dial options
-	flags.UintVar(&dialOptions.MaxRetries, "max-retries", 3, "Specify number of retries")
-	flags.Int64Var(&dialOptions.SizeLimit, "size-limit", -1, "Specify query size limit (-1: unlimited)")
-	flags.DurationVar(&dialOptions.TimeLimit, "timeout", 10*time.Minute, "Specify query timeout")
-	flags.BoolVar(&disableTLS, "disable-tls", false, "Disable TLS (not recommended)")
+	flags.UintVar(&rootFlags.dialOptions.MaxRetries, "max-retries", 3, "Specify number of retries")
+	flags.Int64Var(&rootFlags.dialOptions.SizeLimit, "size-limit", -1, "Specify query size limit (-1: unlimited)")
+	flags.DurationVar(&rootFlags.dialOptions.TimeLimit, "timeout", 10*time.Minute, "Specify query timeout")
+	flags.BoolVar(&rootFlags.disableTLS, "disable-tls", false, "Disable TLS (not recommended)")
 
 	// bind parameters
-	flags.StringVar(&address, "url", auth.URL{Scheme: auth.LDAP, Host: "localhost", Port: auth.LDAP_RW}.String(), "Provide address of the directory server")
-	flags.StringVar(&authType, "auth-type", auth.UNAUTHENTICATED.String(), fmt.Sprintf("Set authentication schema (supported: [%v])", strings.Join(auth.ListSupportedAuthTypes(true), ", ")))
-	flags.StringVar(&bindParameters.Domain, "domain", "", fmt.Sprintf("Set domain (required for %s authentication schema)", auth.NTLM))
-	flags.StringVar(&bindParameters.Password, "password", "", fmt.Sprintf("Set password (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
-	flags.StringVar(&bindParameters.User, "user", "", fmt.Sprintf("Set username (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
+	flags.StringVar(&rootFlags.address, "url", auth.URL{Scheme: auth.LDAP, Host: "localhost", Port: auth.LDAP_RW}.String(), "Provide address of the directory server")
+	flags.StringVar(&rootFlags.authType, "auth-type", auth.UNAUTHENTICATED.String(), fmt.Sprintf("Set authentication schema (supported: [%v])", strings.Join(auth.ListSupportedAuthTypes(true), ", ")))
+	flags.StringVar(&rootFlags.bindParameters.Domain, "domain", "", fmt.Sprintf("Set domain (required for %s authentication schema)", auth.NTLM))
+	flags.StringVar(&rootFlags.bindParameters.Password, "password", "", fmt.Sprintf("Set password (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
+	flags.StringVar(&rootFlags.bindParameters.User, "user", "", fmt.Sprintf("Set username (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
 
 	rootCmd.AddCommand(getCmd, versionCmd)
 
@@ -61,44 +54,34 @@ var rootCmd = func() *cobra.Command {
 }()
 
 func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
-	if debug {
+	if rootFlags.debug {
 		apputil.Logger.SetLevel(logrus.DebugLevel)
 	}
 
-	if _ = dialOptions.SetURL(address); dialOptions.URL.Scheme == auth.LDAPS {
-		_ = dialOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: disableTLS})
+	if _ = rootFlags.dialOptions.SetURL(rootFlags.address); rootFlags.dialOptions.URL.Scheme == auth.LDAPS {
+		_ = rootFlags.dialOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: rootFlags.disableTLS})
 	}
 
-	switch _ = bindParameters.SetType(auth.TypeFromString(authType)); {
+	switch _ = rootFlags.bindParameters.SetType(auth.TypeFromString(rootFlags.authType)); {
 
-	case len(bindParameters.User)*len(bindParameters.Password) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
-		_ = bindParameters.SetType(auth.SIMPLE)
+	case len(rootFlags.bindParameters.User)*len(rootFlags.bindParameters.Password) != 0 &&
+		rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
 
-	case len(bindParameters.User)*len(bindParameters.Password)*len(bindParameters.Domain) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
-		_ = bindParameters.SetType(auth.NTLM)
+		_ = rootFlags.bindParameters.SetType(auth.SIMPLE)
+
+	case len(rootFlags.bindParameters.User)*len(rootFlags.bindParameters.Password)*len(rootFlags.bindParameters.Domain) != 0 &&
+		rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
+
+		_ = rootFlags.bindParameters.SetType(auth.NTLM)
 
 	}
 }
 
 func rootRun(cmd *cobra.Command, args []string) {
-	var x string
-	supererrors.Except(survey.AskOne(&survey.Select{
-		Message: "Select command from below:",
-		Options: []string{getCmd.Name()},
-		Default: getCmd.Name(),
-	}, &x))
-
-	var child *cobra.Command
-	switch x {
-
-	case getCmd.Name():
-		child = getCmd
-
-	default:
-		return
+	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getCmd)))
+	if child.PersistentPreRun != nil {
+		child.PersistentPreRun(child, nil)
 	}
-
-	child.PersistentPreRun(child, nil)
 	child.Run(child, nil)
 }
 

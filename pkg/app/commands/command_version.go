@@ -40,8 +40,8 @@ var versionCmd = &cobra.Command{
 
 		}
 
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.BlueString, "Version: %s", internalVersion+vSuffix))))
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.BlueString, "Built at: %s", internalBuildDate))))
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.BlueString, "Executable path: %s", apputil.GetExecutablePath()))))
+		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
+		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Built at: %s", internalBuildDate))))
+		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.CheckColors(color.CyanString, "Executable path: %s", apputil.GetExecutablePath()))))
 	},
 }
