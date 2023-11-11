@@ -16,30 +16,34 @@ func TestBind(t *testing.T) {
 	}
 
 	for _, tt := range []struct {
-		name string
-		args args
+		name    string
+		args    args
+		wantErr bool
 	}{
 		{"test#1", args{
 			NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
 			NewBindParameters().SetType(SIMPLE).SetDomain("").SetUser(os.Getenv("AD_DEFAULT_USER")).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
-		}},
+		}, false},
 		{"test#2", args{
 			NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
 			nil,
-		}},
+		}, false},
+		{"test#3", args{
+			func() *DialOptions { d := NewDialOptions(); d.SetDefaults(); return d }(),
+			NewBindParameters().SetType(UNAUTHENTICATED),
+		}, true},
 	} {
 
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.args.URL == nil {
-				t.Skipf("Skipping %s", tt.name)
-			}
-
 			conn, err := Bind(tt.args.BindParameters, tt.args.DialOptions)
-			if err != nil {
+			if (err == nil) == tt.wantErr {
 				t.Errorf(`Bind(%v, %v) failed: %v`, tt.args.BindParameters, tt.args.DialOptions, err)
 				return
 			}
-			_ = conn.Close()
+
+			if conn != nil {
+				_ = conn.Close()
+			}
 		})
 	}
 }

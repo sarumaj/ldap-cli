@@ -38,6 +38,9 @@ func (u URL) String() string { return fmt.Sprintf("%s://%s:%d", u.Scheme, u.Host
 // Validate fields
 func (u *URL) Validate() error { return util.FormatError(validate.Struct(u)) }
 
+// Make empty URL
+func NewURL() *URL { return &URL{} }
+
 // Parse URL from string matching <scheme>://<hostname>:<port>
 func URLFromString(in string) (*URL, error) {
 

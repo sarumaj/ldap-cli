@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net"
 	"time"
 
@@ -58,6 +59,7 @@ func (o *DialOptions) Validate() error { return util.FormatError(validate.Struct
 // Dial in
 func Dial(opts *DialOptions) (net.Conn, error) {
 	if opts == nil {
+		fmt.Println("was nil")
 		opts = NewDialOptions()
 	}
 
