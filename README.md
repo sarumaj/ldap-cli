@@ -1,5 +1,5 @@
-[![build_and_release](https://github.com/sarumaj/ldap-cli/actions/workflows/build_and_release.yml/badge.svg)](https://github.com/sarumaj/ldap-cli/actions/workflows/build_and_release.yml)
 [![test_and_report](https://github.com/sarumaj/ldap-cli/actions/workflows/test_and_report.yml/badge.svg)](https://github.com/sarumaj/ldap-cli/actions/workflows/test_and_report.yml)
+[![build_and_release](https://github.com/sarumaj/ldap-cli/actions/workflows/build_and_release.yml/badge.svg)](https://github.com/sarumaj/ldap-cli/actions/workflows/build_and_release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sarumaj/ldap-cli)](https://goreportcard.com/report/github.com/sarumaj/ldap-cli)
 [![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/sarumaj/ldap-cli.svg)](https://codeclimate.com/github/sarumaj/ldap-cli/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/147f265284b27931c2d2/test_coverage)](https://codeclimate.com/github/sarumaj/ldap-cli/test_coverage)
