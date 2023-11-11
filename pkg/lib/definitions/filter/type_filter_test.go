@@ -2,13 +2,17 @@ package filter
 
 import (
 	"testing"
+	"time"
 
+	"bou.ke/monkey"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 func TestFilter(t *testing.T) {
-	defer libutil.PatchForTimeNow().Unpatch()
+	defer monkey.Patch(
+		time.Now,
+		func() time.Time { return time.Date(2023, 9, 12, 16, 27, 13, 0, time.UTC) },
+	).Unpatch()
 
 	for _, tt := range []struct {
 		name string
