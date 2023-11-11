@@ -99,8 +99,12 @@ func Handle(err error) error {
 	}
 
 	for code, v := range errorMapping {
-		if ldap.IsErrorWithCode(err, code) && v != nil {
-			return ldap.NewError(code, errors.Join(v, errors.New(ldap.LDAPResultCodeMap[code]), err))
+		if ldap.IsErrorWithCode(err, code) {
+			if v != nil {
+				return ldap.NewError(code, errors.Join(v, errors.New(ldap.LDAPResultCodeMap[code]), err))
+			}
+
+			return nil
 		}
 	}
 
