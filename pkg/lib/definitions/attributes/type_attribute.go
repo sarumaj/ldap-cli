@@ -1,5 +1,7 @@
 package attributes
 
+import "slices"
+
 const (
 	AttributeAccountExpires          Attribute = "accountExpires"
 	AttributeBadPasswordTime         Attribute = "badPasswordTime"
@@ -43,5 +45,6 @@ func AttributesToStringSlice(attrs ...Attribute) (list []string) {
 		list = append(list, attr.String())
 	}
 
+	slices.Sort(list)
 	return list
 }

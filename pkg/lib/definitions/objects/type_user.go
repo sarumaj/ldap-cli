@@ -12,16 +12,21 @@ import (
 type User struct {
 	AccountExpires             int64     `csv:"Expires"`
 	AccountExpiryDate          time.Time `csv:"-"`
-	BadPasswordDate            time.Time `csv:"-"`
-	BadPasswordTime            int64     `csv:"-"`
-	BadPwdCount                int       `csv:"-"`
+	BadPasswordCount           int       `ldap_attr:"badPwdCount" csv:"-"`
+	BadPasswordTime            time.Time `ldap_attr:"-"`
+	BadPasswordTimeRaw         int64     `ldap_attr:"badPasswordTime" csv:"-"`
+	CountryCode                string    `ldap_attr:"c"`
+	CountryName                string    `ldap_attr:"co"`
 	CommonName                 string    `ldap_attr:"cn" csv:"CN"`
+	Company                    string
 	DistinguishedName          string    `csv:"DN"`
+	Division                   string    `ldap_attr:"division"`
 	Enabled                    bool      `csv:"Enabled"`
 	GivenName                  string    `csv:"GivenName"`
-	GlobalExtensionAttribute11 string    `ldap_attr:"global-ExtensionAttribute11" csv:"GlobalExtensionAttribute11"`
-	GlobalExtensionAttribute22 string    `ldap_attr:"global-ExtensionAttribute22" csv:"GlobalExtensionAttribute22"`
-	GlobalExtensionAttribute26 string    `ldap_attr:"global-ExtensionAttribute26" csv:"GlobalExtensionAttribute26"`
+	GlobalExtensionAttribute11 string    `ldap_attr:"global-extensionAttribute11" csv:"GlobalExtensionAttribute11"`
+	GlobalExtensionAttribute22 string    `ldap_attr:"global-extensionAttribute22" csv:"GlobalExtensionAttribute22"`
+	GlobalExtensionAttribute26 string    `ldap_attr:"global-extensionAttribute26" csv:"GlobalExtensionAttribute26"`
+	Location                   string    `ldap_attr:"l"`
 	LockedOut                  bool      `csv:"-"`
 	Mail                       string    `csv:"Email"`
 	MemberOf                   []string  `csv:"-"`
@@ -31,13 +36,15 @@ type User struct {
 	ObjectCategory             string    `csv:"Category"`
 	ObjectClass                []string  `csv:"-"`
 	ObjectGUID                 string    `csv:"-"`
+	PasswordLastSet            time.Time `ldap_attr:"-"`
+	PasswordLastSetRaw         int64     `ldap_attr:"pwdLastSet" csv:"-"`
 	SamAccountName             string    `csv:"sAMAccountName"`
 	SamAccountType             []string  `ldap_attr:"-" csv:"-"`
 	SamAccountTypeRaw          int64     `ldap_attr:"sAMAccountType" csv:"-"`
 	SID                        string    `ldap_attr:"objectSid" csv:"-"`
 	Surname                    string    `ldap_attr:"sn" csv:"Surname"`
-	UserAccountControlRaw      int64     `ldap_attr:"userAccountControl" csv:"UserAccountControl"`
 	UserAccountControl         []string  `ldap_attr:"-" csv:"-"`
+	UserAccountControlRaw      int64     `ldap_attr:"userAccountControl" csv:"UserAccountControl"`
 	UserPrincipalName          string    `csv:"UserPrincipalName"`
 }
 
@@ -67,21 +74,17 @@ func (u *User) Read(raw map[string]interface{}) error {
 	}
 
 	if u.AccountExpires > 0 && u.AccountExpires < 1<<63-1 {
-		u.AccountExpiryDate = util.TimeEpochBegin.Add(time.Duration(u.AccountExpires*100) * time.Nanosecond)
+		u.AccountExpiryDate = util.TimeAfter1601(u.AccountExpires)
 	}
 
-	if u.BadPasswordTime > 0 && u.BadPasswordTime < 1<<63-1 {
-		u.BadPasswordDate = util.TimeEpochBegin.Add(time.Duration(u.BadPasswordTime*100) * time.Nanosecond)
+	if u.BadPasswordTimeRaw > 0 && u.BadPasswordTimeRaw < 1<<63-1 {
+		u.BadPasswordTime = util.TimeAfter1601(u.AccountExpires)
 	}
 
-	if u.ObjectGUID != "" {
-		u.ObjectGUID = hexify(u.ObjectGUID)
+	if u.PasswordLastSetRaw > 0 && u.PasswordLastSetRaw < 1<<63-1 {
+		u.PasswordLastSet = util.TimeAfter1601(u.PasswordLastSetRaw)
 	}
 
-	if u.SID != "" {
-		u.SID = hexify(u.SID)
-	}
-
-	u.SamAccountType = attributes.SamAccountType(u.SamAccountTypeRaw).Eval()
+	u.SamAccountType = attributes.SAMAccountType(u.SamAccountTypeRaw).Eval()
 	return nil
 }

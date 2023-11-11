@@ -34,15 +34,6 @@ func (g *Group) Read(raw map[string]any) error {
 		g.GroupType = v.Eval()
 	}
 
-	if g.ObjectGUID != "" {
-		g.ObjectGUID = hexify(g.ObjectGUID)
-	}
-
-	if g.SID != "" {
-		g.SID = hexify(g.SID)
-	}
-
-	g.SamAccountType = attributes.SamAccountType(g.SamAccountTypeRaw).Eval()
-
+	g.SamAccountType = attributes.SAMAccountType(g.SamAccountTypeRaw).Eval()
 	return nil
 }

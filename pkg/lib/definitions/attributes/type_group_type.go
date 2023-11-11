@@ -1,5 +1,9 @@
 package attributes
 
+import (
+	"slices"
+)
+
 // https://docs.microsoft.com/en-us/windows/win32/adschema/a-grouptype
 const (
 	GROUP_TYPE_CREATED_BY_SYSTEM GroupType = 0x00000001 // Specifies a group that is created by the system.
@@ -9,8 +13,7 @@ const (
 	GROUP_TYPE_APP_BASIC         GroupType = 0x00000010 // Specifies an APP_BASIC group for Windows Server Authorization Manager.
 	GROUP_TYPE_APP_QUERY         GroupType = 0x00000020 // Specifies an APP_QUERY group for Windows Server Authorization Manager.
 	GROUP_TYPE_SECURITY          GroupType = 0x80000000 // Specifies a security group. If this flag is not set, then the group is a distribution group.
-	GROUP_TYPE_DISTRIBUTION      GroupType = 0x7FFFFFFF
-	GROUP_TYPE_UNKNOWN           GroupType = 0xFFFFFFFF
+	GROUP_TYPE_DISTRIBUTION      GroupType = ^GROUP_TYPE_SECURITY
 )
 
 var groupTypeToString = map[GroupType]string{
@@ -22,22 +25,22 @@ var groupTypeToString = map[GroupType]string{
 	GROUP_TYPE_APP_QUERY:         "APP_QUERY",
 	GROUP_TYPE_SECURITY:          "SECURITY",
 	GROUP_TYPE_DISTRIBUTION:      "DISTRIBUTION",
-	GROUP_TYPE_UNKNOWN:           "UNKNOWN",
 }
 
-type GroupType int64
+type GroupType uint32
 
 func (v GroupType) Eval() (types []string) {
 	for key, value := range groupTypeToString {
-		if v&key != 0 {
+		if v&key == key {
 			types = append(types, value)
 		}
 	}
 
-	if v&GROUP_TYPE_SECURITY == 0 {
+	if v&GROUP_TYPE_SECURITY != GROUP_TYPE_SECURITY && len(types) > 0 {
 		types = append(types, GROUP_TYPE_DISTRIBUTION.String())
 	}
 
+	slices.Sort(types)
 	return types
 }
 
@@ -46,5 +49,5 @@ func (g GroupType) String() string {
 		return v
 	}
 
-	return groupTypeToString[GROUP_TYPE_UNKNOWN]
+	return "UNKNOWN"
 }
