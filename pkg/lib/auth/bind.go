@@ -58,7 +58,7 @@ func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) 
 	raw := strings.Split(conn.remoteHost, ":")
 	if addr, err := net.LookupAddr(raw[0]); err == nil && len(addr) > 0 {
 		fmt.Sprintln(addr)
-		conn.remoteHost = fmt.Sprintf("%s:%s", strings.Trim(addr[0], "."), conn.options.URL.Port())
+		conn.remoteHost = fmt.Sprintf("%s:%d", strings.Trim(addr[0], "."), conn.options.URL.Port)
 	}
 
 	ldapConn := ldap.NewConn(c, true)

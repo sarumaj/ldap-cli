@@ -3,8 +3,8 @@ package auth
 type Port uint
 
 const (
-	LDAP         Port = 389
-	LDAP_GLOBAL  Port = 3268
-	LDAPS        Port = 636
-	LDAPS_GLOBAL Port = 3269
+	LDAP_RW  Port = 389
+	LDAP_RO  Port = 3268
+	LDAPS_RW Port = 636
+	LDAPS_RO Port = 3269
 )
