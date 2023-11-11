@@ -7,7 +7,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var defaultCustomAttributes = attributes.Attributes{
+var defaultCustomGetAttributes = attributes.Attributes{
 	attributes.CommonName(),
 	attributes.DisplayName(),
 	attributes.DistinguishedName(),
@@ -41,7 +41,7 @@ func getCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)
 
-	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultCustomAttributes...)
+	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultCustomGetAttributes...)
 
 	getFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(getCustomFlags.filterString)))
 }

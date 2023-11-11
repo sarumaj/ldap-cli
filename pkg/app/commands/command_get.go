@@ -21,9 +21,9 @@ import (
 )
 
 var defaultGetAttributes = map[string]attributes.Attributes{
-	"custom": defaultCustomAttributes,
-	"group":  defaultGroupAttributes,
-	"user":   defaultUserAttributes,
+	"custom": defaultCustomGetAttributes,
+	"group":  defaultGroupGetAttributes,
+	"user":   defaultUserGetAttributes,
 }
 
 var getFlags struct {

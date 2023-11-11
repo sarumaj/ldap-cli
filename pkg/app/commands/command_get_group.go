@@ -6,7 +6,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var defaultGroupAttributes = attributes.Attributes{
+var defaultGroupGetAttributes = attributes.Attributes{
 	attributes.CommonName(),
 	attributes.Description(),
 	attributes.DisplayName(),
@@ -45,7 +45,7 @@ func getGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)
 
-	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultGroupAttributes...)
+	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultGroupGetAttributes...)
 
 	var filters []filter.Filter
 	if getGroupFlags.id != "" {

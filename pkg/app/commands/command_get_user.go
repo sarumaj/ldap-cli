@@ -6,7 +6,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var defaultUserAttributes = attributes.Attributes{
+var defaultUserGetAttributes = attributes.Attributes{
 	attributes.CommonName(),
 	attributes.DisplayName(),
 	attributes.DistinguishedName(),
@@ -53,7 +53,7 @@ func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent := cmd.Parent()
 	parent.PersistentPreRun(parent, nil)
 
-	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultUserAttributes...)
+	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultUserGetAttributes...)
 
 	var filters []filter.Filter
 	if getUserFlags.id != "" {
