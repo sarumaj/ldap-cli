@@ -32,6 +32,11 @@ func TestModifyGroupMembersRequest(t *testing.T) {
 	if err := conn.Modify(request); err != nil {
 		t.Error(err)
 	}
+
+	request = ModifyGroupMembersRequest("cn=group02,dc=mock,dc=ad,dc=com", nil, nil, memberUIDs, attributes.Attribute{LDAPDisplayName: "memberUid"})
+	if err := conn.Modify(request); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestModifyPasswordRequest(t *testing.T) {

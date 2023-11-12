@@ -63,9 +63,9 @@ func TestFilter(t *testing.T) {
 			`)`},
 		{"test#3", And(
 			Filter{attributes.DisplayName(), EscapeFilter("id@dom"), ""},
-			HasNotExpired(false),
-			Not(IsDomainController()),
-			Not(IsGroup()),
+			HasNotExpired(false).ExpandAlias(),
+			Or(Not(IsDomainController())),
+			And(Not(IsGroup())),
 			IsUser(),
 			IsEnabled()), `(&` +
 			(`` +

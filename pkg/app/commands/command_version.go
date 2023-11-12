@@ -57,7 +57,11 @@ func versionRun(*cobra.Command, []string) {
 				Validator: &selfupdate.SHA2Validator{},
 			})))
 			_ = supererrors.ExceptFn(supererrors.W(up.UpdateSelf(current, remoteRepository)))
-			vSuffix, internalVersion = " (latest, successfully updated from: "+current.String()+")", latest.Version.String()
+			_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(
+				apputil.Stdout(),
+				apputil.PrintColors(color.HiGreenString, "Successfully updated from %s to %s", current, latest.Version),
+			)))
+			return
 
 		} else {
 			vSuffix = " (newer version available: " + latest.Version.String() + ", run \"ldap-cli version --update\" to update)"

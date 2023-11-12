@@ -8,6 +8,7 @@ import (
 )
 
 func TestHandle(t *testing.T) {
+	pass := ldap.NewError(321, errors.New("pass"))
 	for _, tt := range []struct {
 		name string
 		args error
@@ -90,6 +91,7 @@ func TestHandle(t *testing.T) {
 		{"test#75", ldap.NewError(ldap.ErrorUnexpectedResponse, errors.New("")), ErrOperationFailed},
 		{"test#76", ldap.NewError(ldap.ErrorEmptyPassword, errors.New("")), ErrAuthenticationFailed},
 		{"test#77", nil, nil},
+		{"test#78", pass, pass},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := Handle(tt.args)

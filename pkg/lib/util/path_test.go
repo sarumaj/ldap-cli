@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func TestGetExecutablePath(t *testing.T) {
+	got := GetExecutablePath()
+	if got == "unknown" {
+		t.Errorf(`GetExecutablePath() failed: got : %q`, got)
+	}
+}
+
 func TestRebuildStringSliceFlag(t *testing.T) {
 	type args struct {
 		flags     []string

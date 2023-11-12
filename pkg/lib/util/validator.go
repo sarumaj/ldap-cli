@@ -9,7 +9,9 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type ValidatorInterface interface{ IsValid() bool }
+type ValidatorInterface interface {
+	IsValid() bool
+}
 
 var validate = sync.Pool{New: func() any {
 	validate := validator.New(validator.WithRequiredStructEnabled())
