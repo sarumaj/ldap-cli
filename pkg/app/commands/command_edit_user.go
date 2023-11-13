@@ -4,7 +4,7 @@ import (
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	cobra "github.com/spf13/cobra"
 )
@@ -48,13 +48,7 @@ func editUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editUserPersistentPreRun"})
 	logger.Debug("Executing")
 
-	if editUserFlags.id == "" {
-		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "user-id", &args, false, "")))
-		supererrors.Except(cmd.ParseFlags(args))
-		getFlags.searchArguments.Filter = filter.ByID(editUserFlags.id)
-		logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter).Debug("Asked")
-	}
+	apputil.AskID(cmd, "user-id", &editUserFlags.id, &editFlags.searchArguments)
 
 	var filters []filter.Filter
 	if editUserFlags.id != "" {

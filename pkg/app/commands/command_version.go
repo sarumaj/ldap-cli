@@ -23,10 +23,12 @@ var internalVersion string
 // It gets filled automatically at build time.
 var internalBuildDate string
 
+// Command options
 var versionFlags struct {
 	update bool
 }
 
+// "version" command
 var versionCmd = func() *cobra.Command {
 	versionCmd := &cobra.Command{
 		Use:     "version",

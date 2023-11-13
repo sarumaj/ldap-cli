@@ -10,7 +10,7 @@ import (
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
-	"github.com/schollz/progressbar/v3"
+	progressbar "github.com/schollz/progressbar/v3"
 	cobra "github.com/spf13/cobra"
 )
 

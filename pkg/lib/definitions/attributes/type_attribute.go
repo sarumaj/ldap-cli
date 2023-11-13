@@ -1,11 +1,7 @@
 package attributes
 
 import (
-	"encoding/binary"
-	"net"
 	"slices"
-	"strconv"
-	"strings"
 
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
@@ -23,95 +19,27 @@ func (a Attribute) Parse(values []string, attrMap *Map) {
 		return
 	}
 
-	switch a.Type {
-	case TypeBool:
-		parsed, err := strconv.ParseBool(values[0])
-		if err == nil {
-			(*attrMap)[a] = parsed
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeDecimal:
-		parsed, err := strconv.ParseFloat(values[0], 64)
-		if err == nil {
-			(*attrMap)[a] = parsed
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeGroupType:
-		parsed, err := strconv.ParseInt(values[0], 10, 64)
-		if err == nil {
-			(*attrMap)[a] = FlagsetGroupType(parsed).Eval()
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeHexString:
-		(*attrMap)[a] = libutil.Hexify(values[0])
-
-	case TypeInt:
-		parsed, err := strconv.ParseInt(values[0], 10, 64)
-		if err == nil {
-			(*attrMap)[a] = parsed
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeIPv4Address:
-		parsed, err := strconv.ParseInt(values[0], 10, 64)
-		if err == nil {
-			ip := make(net.IP, 4)
-			binary.BigEndian.PutUint32(ip, uint32(parsed))
-			(*attrMap)[a] = ip
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeRaw:
-		if len(values) == 1 {
-			(*attrMap)[a] = values[0]
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeSAMaccountType:
-		parsed, err := strconv.ParseInt(values[0], 10, 64)
-		if err == nil {
-			(*attrMap)[a] = FlagSAMAccountType(parsed).Eval()
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeString:
-		(*attrMap)[a] = values[0]
-
-	case TypeStringSlice:
-		(*attrMap)[a] = values
-
-	case TypeTime:
-		parsed, err := strconv.ParseInt(strings.Split(values[0], ".")[0], 10, 64)
-		if err == nil {
-			(*attrMap)[a] = libutil.TimeAfter1601(parsed)
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	case TypeUserAccountControl:
-		parsed, err := strconv.ParseInt(values[0], 10, 64)
-		if err == nil {
-			userAccountControl := FlagsetUserAccountControl(parsed)
-			(*attrMap)[a] = userAccountControl.Eval()
-			(*attrMap)[Raw("", "Enabled", TypeBool)] = userAccountControl&USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE == 0
-			(*attrMap)[Raw("", "LockedOut", TypeBool)] = userAccountControl&USER_ACCOUNT_CONTROL_LOCKOUT != 0
-		} else {
-			(*attrMap)[a] = values
-		}
-
-	default:
-		return
-
+	if parser, ok := map[Type]func(Attribute, []string){
+		TypeBool:        attrMap.ParseBool,
+		TypeDecimal:     attrMap.ParseDecimal,
+		TypeGroupType:   attrMap.ParseGroupType,
+		TypeHexString:   func(a Attribute, s []string) { (*attrMap)[a] = libutil.Hexify(values[0]) },
+		TypeInt:         attrMap.ParseInt,
+		TypeIPv4Address: attrMap.ParseIPv4Address,
+		TypeRaw: func(a Attribute, s []string) {
+			if len(values) == 1 {
+				(*attrMap)[a] = values[0]
+			} else {
+				(*attrMap)[a] = values
+			}
+		},
+		TypeSAMaccountType:     attrMap.ParseSAMAccountType,
+		TypeString:             func(a Attribute, s []string) { (*attrMap)[a] = values[0] },
+		TypeStringSlice:        func(a Attribute, s []string) { (*attrMap)[a] = values },
+		TypeTime:               attrMap.ParseTime,
+		TypeUserAccountControl: attrMap.ParseUserAccountControl,
+	}[a.Type]; ok {
+		parser(a, values)
 	}
 }
 

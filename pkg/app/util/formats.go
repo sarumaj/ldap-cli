@@ -24,6 +24,23 @@ const (
 	YAML    = "yaml"    // YAML
 )
 
+// Config used to colorize YAML output (default)
+var defaultPrinterConfig = &printer.Printer{
+	Bool: func() *printer.Property {
+		return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiMagenta), Suffix: "\x1b[0m"}
+	},
+	Number: func() *printer.Property {
+		return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiMagenta), Suffix: "\x1b[0m"}
+	},
+	MapKey: func() *printer.Property {
+		return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiCyan), Suffix: "\x1b[0m"}
+	},
+	String: func() *printer.Property {
+		return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiGreen), Suffix: "\x1b[0m"}
+	},
+}
+
+// List of supported formats
 var supportedFormats = []string{CSV, DEFAULT, LDIF, YAML}
 
 // Encode results into given format.
@@ -82,20 +99,7 @@ func Flush(results attributes.Maps, requests *ldif.LDIF, format string, out io.W
 		tokens := lexer.Tokenize(buffer.String())
 		buffer.Reset()
 
-		_, err = fmt.Fprintln(Stdout(), (&printer.Printer{
-			Bool: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiMagenta), Suffix: "\x1b[0m"}
-			},
-			Number: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiMagenta), Suffix: "\x1b[0m"}
-			},
-			MapKey: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiCyan), Suffix: "\x1b[0m"}
-			},
-			String: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiGreen), Suffix: "\x1b[0m"}
-			},
-		}).PrintTokens(tokens))
+		_, err = fmt.Fprintln(Stdout(), defaultPrinterConfig.PrintTokens(tokens))
 
 		return err
 	}

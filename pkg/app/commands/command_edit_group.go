@@ -4,7 +4,7 @@ import (
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 	cobra "github.com/spf13/cobra"
@@ -54,13 +54,7 @@ func editGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editGroupPersistentPreRun"})
 	logger.Debug("Executing")
 
-	if editGroupFlags.id == "" {
-		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "group-id", &args, false, "")))
-		supererrors.Except(cmd.ParseFlags(args))
-		editFlags.searchArguments.Filter = filter.ByID(getGroupFlags.id)
-		logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter).Debug("Asked")
-	}
+	apputil.AskID(cmd, "group-id", &editGroupFlags.id, &editFlags.searchArguments)
 
 	var filters []filter.Filter
 	if editGroupFlags.id != "" {

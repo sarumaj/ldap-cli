@@ -1,7 +1,6 @@
 package commands
 
 import (
-	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
@@ -56,13 +55,7 @@ func getGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getGroupPersistentPreRun"})
 	logger.Debug("Executing")
 
-	if getGroupFlags.id == "" {
-		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "group-id", &args, false, "")))
-		supererrors.Except(cmd.ParseFlags(args))
-		getFlags.searchArguments.Filter = filter.ByID(getGroupFlags.id)
-		logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter).Debug("Asked")
-	}
+	apputil.AskID(cmd, "group-id", &getGroupFlags.id, &getFlags.searchArguments)
 
 	if len(getFlags.searchArguments.Attributes) == 0 {
 		getFlags.searchArguments.Attributes.Append(defaultGroupGetAttributes...)

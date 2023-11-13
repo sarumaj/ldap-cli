@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 
-	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
@@ -59,19 +58,11 @@ func getCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getCustomPersistentPreRun"})
 	logger.Debug("Executing")
 
-	if getCustomFlags.filterString == "" {
-		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "filter", &args, false, "")))
-		supererrors.Except(cmd.ParseFlags(args))
-		getFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(getCustomFlags.filterString)))
-		logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter).Debug("Asked")
-	}
-
 	if len(getFlags.searchArguments.Attributes) == 0 {
 		getFlags.searchArguments.Attributes.Append(defaultCustomGetAttributes...)
 	}
 	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
 
-	getFlags.searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(getCustomFlags.filterString)))
+	apputil.AskFilterString(cmd, "filter", &getCustomFlags.filterString, &getFlags.searchArguments)
 	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Debug("Set")
 }

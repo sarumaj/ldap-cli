@@ -63,13 +63,7 @@ func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getUserPersistentPreRun"})
 	logger.Debug("Executing")
 
-	if getUserFlags.id == "" {
-		var args []string
-		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "user-id", &args, false, "")))
-		supererrors.Except(cmd.ParseFlags(args))
-		getFlags.searchArguments.Filter = filter.ByID(getUserFlags.id)
-		logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter).Debug("Asked")
-	}
+	apputil.AskID(cmd, "user-id", &getUserFlags.id, &getFlags.searchArguments)
 
 	if len(getFlags.searchArguments.Attributes) == 0 {
 		getFlags.searchArguments.Attributes.Append(defaultUserGetAttributes...)

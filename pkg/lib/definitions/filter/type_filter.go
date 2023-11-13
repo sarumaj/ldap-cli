@@ -86,6 +86,10 @@ func (o Filter) String() string {
 
 // Build complex filter from filters, where all must match
 func And(property Filter, properties ...Filter) Filter {
+	return complexFilter('&', property, properties...)
+}
+
+func complexFilter(operator rune, property Filter, properties ...Filter) Filter {
 	if len(properties) == 0 {
 		return property
 	}
@@ -97,7 +101,7 @@ func And(property Filter, properties ...Filter) Filter {
 
 	return Filter{
 		Attribute: attributes.Attribute{LDAPDisplayName: complexFilterSyntax},
-		Value:     "(&" + value + ")",
+		Value:     "(" + string(operator) + value + ")",
 	}
 }
 
@@ -114,17 +118,5 @@ func Not(property Filter) Filter {
 
 // Build complex filter from filters, where at least one must match
 func Or(property Filter, properties ...Filter) Filter {
-	if len(properties) == 0 {
-		return property
-	}
-
-	var value string
-	for _, property := range append([]Filter{property}, properties...) {
-		value += property.String()
-	}
-
-	return Filter{
-		Attribute: attributes.Attribute{LDAPDisplayName: complexFilterSyntax},
-		Value:     "(|" + value + ")",
-	}
+	return complexFilter('|', property, properties...)
 }

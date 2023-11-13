@@ -24,6 +24,7 @@ func TestFormatError(t *testing.T) {
 	validator := Validate()
 	err := FormatError(validator.Struct(&invalid{SomeValidator: "empty", SomePassing: true}))
 	t.Log(err.Error())
+
 	for _, msg := range []string{
 		`"SomeString" is required`,
 		`"SomeValidator" is invalid: empty`,

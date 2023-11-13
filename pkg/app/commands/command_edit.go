@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/fatih/color"
+	color "github.com/fatih/color"
 	ldif "github.com/go-ldap/ldif"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	"github.com/schollz/progressbar/v3"
+	progressbar "github.com/schollz/progressbar/v3"
 	cobra "github.com/spf13/cobra"
 )
 

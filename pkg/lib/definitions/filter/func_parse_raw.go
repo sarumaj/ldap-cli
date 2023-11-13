@@ -48,22 +48,15 @@ func ParseRaw(raw string) (*Filter, error) {
 			filters = append(filters, *filter)
 		}
 
-		switch {
+		if complexFn, ok := map[rune]func() Filter{
+			'&': func() Filter { return And(filters[0], filters[1:]...) },
+			'|': func() Filter { return Or(filters[0], filters[1:]...) },
+			'!': func() Filter { return Not(filters[0]) },
+		}[rune(junction[0])]; ok && len(filters) > 0 {
 
-		case len(filters) > 0 && junction == "&": // AND
-			complex := And(filters[0], filters[1:]...)
+			complex := complexFn()
 			return &complex, nil
-
-		case len(filters) > 0 && junction == "|": // OR
-			complex := Or(filters[0], filters[1:]...)
-			return &complex, nil
-
-		case len(filters) == 1 && junction == "!": // NOT
-			complex := Not(filters[0])
-			return &complex, nil
-
 		}
-
 	}
 
 	return nil, fmt.Errorf("%w: %s", libutil.ErrInvalidFilter, raw)
