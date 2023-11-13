@@ -134,7 +134,7 @@ func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.Progre
 			}
 
 			if bar != nil {
-				bar.Describe(fmt.Sprintf("[cyan][%d][reset]: found: [magenta]%s[reset]", id, s.DN))
+				bar.Describe(fmt.Sprintf("[%d]: found: %q", id, s.DN))
 				_ = bar.Add(1)
 			}
 

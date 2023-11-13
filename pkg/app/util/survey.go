@@ -46,7 +46,7 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey
 	}))...)
 
 	if errors.Is(err, terminal.InterruptErr) {
-		PrintlnAndExit("Aborted")
+		PrintlnAndExit(1, "Aborted")
 	}
 
 	if err != nil {
@@ -80,7 +80,7 @@ func AskCommand(cmd *cobra.Command, def *cobra.Command, opts ...survey.AskOpt) (
 	}, &x, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
-		PrintlnAndExit("Aborted")
+		PrintlnAndExit(1, "Aborted")
 	}
 
 	if err != nil {
@@ -113,7 +113,7 @@ func AskLDAPDataInterchangeFormat(requests *ldif.LDIF, editor string) (bool, err
 	}, &after)
 
 	if errors.Is(err, terminal.InterruptErr) {
-		PrintlnAndExit("Aborted")
+		PrintlnAndExit(1, "Aborted")
 	}
 
 	if err != nil {
@@ -147,7 +147,7 @@ func AskMultiline(cmd *cobra.Command, flagName string, args *[]string, opts ...s
 	}, &discard, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
-		PrintlnAndExit("Aborted")
+		PrintlnAndExit(1, "Aborted")
 	}
 
 	if err != nil {
@@ -203,7 +203,7 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string, password boo
 	err := survey.AskOne(prompt, &discard, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
-		PrintlnAndExit("Aborted")
+		PrintlnAndExit(1, "Aborted")
 	}
 
 	if err != nil {
@@ -253,7 +253,7 @@ func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args
 	}, &discard, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
-		PrintlnAndExit("Aborted")
+		PrintlnAndExit(1, "Aborted")
 	}
 
 	if err != nil {

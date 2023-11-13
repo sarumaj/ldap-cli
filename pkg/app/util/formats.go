@@ -74,6 +74,11 @@ func Flush(results attributes.Maps, requests *ldif.LDIF, format string, out io.W
 			return err
 		}
 
+		if !IsColorEnabled() {
+			_, err = fmt.Fprintln(Stdout(), buffer.String())
+			return err
+		}
+
 		tokens := lexer.Tokenize(buffer.String())
 		buffer.Reset()
 

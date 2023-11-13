@@ -46,9 +46,19 @@ func IsEnabled() Filter {
 	return Not(Filter{attributes.UserAccountControl(), "2", attributes.LDAP_MATCHING_RULE_BIT_AND})
 }
 
-func IsGroup() Filter { return Filter{attributes.ObjectClass(), "group", ""} }
+func IsGroup() Filter {
+	return Or(
+		Filter{attributes.ObjectClass(), "group", ""},
+		Filter{attributes.ObjectClass(), "posixGroup", ""}, // for testing purposes against openldap
+	)
+}
 
-func IsUser() Filter { return Filter{attributes.ObjectClass(), "user", ""} }
+func IsUser() Filter {
+	return Or(
+		Filter{attributes.ObjectClass(), "user", ""},
+		Filter{attributes.ObjectClass(), "posixAccount", ""}, // for testing purposes against openldap
+	)
+}
 
 func MemberOf(parent string, recursive bool) Filter {
 	if recursive {

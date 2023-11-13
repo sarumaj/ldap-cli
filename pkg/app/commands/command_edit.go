@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/fatih/color"
 	ldif "github.com/go-ldap/ldif"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
@@ -64,11 +65,11 @@ func editChildCommandPreRun(cmd *cobra.Command, _ []string) {
 	))))
 
 	if len(requests.Entries) == 0 {
-		apputil.PrintlnAndExit("There is nothing to edit matching: %q", editFlags.searchArguments.Filter)
+		apputil.PrintlnAndExit(1, "There is nothing to edit matching: %q", editFlags.searchArguments.Filter)
 	}
 
 	if len(requests.Entries) > 1 {
-		apputil.PrintlnAndExit("Provided filter led to a ubiquitous result set (%d entries for %q)", len(requests.Entries), editFlags.searchArguments.Filter)
+		apputil.PrintlnAndExit(1, "Provided filter led to a ubiquitous result set (%d entries for %q)", len(requests.Entries), editFlags.searchArguments.Filter)
 	}
 
 	editFlags.requests = requests
@@ -101,6 +102,8 @@ func editChildCommandPostRun(cmd *cobra.Command, _ []string) {
 			supererrors.Except(conn.Modify(entry.Modify))
 		}
 	}
+
+	apputil.PrintlnAndExit(0, apputil.PrintColors(color.HiGreenString, "Successfully applied modifications"))
 }
 
 // Runs prior to "run" and sets search query options (inherited by child commands)

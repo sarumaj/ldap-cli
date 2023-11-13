@@ -107,7 +107,7 @@ func rootRun(cmd *cobra.Command, _ []string) {
 			Default: false,
 		}, &confirm); errors.Is(err, terminal.InterruptErr) {
 
-			apputil.PrintlnAndExit("Aborted")
+			apputil.PrintlnAndExit(1, "Aborted")
 		}
 
 		if !confirm {

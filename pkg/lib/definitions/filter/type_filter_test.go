@@ -85,8 +85,14 @@ func TestFilter(t *testing.T) {
 					`(ObjectClass=computer)` +
 					`(UserAccountControl:1.2.840.113556.1.4.803:=8192)`)) +
 				`))` +
-				`(!(ObjectClass=group))` +
-				`(ObjectClass=user)` +
+				(`(!(|` +
+					`(ObjectClass=group)` +
+					`(ObjectClass=posixGroup)`) +
+				`))` +
+				(`(|` +
+					`(ObjectClass=user)` +
+					`(ObjectClass=posixAccount)`) +
+				`)` +
 				`(!(UserAccountControl:1.2.840.113556.1.4.803:=2))`) +
 			`)`},
 		{"test#4", And(

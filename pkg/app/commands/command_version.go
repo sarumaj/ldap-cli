@@ -70,6 +70,7 @@ func versionRun(*cobra.Command, []string) {
 
 	}
 
+	fmt.Println("test")
 	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
 	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Built at: %s", internalBuildDate))))
 	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Executable path: %s", libutil.GetExecutablePath()))))

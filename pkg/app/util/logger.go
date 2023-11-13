@@ -103,7 +103,7 @@ func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
 }
 
 // Print to Stdout and exit
-func PrintlnAndExit(format string, a ...any) {
+func PrintlnAndExit(code int, format string, a ...any) {
 	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(Stderr(), PrintColors(color.RedString, format, a...))))
-	os.Exit(1)
+	os.Exit(code)
 }
