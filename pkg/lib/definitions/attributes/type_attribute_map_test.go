@@ -1,7 +1,6 @@
 package attributes
 
 import (
-	"fmt"
 	"net"
 	"reflect"
 	"testing"
@@ -126,7 +125,7 @@ func TestParseTime(t *testing.T) {
 		args []string
 		want any
 	}{
-		{"test#1", []string{fmt.Sprint(1 << 56)}, time.Date(1829, 5, 6, 0, 43, 31, 792799000, time.Local)},
+		{"test#1", []string{"72057594037927936"}, time.Date(1829, 5, 5, 23, 50, 3, 792799000, time.UTC)},
 		{"test#1", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -145,7 +144,7 @@ func TestParseSAMAccountType(t *testing.T) {
 		args []string
 		want any
 	}{
-		{"test#1", []string{fmt.Sprint(0x30000000)}, []string{"NORMAL_USER_ACCOUNT", "USER_OBJECT"}},
+		{"test#1", []string{"805306368"}, []string{"NORMAL_USER_ACCOUNT", "USER_OBJECT"}},
 		{"test#1", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

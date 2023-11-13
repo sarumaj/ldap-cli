@@ -21,7 +21,7 @@ func TimeAfter1601(offset int64) time.Time {
 	// add µs, get elapsed ns
 	sum, ns := begin.Add(begin, µs).Int64(), rem.Mul(rem, big.NewInt(1000)).Int64()
 
-	return time.UnixMicro(sum).Add(time.Duration(ns))
+	return time.UnixMicro(sum).Add(time.Duration(ns)).UTC()
 }
 
 func TimeSince1601() time.Duration {
