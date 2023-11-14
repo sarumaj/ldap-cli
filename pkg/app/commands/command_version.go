@@ -1,11 +1,13 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 
 	semver "github.com/blang/semver"
+	selfupdate "github.com/creativeprojects/go-selfupdate"
 	color "github.com/fatih/color"
-	selfupdate "github.com/rhysd/go-github-selfupdate/selfupdate"
+
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
@@ -46,27 +48,28 @@ var versionCmd = func() *cobra.Command {
 // Check app version or/and update to the latest
 func versionRun(*cobra.Command, []string) {
 	current := supererrors.ExceptFn(supererrors.W(semver.ParseTolerant(internalVersion)))
-	latest, found, err := selfupdate.DetectLatest(remoteRepository)
+	repository := selfupdate.ParseSlug(remoteRepository)
+	latest, found, err := selfupdate.DetectLatest(context.Background(), repository)
 
 	var vSuffix string
 	switch {
-	case err == nil && (!found || latest.Version.LTE(current)):
+	case err == nil && (!found || latest.LessOrEqual(current.String())):
 		vSuffix = " (latest)"
 
-	case err == nil && (found || latest.Version.GT(current)):
+	case err == nil && (found || latest.GreaterThan(current.String())):
 		if versionFlags.update {
 			up := supererrors.ExceptFn(supererrors.W(selfupdate.NewUpdater(selfupdate.Config{
-				Validator: &selfupdate.SHA2Validator{},
+				Validator: &selfupdate.SHAValidator{},
 			})))
-			_ = supererrors.ExceptFn(supererrors.W(up.UpdateSelf(current, remoteRepository)))
+			_ = supererrors.ExceptFn(supererrors.W(up.UpdateSelf(context.Background(), current.String(), repository)))
 			_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(
 				apputil.Stdout(),
-				apputil.PrintColors(color.HiGreenString, "Successfully updated from %s to %s", current, latest.Version),
+				apputil.PrintColors(color.HiGreenString, "Successfully updated from %s to %s", current, latest.Version()),
 			)))
 			return
 
 		} else {
-			vSuffix = " (newer version available: " + latest.Version.String() + ", run \"ldap-cli version --update\" to update)"
+			vSuffix = " (newer version available: " + latest.Version() + ", run \"ldap-cli version --update\" to update)"
 
 		}
 
