@@ -1,11 +1,13 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	survey "github.com/AlecAivazis/survey/v2"
-	"github.com/AlecAivazis/survey/v2/core"
+	core "github.com/AlecAivazis/survey/v2/core"
+	terminal "github.com/AlecAivazis/survey/v2/terminal"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -16,7 +18,7 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string) error {
 	}
 
 	var discard string
-	return survey.AskOne(&survey.Select{
+	err := survey.AskOne(&survey.Select{
 		Message: f.Usage + ":",
 		Options: []string{"true", "false", "skip"},
 		Default: "skip",
@@ -32,6 +34,51 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string) error {
 
 		}
 	}))
+
+	if errors.Is(err, terminal.InterruptErr) {
+		PrintlnAndExit("Aborted")
+	}
+
+	return err
+}
+
+func AskCommand(cmd *cobra.Command, def *cobra.Command) (*cobra.Command, error) {
+	var options []string
+	for _, child := range cmd.Commands() {
+		options = append(options, child.Name())
+	}
+
+	var x string
+	err := survey.AskOne(&survey.Select{
+		Message: "Select command from below:",
+		Options: options,
+		Default: def.Name(),
+		Description: func(value string, index int) string {
+			for _, child := range cmd.Commands() {
+				if child.Name() == value {
+					return child.Short
+				}
+			}
+
+			return ""
+		},
+	}, &x)
+
+	if errors.Is(err, terminal.InterruptErr) {
+		PrintlnAndExit("Aborted")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, c := range cmd.Commands() {
+		if c.Name() == x {
+			return c, nil
+		}
+	}
+
+	return def, nil
 }
 
 func AskString(cmd *cobra.Command, flagName string, args *[]string) error {
@@ -41,10 +88,16 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string) error {
 	}
 
 	var discard string
-	if err := survey.AskOne(&survey.Input{
+	err := survey.AskOne(&survey.Input{
 		Message: f.Usage + ":",
 		Default: "empty",
-	}, &discard); err != nil {
+	}, &discard)
+
+	if errors.Is(err, terminal.InterruptErr) {
+		PrintlnAndExit("Aborted")
+	}
+
+	if err != nil {
 		return err
 	}
 
@@ -77,11 +130,17 @@ func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args
 	}
 
 	var discard []string
-	if err := survey.AskOne(&survey.MultiSelect{
+	err := survey.AskOne(&survey.MultiSelect{
 		Message: f.Usage + ":",
 		Options: options,
 		Default: def,
-	}, &discard); err != nil {
+	}, &discard)
+
+	if errors.Is(err, terminal.InterruptErr) {
+		PrintlnAndExit("Aborted")
+	}
+
+	if err != nil {
 		return err
 	}
 
