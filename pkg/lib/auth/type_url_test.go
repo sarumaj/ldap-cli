@@ -11,16 +11,16 @@ func TestURLValidate(t *testing.T) {
 		wantErr bool
 	}{
 		{"test#1",
-			URL{},
+			*NewURL(),
 			true},
 		{"test#2",
-			URL{LDAPS, "", 0},
+			*(NewURL().SetScheme(LDAPS)),
 			true},
 		{"test#3",
-			URL{LDAPS, "example.com", 0},
+			*(NewURL().SetScheme(LDAPS).SetHost("example.com")),
 			true},
 		{"test#4",
-			URL{LDAPS, "example.com", LDAP_RW},
+			*(NewURL().SetScheme(LDAPS).SetHost("example.com").SetPort(LDAPS_RW)),
 			false},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
