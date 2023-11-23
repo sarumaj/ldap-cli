@@ -25,7 +25,7 @@ type DomainController struct {
 	UserAccountControl    []string  `ldap_attr:"-" csv:"-"`
 }
 
-func (d DomainController) DN() string { return GetField(&d, "DistinguishedName") }
+func (d DomainController) DN() string { return GetField[string](&d, "DistinguishedName") }
 
 func (d *DomainController) Read(raw map[string]any) error {
 	err := readMap(d, raw)
