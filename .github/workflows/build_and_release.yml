@@ -43,6 +43,9 @@ jobs:
         env:
           TEST_OAT: "true"
           CC_TEST_REPORTER_ID: "1e15987ddde9b2a41bf176f0fbf3b7fb8d5be5469e99976ce75b0d1453d32579"
+        with:
+          coverageCommand: go test -v -coverprofile=c.out ./...
+          debug: true
       - name: Precompile binaries and upload assets
         uses: cli/gh-extension-precompile@v1
         with:
