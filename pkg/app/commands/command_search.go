@@ -1,69 +1,102 @@
 package commands
 
 import (
-	"crypto/tls"
+	"encoding/csv"
 	"fmt"
 	"strings"
-	"time"
 
 	supererrors "github.com/sarumaj/go-super/errors"
+	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
+	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	cobra "github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v3"
 )
 
+var filterString string
+var searchArguments = &client.SearchArguments{}
+var selectAttributes string
+var format string
+
 var searchCmd = func() *cobra.Command {
-	bindParameters := &auth.BindParameters{}
-	dialOptions := &auth.DialOptions{}
-
-	var address string
-	var authType string
-	var disableTLS bool
-
 	searchCmd := &cobra.Command{
 		Use:     "search",
 		Short:   "Search a directory object",
 		Example: "ldap-cli search <object>",
-		Run: func(*cobra.Command, []string) {
-			_ = dialOptions.SetURL(address)
-			if dialOptions.URL.Scheme == auth.LDAPS {
-				_ = dialOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: disableTLS})
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			parent := cmd.Parent()
+			parent.PersistentPreRun(parent, args)
+
+			if searchArguments.Path == "" {
+				var components []string
+				for _, dc := range strings.Split(dialOptions.URL.Host, ".") {
+					if dc == "" {
+						continue
+					}
+
+					components = append(components, "DC="+dc)
+				}
+				searchArguments.Path = strings.Join(components, ",")
 			}
 
-			_ = bindParameters.SetType(auth.TypeFromString(authType))
-			switch {
+			if len(selectAttributes) > 0 {
+				reader := csv.NewReader(strings.NewReader(selectAttributes))
+				reader.LazyQuotes = true
+				reader.TrimLeadingSpace = true
 
-			case len(bindParameters.User)*len(bindParameters.Password) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
-				_ = bindParameters.SetType(auth.SIMPLE)
-
-			case len(bindParameters.User)*len(bindParameters.Password)*len(bindParameters.Domain) != 0 && bindParameters.AuthType == auth.UNAUTHENTICATED:
-				_ = bindParameters.SetType(auth.NTLM)
-
+				searchArguments.Attributes = attributes.LookupMany(supererrors.ExceptFn(supererrors.W(reader.Read()))...)
 			}
-
-			conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
-				bindParameters,
-				dialOptions,
-			)))
-
-			client.Search(conn, client.SearchArguments{})
+		},
+		Run: func(cmd *cobra.Command, _ []string) {
+			supererrors.Except(cmd.Help())
 		},
 	}
 
-	flags := searchCmd.Flags()
+	flags := searchCmd.PersistentFlags()
+	flags.StringVar(&format, "format", "yaml", "Output format (supported: [\"csv\", \"yaml\"])")
+	flags.StringVar(&searchArguments.Path, "path", "", "Specify the query path to search the directory objects in")
+	flags.StringVar(&selectAttributes, "select", "", "Select specific object attributes")
 
-	// dial options
-	flags.UintVarP(&dialOptions.MaxRetries, "max-retries", "r", 3, "Specify number of retries")
-	flags.Int64VarP(&dialOptions.SizeLimit, "size-limit", "s", -1, "Specify query size limit (-1: unlimited)")
-	flags.DurationVarP(&dialOptions.TimeLimit, "timeout", "t", 10*time.Second, "Specify query timeout")
-	flags.BoolVar(&disableTLS, "disable-tls", false, "Disable TLS (not recommended)")
-
-	// bind parameters
-	flags.StringVarP(&authType, "auth-type", "a", auth.UNAUTHENTICATED.String(), fmt.Sprintf("Set authentication schema (supported: [%v])", strings.Join(auth.ListSupportedAuthTypes(true), ", ")))
-	flags.StringVarP(&bindParameters.Domain, "domain", "d", "", fmt.Sprintf("Set domain (required for %s authentication schema)", auth.NTLM))
-	flags.StringVarP(&bindParameters.Password, "password", "p", "", fmt.Sprintf("Set password (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
-	flags.StringVar(&address, "url", auth.URL{Scheme: auth.LDAP, Host: "localhost", Port: auth.LDAP_RW}.String(), "Provide address of the directory server")
-	flags.StringVarP(&bindParameters.User, "username", "u", "", fmt.Sprintf("Set username (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
+	searchCmd.AddCommand(searchCustomCmd, searchUserCmd)
 
 	return searchCmd
 }()
+
+func performSearch(*cobra.Command, []string) {
+	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
+		bindParameters,
+		dialOptions,
+	)))
+
+	results := supererrors.ExceptFn(supererrors.W(client.Search(conn, *searchArguments)))
+
+	switch format {
+	case "csv":
+		w := csv.NewWriter(apputil.Stdout())
+		lines := make([][]string, len(results)+1)
+		for i, m := range results {
+			for _, a := range attributes.Map(m).Keys() {
+				if i == 0 {
+					lines[0] = append(lines[0], a.String())
+				}
+				lines[i+1] = append(lines[i+1], fmt.Sprint(m[a]))
+			}
+		}
+		supererrors.Except(w.WriteAll(lines))
+
+	default:
+		e := yaml.NewEncoder(apputil.Stdout())
+		e.SetIndent(2)
+		maps := make([]map[string]any, len(results))
+		for i, r := range results {
+			maps[i] = make(map[string]any)
+			for _, a := range attributes.Map(r).Keys() {
+				maps[i][a.String()] = r[a]
+			}
+		}
+		supererrors.Except(e.Encode(maps))
+
+	}
+
+}

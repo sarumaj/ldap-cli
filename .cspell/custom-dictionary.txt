@@ -5,6 +5,7 @@ CLICOLOR
 COLORTERM
 contiwan
 creasty
+csvutil
 Debugf
 DONT
 fatih
@@ -12,11 +13,13 @@ goccy
 GSSAPI
 Hexify
 INTERDOMAIN
+jszwec
 LDAPS
 libutil
 logrus
 NOTREQD
 NTLM
+pflag
 PREAUTH
 rhysd
 sarumaj
