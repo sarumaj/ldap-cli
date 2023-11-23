@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 )
 
 var ErrInvalidLDAPFilter = errors.New("invalid LDAP filter syntax")
@@ -20,7 +20,7 @@ func ParseRaw(raw string) (*Filter, error) {
 		matches := validSimpleFilterRegex.FindStringSubmatch(raw)[1:]
 		name, rule, value := matches[0], matches[1], matches[2]+matches[3]
 
-		attr := attributes.LookupAttributeByLDAPDisplayName(name)
+		attr := attributes.Lookup(name)
 		if attr == nil {
 			attr = &attributes.Attribute{LDAPDisplayName: name, Type: attributes.TypeRaw}
 		}

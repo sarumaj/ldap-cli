@@ -3,24 +3,25 @@ package filter
 import (
 	"testing"
 
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 func TestFilter(t *testing.T) {
-	defer util.PatchForTimeNow().Unpatch()
+	defer libutil.PatchForTimeNow().Unpatch()
+
 	for _, tt := range []struct {
 		name string
 		args Filter
 		want string
 	}{
 		{"test#1", And(
-			Filter{attributes.AttributeObjectClass(), "User", ""},
+			Filter{attributes.ObjectClass(), "User", ""},
 			HasNotExpired(true),
 			Or(
-				Filter{attributes.AttributeSamAccountName(), "uid12345", ""},
-				Filter{attributes.AttributeSamAccountName(), "uid54321", ""},
-				Filter{attributes.AttributeRaw("boolean", "", attributes.TypeBool), "true", ""},
+				Filter{attributes.SamAccountName(), "uid12345", ""},
+				Filter{attributes.SamAccountName(), "uid54321", ""},
+				Filter{attributes.Raw("boolean", "", attributes.TypeBool), "true", ""},
 			),
 		), `(&` +
 			(`` +
@@ -42,11 +43,11 @@ func TestFilter(t *testing.T) {
 				`)`) +
 			`)`},
 		{"test#2", And(
-			Filter{attributes.AttributeObjectClass(), "User", ""},
-			Filter{attributes.AttributeSamAccountName(), "uid12345", ""},
-			Not(Filter{attributes.AttributeUserAccountControl(), "2", attributes.LDAP_MATCHING_RULE_BIT_AND}),
+			Filter{attributes.ObjectClass(), "User", ""},
+			Filter{attributes.SamAccountName(), "uid12345", ""},
+			Not(Filter{attributes.UserAccountControl(), "2", attributes.LDAP_MATCHING_RULE_BIT_AND}),
 			Not(Filter{
-				attributes.AttributeMemberOf(),
+				attributes.MemberOf(),
 				"CN=SuperUsers,...,DC=com",
 				attributes.LDAP_MATCHING_RULE_IN_CHAIN,
 			})), `(&` +
@@ -57,7 +58,7 @@ func TestFilter(t *testing.T) {
 				`(!(memberof:1.2.840.113556.1.4.1941:=CN=SuperUsers,...,DC=com))`) +
 			`)`},
 		{"test#3", And(
-			Filter{attributes.AttributeDisplayName(), EscapeFilter("id@dom"), ""},
+			Filter{attributes.DisplayName(), EscapeFilter("id@dom"), ""},
 			HasNotExpired(false),
 			Not(IsDomainController()),
 			Not(IsGroup()),

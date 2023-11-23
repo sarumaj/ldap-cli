@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	ldap "github.com/go-ldap/ldap/v3"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 )
 
 const complexFilterSyntax = "complex"

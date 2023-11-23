@@ -8,7 +8,7 @@ import (
 func TestUserAccountControl(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		args UserAccountControl
+		args FlagsetUserAccountControl
 		want []string
 	}{
 		{"test#1",

@@ -7,9 +7,9 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type AttributeMap map[Attribute]any
+type Map map[Attribute]any
 
-func (r AttributeMap) String() string {
+func (r Map) String() string {
 	m := make(map[string]any)
 	for a, v := range r {
 		m[a.String()] = v
@@ -25,9 +25,9 @@ func (r AttributeMap) String() string {
 	return buffer.String()
 }
 
-type AttributeMaps []map[Attribute]any
+type Maps []map[Attribute]any
 
-func (rs AttributeMaps) String() string {
+func (rs Maps) String() string {
 	var maps []map[string]any
 	for _, r := range rs {
 		m := make(map[string]any)
