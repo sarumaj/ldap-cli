@@ -1,4 +1,4 @@
-dn: uid=uix00001,ou=users,{{ LDAP_BASE_DN }}
+dn: uid=uix00001,{{ LDAP_BASE_DN }}
 objectClass: top
 objectClass: account
 objectClass: posixAccount
@@ -15,7 +15,7 @@ shadowLastChange: 0
 shadowMax: 0
 shadowWarning: 0
 
-dn: uid=uix00002,ou=users,{{ LDAP_BASE_DN }}
+dn: uid=uix00002,{{ LDAP_BASE_DN }}
 objectClass: top
 objectClass: account
 objectClass: posixAccount

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"crypto/tls"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -19,11 +18,9 @@ func TestDial(t *testing.T) {
 		args    *DialOptions
 		wantErr bool
 	}{
-		{"test#1", NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}), false},
-		{"test#2", NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}), false},
-		{"test#3", NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")), true},
-		{"test#4", NewDialOptions().SetURL("ftp://invalid.com:123"), true},
-		{"test#5", nil, true},
+		{"test#1", NewDialOptions().SetURL("ldap://localhost:389"), false},
+		{"test#2", &DialOptions{URL: &URL{Scheme: "ftp", Host: "invalid", Port: 123}}, true},
+		{"test#3", &DialOptions{URL: &URL{}}, true},
 	} {
 
 		t.Run(tt.name, func(t *testing.T) {

@@ -1,10 +1,6 @@
 package client
 
 import (
-	"crypto/tls"
-	"fmt"
-	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -17,29 +13,45 @@ import (
 func TestSearch(t *testing.T) {
 	libutil.SkipOAT(t)
 
-	user := os.Getenv("AD_DEFAULT_USER")
 	conn, err := auth.Bind(
-		auth.NewBindParameters().SetType(auth.SIMPLE).SetUser(user).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
-		auth.NewDialOptions().SetURL(os.Getenv("AD_CW01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}).SetSizeLimit(-1).SetTimeLimit(time.Minute*5),
+		auth.NewBindParameters().SetType(auth.SIMPLE).SetUser("cn=admin,dc=mock,dc=ad,dc=com").SetPassword("admin"),
+		auth.NewDialOptions().SetSizeLimit(10).SetTimeLimit(time.Minute*5),
 	)
 	if err != nil {
 		t.Error(err)
+		return
 	}
-
-	dom, uid, _ := strings.Cut(user, `\\`)
-	t.Log(uid, dom)
+	defer conn.Close()
 
 	result, _, err := Search(
 		conn,
 		SearchArguments{
 			Attributes: attributes.Attributes{attributes.Any()},
-			Path:       fmt.Sprintf("DC=%s,DC=contiwan,DC=com", dom),
-			Filter:     filter.Filter{Attribute: attributes.SamAccountName(), Value: uid},
+			Path:       "dc=mock,dc=ad,dc=com",
+			Filter:     filter.Filter{Attribute: attributes.CommonName(), Value: "uix00001"},
 		},
 	)
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Log(result)
+	if len(result) == 0 {
+		t.Error("empty result set")
+	}
+
+	result, _, err = Search(
+		conn,
+		SearchArguments{
+			Attributes: attributes.Attributes{attributes.Any()},
+			Path:       "dc=mock,dc=ad,dc=com",
+			Filter:     filter.Filter{Attribute: attributes.CommonName(), Value: "group01"},
+		},
+	)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(result) == 0 {
+		t.Error("empty result set")
+	}
 }

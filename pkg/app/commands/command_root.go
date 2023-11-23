@@ -40,7 +40,7 @@ var rootCmd = func() *cobra.Command {
 
 	// dial options
 	flags.UintVar(&rootFlags.dialOptions.MaxRetries, "max-retries", 3, "Specify number of retries")
-	flags.Int64Var(&rootFlags.dialOptions.SizeLimit, "size-limit", -1, "Specify query size limit (-1: unlimited)")
+	flags.Int64Var(&rootFlags.dialOptions.SizeLimit, "size-limit", 2000, "Specify query size limit (-1: unlimited)")
 	flags.DurationVar(&rootFlags.dialOptions.TimeLimit, "timeout", 10*time.Minute, "Specify query timeout")
 	flags.BoolVar(&rootFlags.disableTLS, "disable-tls", false, "Disable TLS (not recommended)")
 
@@ -56,7 +56,7 @@ var rootCmd = func() *cobra.Command {
 	return rootCmd
 }()
 
-func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
+func rootPersistentPreRun(*cobra.Command, []string) {
 	if rootFlags.debug {
 		apputil.Logger.SetLevel(logrus.DebugLevel)
 	}
