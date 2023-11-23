@@ -1,6 +1,7 @@
 package filter
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
-var validSimpleFilterRegex = regexp.MustCompile(`^\(` + `(?P<Attribute>[\w\-]+)` + `(?::(?P<Rule>(?:\d+\.){5}\d+):)?` + `(?P<Operator>[~<>]?=)` + `(?P<Value>.*)` + `\)$`)
+var validSimpleFilterRegex = regexp.MustCompile(`^\(` + `(?P<Attribute>[\w\-]+)` + `(?::(?P<Rule>(?:\d+\.){6}\d+):)?` + `(?P<Operator>[~<>]?=)` + `(?P<Value>.*)` + `\)$`)
 var validComplexFilterRegex = regexp.MustCompile(`^\(` + `(?P<Logic>[!&\|])` + `\(` + `(?P<Filters>.+)` + `\)` + `\)$`)
 
 func ParseRaw(raw string) (*Filter, error) {
@@ -61,5 +62,5 @@ func ParseRaw(raw string) (*Filter, error) {
 
 	}
 
-	return nil, libutil.ErrInvalidFilter
+	return nil, fmt.Errorf("%w: %s", libutil.ErrInvalidFilter, raw)
 }

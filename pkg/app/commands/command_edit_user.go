@@ -9,11 +9,11 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var editUserFlags = &struct {
-	id           string
-	password     string
-	pwdAttribute string
-}{}
+var editUserFlags struct {
+	id           string `flag:"user-id"`
+	password     string `flag:"new-password"`
+	pwdAttribute string `flag:"password-attribute"`
+}
 
 var editUserCmd = func() *cobra.Command {
 	editUserCmd := &cobra.Command{
@@ -32,15 +32,26 @@ var editUserCmd = func() *cobra.Command {
 
 	flags := editUserCmd.Flags()
 	flags.StringVar(&editUserFlags.id, "user-id", "", "Specify user ID (common name, DN, SAN or UPN)")
-	flags.StringVar(&editUserFlags.password, "password", "", "Provide new password for the user to change (leave empty to keep current)")
+	flags.StringVar(&editUserFlags.password, "new-password", "", "Provide new password for the user to change (leave empty to keep current)")
 	flags.StringVar(&editUserFlags.pwdAttribute, "password-attribute", attributes.UnicodePassword().String(), "Configure custom attribute name for variant directory schema")
 
 	return editUserCmd
 }()
 
 func editUserPersistentPreRun(cmd *cobra.Command, _ []string) {
+	parent := cmd.Parent()
+	parent.PersistentPreRun(parent, nil)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editUserPersistentPreRun"})
 	logger.Debug("Executing")
+
+	if editUserFlags.id == "" {
+		var args []string
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "user-id", &args, false)))
+		supererrors.Except(cmd.ParseFlags(args))
+		getFlags.searchArguments.Filter = filter.ByID(editUserFlags.id)
+		logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter).Debug("Asked")
+	}
 
 	var filters []filter.Filter
 	if editUserFlags.id != "" {
@@ -70,5 +81,5 @@ func editUserRun(cmd *cobra.Command, _ []string) {
 	requests.Entries[0] = entry
 	editFlags.requests = requests
 
-	logger.WithField("flag", "password").Debug("Set")
+	logger.WithField("flag", "new-password").Debug("Set")
 }

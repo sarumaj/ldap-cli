@@ -10,13 +10,13 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var editGroupFlags = &struct {
-	id               string
-	addMembers       []string
-	deleteMembers    []string
-	replaceMembers   []string
-	membersAttribute string
-}{}
+var editGroupFlags struct {
+	id               string   `flag:"group-id"`
+	addMembers       []string `flag:"add-member"`
+	deleteMembers    []string `flag:"remove-member"`
+	replaceMembers   []string `flag:"replace-member"`
+	membersAttribute string   `flag:"member-attribute"`
+}
 
 var editGroupCmd = func() *cobra.Command {
 	editGroupCmd := &cobra.Command{
@@ -45,8 +45,19 @@ var editGroupCmd = func() *cobra.Command {
 }()
 
 func editGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
+	parent := cmd.Parent()
+	parent.PersistentPreRun(parent, nil)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editGroupPersistentPreRun"})
 	logger.Debug("Executing")
+
+	if editGroupFlags.id == "" {
+		var args []string
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(cmd, "group-id", &args, false)))
+		supererrors.Except(cmd.ParseFlags(args))
+		editFlags.searchArguments.Filter = filter.ByID(getGroupFlags.id)
+		logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter).Debug("Asked")
+	}
 
 	var filters []filter.Filter
 	if editGroupFlags.id != "" {

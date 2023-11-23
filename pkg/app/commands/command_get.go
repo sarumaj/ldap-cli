@@ -1,15 +1,8 @@
 package commands
 
 import (
-	"bytes"
-	"encoding/csv"
 	"fmt"
 
-	color "github.com/fatih/color"
-	ldif "github.com/go-ldap/ldif"
-	yaml "github.com/goccy/go-yaml"
-	lexer "github.com/goccy/go-yaml/lexer"
-	printer "github.com/goccy/go-yaml/printer"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
@@ -25,11 +18,11 @@ var defaultGetAttributes = map[string]attributes.Attributes{
 	getUserCmd.Name():   defaultUserGetAttributes,
 }
 
-var getFlags = &struct {
-	format           string
+var getFlags struct {
+	format           string `flag:"format"`
 	searchArguments  client.SearchArguments
-	selectAttributes []string
-}{}
+	selectAttributes []string `flag:"select"`
+}
 
 var getCmd = func() *cobra.Command {
 	getCmd := &cobra.Command{
@@ -53,11 +46,11 @@ var getCmd = func() *cobra.Command {
 	return getCmd
 }()
 
-func getChildCommandRun(cmd *cobra.Command, _ []string) {
+func getChildCommandRun(cmd *cobra.Command, args []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getChildCommandRun"})
 	logger.Debug("Executing")
 
-	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
+	//logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
 		&rootFlags.bindParameters,
 		&rootFlags.dialOptions,
@@ -67,61 +60,13 @@ func getChildCommandRun(cmd *cobra.Command, _ []string) {
 	results, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, getFlags.searchArguments)))
 
 	logger.WithField("format", getFlags.format).Debug("Rendering")
-	switch getFlags.format {
-
-	case apputil.CSV:
-		lines := make([][]string, len(results)+1)
-		for i, m := range results {
-			for _, a := range attributes.Map(m).Keys() {
-				if i == 0 {
-					lines[0] = append(lines[0], a.String())
-				}
-
-				lines[i+1] = append(lines[i+1], fmt.Sprint(m[a]))
-			}
-		}
-		supererrors.Except(csv.NewWriter(apputil.Stdout()).WriteAll(lines))
-
-	case apputil.LDIF:
-		data := supererrors.ExceptFn(supererrors.W(ldif.Marshal(requests)))
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), data)))
-
-	case apputil.YAML:
-		if len(results) == 1 {
-			supererrors.Except(yaml.NewEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(results[0]))
-		} else {
-			supererrors.Except(yaml.NewEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(map[string]any{"Results": results}))
-		}
-
-	default:
-		buffer := bytes.NewBuffer(nil)
-		if len(results) == 1 {
-			supererrors.Except(yaml.NewEncoder(buffer, yaml.Indent(2)).Encode(results[0]))
-		} else {
-			supererrors.Except(yaml.NewEncoder(buffer, yaml.Indent(2)).Encode(map[string]any{"Results": results}))
-		}
-
-		tokens := lexer.Tokenize(buffer.String())
-		buffer.Reset()
-
-		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), (&printer.Printer{
-			Bool: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiMagenta), Suffix: "\x1b[0m"}
-			},
-			Number: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiMagenta), Suffix: "\x1b[0m"}
-			},
-			MapKey: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiCyan), Suffix: "\x1b[0m"}
-			},
-			String: func() *printer.Property {
-				return &printer.Property{Prefix: fmt.Sprintf("\x1b[%dm", color.FgHiGreen), Suffix: "\x1b[0m"}
-			},
-		}).PrintTokens(tokens))))
-	}
+	supererrors.Except(apputil.FlushToStdOut(results, requests, getFlags.format))
 }
 
-func getPersistentPreRun(cmd *cobra.Command, _ []string) {
+func getPersistentPreRun(cmd *cobra.Command, args []string) {
+	parent := cmd.Parent()
+	parent.PersistentPreRun(parent, args)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getPersistentPreRun"})
 	logger.Debug("Executing")
 
@@ -137,14 +82,13 @@ func getPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 }
 
-func getRun(cmd *cobra.Command, _ []string) {
+func getRun(cmd *cobra.Command, args []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getRun"})
 	logger.Debug("Executing")
 
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getUserCmd)))
 	logger = logger.WithField("child", child.Name())
 
-	var args []string
 	switch child {
 
 	case getCustomCmd:
@@ -175,8 +119,6 @@ func getRun(cmd *cobra.Command, _ []string) {
 	supererrors.Except(child.ParseFlags(args))
 	logger.Debug("Parsed")
 
-	// since the flags could have changed, pre run must be invoked again
-	cmd.PersistentPreRun(cmd, nil)
-	child.PersistentPreRun(child, nil)
-	child.Run(child, nil)
+	child.PersistentPreRun(child, args)
+	child.Run(child, args)
 }

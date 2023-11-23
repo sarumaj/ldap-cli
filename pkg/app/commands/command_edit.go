@@ -13,11 +13,11 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-var editFlags = &struct {
-	editor          string
+var editFlags struct {
+	editor          string `flag:"editor"`
 	requests        *ldif.LDIF
 	searchArguments client.SearchArguments
-}{}
+}
 
 var editCmd = func() *cobra.Command {
 	editCmd := &cobra.Command{
@@ -96,6 +96,9 @@ func editChildCommandPostRun(cmd *cobra.Command, _ []string) {
 }
 
 func editPersistentPreRun(cmd *cobra.Command, _ []string) {
+	parent := cmd.Parent()
+	parent.PersistentPreRun(parent, nil)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editPersistentPreRun"})
 	logger.Debug("Executing")
 
@@ -139,10 +142,10 @@ func editRun(cmd *cobra.Command, _ []string) {
 
 	case editUserCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false)))
-		if supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password", &args, true))) {
+		if supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "new-password", &args, true))) {
 			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password-attribute", &args, false)))
 		}
-		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "password", "password-attribute"}, "args": args}).Debug("Asked")
+		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "new-password", "password-attribute"}, "args": args}).Debug("Asked")
 
 	}
 
@@ -152,10 +155,8 @@ func editRun(cmd *cobra.Command, _ []string) {
 	supererrors.Except(child.ParseFlags(args))
 	logger.Debug("Parsed")
 
-	// since the flags could have changed, pre run must be invoked again
-	cmd.PersistentPreRun(cmd, nil)
-	child.PersistentPreRun(child, nil)
-	child.PreRun(child, nil)
-	child.Run(child, nil)
-	child.PostRun(child, nil)
+	child.PersistentPreRun(child, args)
+	child.PreRun(child, args)
+	child.Run(child, args)
+	child.PostRun(child, args)
 }
