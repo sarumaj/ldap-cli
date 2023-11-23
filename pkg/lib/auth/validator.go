@@ -7,17 +7,25 @@ import (
 	"github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// For internal usage
 var validate = func() *validator.Validate {
 	validate := util.Validate()
 
-	validate.RegisterCustomTypeFunc(func(field reflect.Value) any {
-		v, ok := field.Interface().(Type)
-		if ok {
-			return v.String()
-		}
-
-		return nil
-	}, Type(0))
+	// custom type validator for Type
+	// string is casted to typeString which implements util.ValidatorInterface
+	validate.RegisterCustomTypeFunc(
+		func(field reflect.Value) any { return typeString(field.Interface().(Type).String()) },
+		Type(0),
+	)
 
 	return validate
 }()
+
+/*
+ * String as util.ValidatorInterface for Type
+ */
+var _ util.ValidatorInterface = typeString("")
+
+type typeString string
+
+func (t typeString) IsValid() bool { return TypeFromString(string(t)).IsValid() }
