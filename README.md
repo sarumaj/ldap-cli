@@ -51,10 +51,10 @@ $ go build \
     - [x] LDIF edit mode
   - [x] Edit custom objects
     - [x] LDIF edit mode
-- [x] interactive mode operandi
-  - [x] ask for inputs
-  - [x] utilize ANSI code sequences if available
-- [x] support multiple output format (CSV, LDIF, YAML)
+- [x] Interactive mode operandi
+  - [x] Ask for inputs
+  - [x] Utilize ANSI code sequences if available
+- [x] Support multiple output format (CSV, LDIF, YAML)
 
 ## Usage
 
