@@ -95,16 +95,15 @@ func getRun(cmd *cobra.Command, args []string) {
 		supererrors.Except(apputil.AskString(child, "member-of", &args))
 		supererrors.Except(apputil.AskBool(child, "recursively", &args))
 
-	default:
-		return
-
 	}
 
 	supererrors.Except(apputil.AskStrings(child, "select", attributes.LookupMany("*").ToAttributeList(), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
 	supererrors.Except(apputil.AskStrings(child, "format", []string{"csv", "default", "yaml"}, []string{"default"}, &args))
 
 	supererrors.Except(child.ParseFlags(args))
-	child.PersistentPreRun(child, nil)
+	if child.PersistentPreRun != nil {
+		child.PersistentPreRun(child, nil)
+	}
 
 	child.Run(child, nil)
 }
