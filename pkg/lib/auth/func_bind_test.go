@@ -1,11 +1,48 @@
 package auth
 
 import (
+	"crypto/tls"
+	"os"
 	"reflect"
 	"testing"
 
 	"github.com/creasty/defaults"
 )
+
+func TestBind(t *testing.T) {
+	type args struct {
+		*DialOptions
+		*BindParameter
+	}
+
+	for _, tt := range []struct {
+		name string
+		args args
+	}{
+		{"test#1", args{
+			(&DialOptions{}).SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
+			(&BindParameter{}).SetType(SIMPLE).SetUser(os.Getenv("AD_DEFAULT_USER")).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
+		}},
+		{"test#2", args{
+			(&DialOptions{}).SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
+			(&BindParameter{}).SetType(UNAUTHENTICATED),
+		}},
+	} {
+
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.args.URL == nil {
+				t.Skipf("Skipping %s", tt.name)
+			}
+
+			conn, err := Bind(tt.args.BindParameter, tt.args.DialOptions)
+			if err != nil {
+				t.Errorf(`Bind(%v, %v) failed: %v`, tt.args.BindParameter, tt.args.DialOptions, err)
+				return
+			}
+			_ = conn.Close()
+		})
+	}
+}
 
 func TestBindParameterDefaults(t *testing.T) {
 	for _, tt := range []struct {

@@ -5,7 +5,7 @@ import "testing"
 func TestTypeIsValid(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		args Type
+		args AuthType
 		want bool
 	}{
 		{"test#1", SIMPLE, true},
@@ -26,7 +26,7 @@ func TestTypeFromString(t *testing.T) {
 	for _, tt := range []struct {
 		name string
 		args string
-		want Type
+		want AuthType
 	}{
 		{"test#1", "simple", SIMPLE},
 		{"test#2", "ntlm", NTLM},

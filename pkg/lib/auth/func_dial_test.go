@@ -24,10 +24,12 @@ func TestDial(t *testing.T) {
 				t.Skipf("Skipping %s", tt.name)
 			}
 
-			_, err := Dial(tt.args)
+			conn, err := Dial(tt.args)
 			if err != nil {
 				t.Errorf(`Dial(%v) failed: %v`, tt.args, err)
+				return
 			}
+			_ = conn.Close()
 		})
 	}
 }

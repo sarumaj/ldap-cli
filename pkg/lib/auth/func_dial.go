@@ -57,6 +57,10 @@ func (o *DialOptions) Validate() error { return util.FormatError(validate.Struct
 
 // Dial in
 func Dial(opts *DialOptions) (net.Conn, error) {
+	if opts == nil {
+		opts = &DialOptions{}
+	}
+
 	if err := defaults.Set(opts); err != nil {
 		opts.MaxRetries = 0 // abort immediately
 		return nil, err
