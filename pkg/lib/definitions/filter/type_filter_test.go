@@ -20,6 +20,7 @@ func TestFilter(t *testing.T) {
 			Or(
 				Filter{attributes.AttributeSamAccountName(), "uid12345", ""},
 				Filter{attributes.AttributeSamAccountName(), "uid54321", ""},
+				Filter{attributes.AttributeRaw("boolean", "", attributes.TypeBool), "true", ""},
 			),
 		), `(&` +
 			(`` +
@@ -36,7 +37,8 @@ func TestFilter(t *testing.T) {
 				`(|` +
 				(`` +
 					`(samaccountname=uid12345)` +
-					`(samaccountname=uid54321)`) +
+					`(samaccountname=uid54321)` +
+					`(boolean=TRUE)`) +
 				`)`) +
 			`)`},
 		{"test#2", And(

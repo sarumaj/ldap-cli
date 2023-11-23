@@ -1,7 +1,7 @@
 package util
 
 import (
-	"fmt"
+	"context"
 	"net"
 	"strings"
 )
@@ -12,14 +12,14 @@ func LookupAddress(address string) string {
 
 	var names []string
 	var err error
-	if found {
-		names, err = net.LookupAddr(ip)
+	if ctx := context.Background(); found {
+		names, err = net.DefaultResolver.LookupAddr(ctx, strings.Trim(ip, "[]"))
 	} else {
-		names, err = net.LookupAddr(address)
+		names, err = net.DefaultResolver.LookupAddr(ctx, address)
 	}
 
 	if err == nil && len(names) > 0 {
-		return fmt.Sprintf("%s:%s", strings.Trim(names[0], "."), port)
+		return strings.TrimSuffix(strings.Trim(names[0], ".")+":"+port, ":")
 	}
 
 	return address

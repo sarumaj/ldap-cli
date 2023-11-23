@@ -18,6 +18,7 @@ func TestSAMAccountTypeEval(t *testing.T) {
 			SAM_ACCOUNT_TYPE_DOMAIN_OBJECT,
 			[]string{"DOMAIN_OBJECT"}},
 		{"test#3", 0, []string{"DOMAIN_OBJECT"}},
+		{"test#4", 7, nil},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.args.Eval()
