@@ -12,7 +12,7 @@ import (
 func TestBind(t *testing.T) {
 	type args struct {
 		*DialOptions
-		*BindParameter
+		*BindParameters
 	}
 
 	for _, tt := range []struct {
@@ -20,11 +20,11 @@ func TestBind(t *testing.T) {
 		args args
 	}{
 		{"test#1", args{
-			(&DialOptions{}).SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-			(&BindParameter{}).SetType(SIMPLE).SetDomain("").SetUser(os.Getenv("AD_DEFAULT_USER")).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
+			NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
+			NewBindParameters().SetType(SIMPLE).SetDomain("").SetUser(os.Getenv("AD_DEFAULT_USER")).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
 		}},
 		{"test#2", args{
-			(&DialOptions{}).SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
+			NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
 			nil,
 		}},
 	} {
@@ -34,9 +34,9 @@ func TestBind(t *testing.T) {
 				t.Skipf("Skipping %s", tt.name)
 			}
 
-			conn, err := Bind(tt.args.BindParameter, tt.args.DialOptions)
+			conn, err := Bind(tt.args.BindParameters, tt.args.DialOptions)
 			if err != nil {
-				t.Errorf(`Bind(%v, %v) failed: %v`, tt.args.BindParameter, tt.args.DialOptions, err)
+				t.Errorf(`Bind(%v, %v) failed: %v`, tt.args.BindParameters, tt.args.DialOptions, err)
 				return
 			}
 			_ = conn.Close()
@@ -47,15 +47,15 @@ func TestBind(t *testing.T) {
 func TestBindParameterDefaults(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		args BindParameter
-		want BindParameter
+		args BindParameters
+		want BindParameters
 	}{
 		{"test#1",
-			BindParameter{},
-			BindParameter{SIMPLE, "", "", ""}},
+			BindParameters{},
+			BindParameters{UNAUTHENTICATED, "", "", ""}},
 		{"test#2",
-			BindParameter{NTLM, "example.com", "user", "pass"},
-			BindParameter{NTLM, "example.com", "user", "pass"}},
+			BindParameters{NTLM, "example.com", "user", "pass"},
+			BindParameters{NTLM, "example.com", "user", "pass"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			opts := &tt.args
@@ -72,26 +72,26 @@ func TestBindParameterDefaults(t *testing.T) {
 func TestBindParameterValidate(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
-		args    BindParameter
+		args    BindParameters
 		wantErr bool
 	}{
 		{"test#1",
-			BindParameter{},
+			BindParameters{},
 			true},
 		{"test#2",
-			BindParameter{SIMPLE, "", "", ""},
+			BindParameters{SIMPLE, "", "", ""},
 			true},
 		{"test#3",
-			BindParameter{SIMPLE, "", "user", ""},
+			BindParameters{SIMPLE, "", "user", ""},
 			true},
 		{"test#4",
-			BindParameter{NTLM, "", "user", "pass"},
+			BindParameters{NTLM, "", "user", "pass"},
 			true},
 		{"test#5",
-			BindParameter{NTLM, "example.com", "user", "pass"},
+			BindParameters{NTLM, "example.com", "user", "pass"},
 			false},
 		{"test#6",
-			BindParameter{SIMPLE, "", "user", "pass"},
+			BindParameters{SIMPLE, "", "user", "pass"},
 			false},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

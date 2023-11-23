@@ -9,6 +9,7 @@ import (
 	"github.com/go-ldap/ldap/v3"
 	"github.com/sarumaj/ldap-cli/pkg/lib/auth"
 	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	"github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
@@ -17,11 +18,11 @@ var searchRangeRegex = regexp.MustCompile(`(\w+);range\=(?P<from>\d+)\-(?P<to>\d
 type searchRecursivelyArguments struct {
 	From, To, ID        int
 	Path, AttributeName string
-	Filter              attributes.Filter
+	Filter              filter.Filter
 	Repeat              bool
 }
 
-func searchRecursively(conn *auth.Connection, args searchRecursivelyArguments, result map[string]any) error {
+func searchRecursively(conn *auth.Connection, args searchRecursivelyArguments, result map[string][]string) error {
 	var rName string
 	standardizedName := strings.ToLower(args.AttributeName)
 	if !args.Repeat {
@@ -80,7 +81,7 @@ func searchRecursively(conn *auth.Connection, args searchRecursivelyArguments, r
 			}
 		}
 
-		if val, ok := result[standardizedName].([]string); ok {
+		if val, ok := result[standardizedName]; ok {
 			result[standardizedName] = append(val, found...)
 		} else {
 			result[standardizedName] = found
@@ -95,11 +96,11 @@ func searchRecursively(conn *auth.Connection, args searchRecursivelyArguments, r
 
 type SearchArguments struct {
 	Path       string
-	Attributes []attributes.Attribute
-	Filter     attributes.Filter
+	Attributes attributes.Attributes
+	Filter     filter.Filter
 }
 
-func Search(conn *auth.Connection, args SearchArguments) (results []map[string]any, err error) {
+func Search(conn *auth.Connection, args SearchArguments) (results attributes.AttributeMaps, err error) {
 	defer func() {
 		if recovered := recover(); recovered != nil {
 			err = fmt.Errorf("%v", err)
@@ -112,22 +113,22 @@ func Search(conn *auth.Connection, args SearchArguments) (results []map[string]a
 
 	sr, err := conn.SearchWithPaging(ldap.NewSearchRequest(
 		args.Path, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
-		int(conn.SizeLimit),           // SizeLimit
-		int(conn.TimeLimit.Seconds()), // TimeLimit
-		false,                         // TypesOnly
-		args.Filter.String(),          // LDAP Filter
-		attributes.AttributesToStringSlice(args.Attributes...), // Attribute List
-		nil, // []ldap.Control
+		int(conn.SizeLimit),               // SizeLimit
+		int(conn.TimeLimit.Seconds()),     // TimeLimit
+		false,                             // TypesOnly
+		args.Filter.String(),              // LDAP Filter
+		args.Attributes.ToAttributeList(), // Attribute List
+		nil,                               // []ldap.Control
 	), 1000)
 	if err != nil {
 		return nil, err
 	}
 
 	for id, s := range sr.Entries {
-		result := make(map[string]interface{})
-
+		result := make(map[string][]string)
+		converted := make(attributes.AttributeMap)
 		for _, attr := range s.Attributes {
-			
+
 			// retrieve ranged attribute recursively
 			if searchRangeRegex.MatchString(attr.Name) {
 				from, _ := strconv.Atoi(searchRangeRegex.FindStringSubmatch(attr.Name)[2])
@@ -146,17 +147,20 @@ func Search(conn *auth.Connection, args SearchArguments) (results []map[string]a
 				}
 
 			} else {
-				standardizedName := strings.ToLower(attr.Name)
-				result[standardizedName] = attr.Values
-
-				if len(result[standardizedName].([]string)) == 1 {
-					result[standardizedName] = result[standardizedName].([]string)[0]
-				}
-
+				result[strings.ToLower(attr.Name)] = attr.Values
 			}
 		}
 
-		results = append(results, result)
+		for k, v := range result {
+			attr := attributes.LookupAttributeByLDAPDisplayName(k)
+			if attr == nil {
+				continue
+			}
+
+			attr.Parse(v, &converted)
+		}
+
+		results = append(results, converted)
 	}
 
 	return

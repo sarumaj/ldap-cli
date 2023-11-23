@@ -7,5 +7,11 @@ dictionaryDefinitions:
 dictionaries:
   - custom-dictionary
 words: []
-ignoreWords: []
+ignoreWords:
+  - accountexpires
+  - displayname
+  - memberof
+  - objectclass
+  - samaccountname
+  - useraccountcontrol
 import: []
