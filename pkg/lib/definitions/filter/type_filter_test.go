@@ -73,7 +73,8 @@ func TestFilter(t *testing.T) {
 				`(|` +
 				`(|` +
 				(`` +
-					(`(AccountExpires=0)` +
+					(`` +
+						`(AccountExpires=0)` +
 						`(AccountExpires=9223372036854775807)` +
 						`(AccountExpires>=92233720368547758)`) +
 					`)` +
@@ -95,10 +96,16 @@ func TestFilter(t *testing.T) {
 			(`` +
 				`(|` +
 				(`` +
-					`(SAMAccountName=test)` +
-					`(UserPrincipalName=test)` +
+					`(CN=test)` +
+					`(DisplayName=test)` +
+					`(|` +
+					(`` +
+						`(DistinguishedName=test)` +
+						`(DN=test)`) +
+					`)` +
 					`(Name=test)` +
-					`(DistinguishedName=test)`) +
+					`(SAMAccountName=test)` +
+					`(UserPrincipalName=test)`) +
 				`)` +
 				`(MemberOf:1.2.840.113556.1.4.1941:=test#1)` +
 				`(MemberOf=test#2)`) +
