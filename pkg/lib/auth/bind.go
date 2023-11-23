@@ -12,7 +12,7 @@ import (
 )
 
 type BindParameter struct {
-	Type     Type   `validate:"required,is_valid"`
+	Type     Type   `validate:"required,is_valid"` // default: SIMPLE
 	Domain   string `validate:"required_if=Type NTLM"`
 	Password string `validate:"required"`
 	User     string `validate:"required"`
