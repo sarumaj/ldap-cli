@@ -98,9 +98,11 @@ func getRun(cmd *cobra.Command, args []string) {
 	}
 
 	supererrors.Except(apputil.AskStrings(child, "select", attributes.LookupMany("*").ToAttributeList(), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
+	supererrors.Except(apputil.AskString(child, "path", &args))
 	supererrors.Except(apputil.AskStrings(child, "format", []string{"csv", "default", "yaml"}, []string{"default"}, &args))
 
 	supererrors.Except(child.ParseFlags(args))
+
 	if child.PersistentPreRun != nil {
 		child.PersistentPreRun(child, nil)
 	}
