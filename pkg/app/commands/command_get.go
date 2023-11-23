@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"os"
 
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
@@ -9,6 +10,7 @@ import (
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	"github.com/schollz/progressbar/v3"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -22,6 +24,7 @@ var getFlags struct {
 	format           string `flag:"format"`
 	searchArguments  client.SearchArguments
 	selectAttributes []string `flag:"select"`
+	output           string
 }
 
 var getCmd = func() *cobra.Command {
@@ -40,6 +43,7 @@ var getCmd = func() *cobra.Command {
 	flags.StringVar(&getFlags.format, "format", "default", fmt.Sprintf("Output format (supported: [%v])", apputil.ListSupportedFormats(true)))
 	flags.StringVar(&getFlags.searchArguments.Path, "path", "", "Specify the query path to search the directory objects in (per default path is derivated from the address of domain controller)")
 	flags.StringArrayVar(&getFlags.selectAttributes, "select", []string{}, "Select specific object attributes (if not provided default attributes are being selected)")
+	flags.StringVar(&getFlags.output, "output", "stdout", "Output to file")
 
 	getCmd.AddCommand(getCustomCmd, getGroupCmd, getUserCmd)
 
@@ -57,10 +61,19 @@ func getChildCommandRun(cmd *cobra.Command, args []string) {
 	)))
 
 	logger.WithFields(apputil.GetFieldsForSearch(&getFlags.searchArguments)).Debug("Querying")
-	results, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, getFlags.searchArguments)))
+	results, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, getFlags.searchArguments, progressbar.NewOptions(-1,
+		progressbar.OptionSetWriter(apputil.Stdout()),
+		progressbar.OptionEnableColorCodes(apputil.IsColorEnabled()),
+	))))
 
-	logger.WithField("format", getFlags.format).Debug("Rendering")
-	supererrors.Except(apputil.FlushToStdOut(results, requests, getFlags.format))
+	logger.WithField("format", getFlags.format).WithField("output", getFlags.output).Debug("Rendering")
+	if getFlags.output == "stdout" {
+		supererrors.Except(apputil.FlushToStdOut(results, requests, getFlags.format, apputil.Stdout()))
+	} else {
+		f := supererrors.ExceptFn(supererrors.W(os.OpenFile(getFlags.output, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModePerm)))
+		supererrors.Except(apputil.FlushToStdOut(results, requests, apputil.SniffFormat(f.Name(), getFlags.format), f))
+	}
+
 }
 
 func getPersistentPreRun(cmd *cobra.Command, args []string) {

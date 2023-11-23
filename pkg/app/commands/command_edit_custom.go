@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
@@ -13,13 +15,20 @@ var editCustomFlags struct {
 
 var editCustomCmd = func() *cobra.Command {
 	editCustomCmd := &cobra.Command{
-		Use:              "custom",
-		Short:            "Get an arbitrary directory object to edit",
-		Example:          "ldap-cli edit custom",
+		Use:   "custom",
+		Short: "Edit an arbitrary directory object",
+		Long: "Edit an arbitrary directory object.\n\n" +
+			"Filter option supports following interpolations:\n",
+		Example: "ldap-cli --user \"DOMAIN\\\\user\" --password \"password\" --url \"ldaps://example.com:636\" edit " +
+			"custom --filter \"(cn=commonName)\"",
 		PersistentPreRun: editCustomPersistentPreRun,
 		PreRun:           editChildCommandPreRun,
 		Run:              editCustomRun,
 		PostRun:          editChildCommandPostRun,
+	}
+
+	for _, alias := range filter.ListAliases() {
+		editCustomCmd.Long += fmt.Sprintf(" - %-16s %s\n", alias.Alias+":", alias.Substitution)
 	}
 
 	flags := editCustomCmd.Flags()

@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
@@ -25,11 +27,19 @@ var getCustomFlags struct {
 
 var getCustomCmd = func() *cobra.Command {
 	getCustomCmd := &cobra.Command{
-		Use:              "custom",
-		Short:            "Get an arbitrary directory object",
-		Example:          "ldap-cli get custom",
+		Use:   "custom",
+		Short: "Get arbitrary directory object(s)",
+		Long: "Get  arbitrary directory object(s).\n\n" +
+			"Filter option supports following interpolations:\n",
+		Example: "ldap-cli --user \"DOMAIN\\\\user\" --password \"password\" --url \"ldaps://example.com:636\" " +
+			"get --path \"DC=example,DC=com\" --select \"sAmAccountName,AccountExpires\" " +
+			"custom --filter \"(&(cn=commonName)(memberof:${RECURSIVE}:=groupName))\"",
 		PersistentPreRun: getCustomPersistentPreRun,
 		Run:              getChildCommandRun,
+	}
+
+	for _, alias := range filter.ListAliases() {
+		getCustomCmd.Long += fmt.Sprintf(" - %16s: %s\n", alias.Alias, alias.Substitution)
 	}
 
 	flags := getCustomCmd.Flags()

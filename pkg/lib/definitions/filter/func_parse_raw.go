@@ -13,6 +13,10 @@ var validSimpleFilterRegex = regexp.MustCompile(`^\(` + `(?P<Attribute>[\w\-]+)`
 var validComplexFilterRegex = regexp.MustCompile(`^\(` + `(?P<Logic>[!&\|])` + `\(` + `(?P<Filters>.+)` + `\)` + `\)$`)
 
 func ParseRaw(raw string) (*Filter, error) {
+	for _, alias := range aliases {
+		raw = strings.ReplaceAll(raw, alias.Alias, alias.Substitution)
+	}
+
 	switch {
 
 	case validSimpleFilterRegex.MatchString(raw):

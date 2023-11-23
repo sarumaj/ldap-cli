@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
+	"io"
+	"path/filepath"
 	"slices"
+	"strings"
 
 	color "github.com/fatih/color"
 	ldif "github.com/go-ldap/ldif"
@@ -23,7 +26,11 @@ const (
 
 var supportedFormats = []string{CSV, DEFAULT, LDIF, YAML}
 
-func FlushToStdOut(results attributes.Maps, requests *ldif.LDIF, format string) error {
+func FlushToStdOut(results attributes.Maps, requests *ldif.LDIF, format string, out io.Writer) error {
+	if f, ok := out.(io.Closer); ok {
+		defer f.Close()
+	}
+
 	switch format {
 
 	case CSV:
@@ -37,7 +44,7 @@ func FlushToStdOut(results attributes.Maps, requests *ldif.LDIF, format string) 
 				lines[i+1] = append(lines[i+1], fmt.Sprint(m[a]))
 			}
 		}
-		return csv.NewWriter(Stdout()).WriteAll(lines)
+		return csv.NewWriter(out).WriteAll(lines)
 
 	case LDIF:
 		data, err := ldif.Marshal(requests)
@@ -45,14 +52,14 @@ func FlushToStdOut(results attributes.Maps, requests *ldif.LDIF, format string) 
 			return err
 		}
 
-		_, err = fmt.Fprintln(Stdout(), data)
+		_, err = fmt.Fprintln(out, data)
 		return err
 
 	case YAML:
 		if len(results) == 1 {
-			return yaml.NewEncoder(Stdout(), yaml.Indent(2)).Encode(results[0])
+			return yaml.NewEncoder(out, yaml.Indent(2)).Encode(results[0])
 		} else {
-			return yaml.NewEncoder(Stdout(), yaml.Indent(2)).Encode(map[string]any{"Results": results})
+			return yaml.NewEncoder(out, yaml.Indent(2)).Encode(map[string]any{"Results": results})
 		}
 
 	default:
@@ -101,4 +108,15 @@ func ListSupportedFormats(quote bool) (list []string) {
 
 	slices.Sort(list)
 	return
+}
+
+func SniffFormat(filename, format string) string {
+	switch format := strings.TrimPrefix(filepath.Ext(filename), "."); format {
+
+	case CSV, LDIF, YAML:
+		return format
+
+	}
+
+	return format
 }

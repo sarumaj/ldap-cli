@@ -30,6 +30,7 @@ func TestSearch(t *testing.T) {
 			Path:       "dc=mock,dc=ad,dc=com",
 			Filter:     filter.Filter{Attribute: attributes.CommonName(), Value: "uix00001"},
 		},
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
@@ -46,6 +47,7 @@ func TestSearch(t *testing.T) {
 			Path:       "dc=mock,dc=ad,dc=com",
 			Filter:     filter.Filter{Attribute: attributes.CommonName(), Value: "group01"},
 		},
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
