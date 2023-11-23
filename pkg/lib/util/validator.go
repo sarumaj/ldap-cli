@@ -14,7 +14,7 @@ type ValidatorInterface interface{ IsValid() bool }
 var validate = sync.Pool{New: func() any {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	validate.RegisterValidation("is_valid", func(fl validator.FieldLevel) bool {
+	_ = validate.RegisterValidation("is_valid", func(fl validator.FieldLevel) bool {
 		v, ok := fl.Field().Interface().(ValidatorInterface)
 		if ok {
 			return v.IsValid()

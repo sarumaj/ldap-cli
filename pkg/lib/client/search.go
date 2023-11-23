@@ -102,6 +102,7 @@ type SearchArguments struct {
 	Filter     filter.Filter
 }
 
+//gocyclo:ignore
 func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.ProgressBar) (results attributes.Maps, requests *ldif.LDIF, err error) {
 	if conn == nil {
 		return nil, nil, ldap.ErrNilConnection
@@ -137,7 +138,7 @@ func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.Progre
 
 			if bar != nil {
 				bar.Describe(fmt.Sprintf("[cyan][%d][reset]: found: [magenta]%s[reset]", id, s.DN))
-				bar.Add(1)
+				_ = bar.Add(1)
 			}
 
 			requests.Entries = append(requests.Entries, &ldif.Entry{Entry: s})
