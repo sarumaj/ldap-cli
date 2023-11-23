@@ -81,7 +81,7 @@ func editGroupRun(cmd *cobra.Command, _ []string) {
 	)
 
 	if len(request.Changes) == 0 {
-		supererrors.Except(apputil.AskLDAPDataInterchangeFormat(requests, editFlags.editor))
+		_ = supererrors.ExceptFn(supererrors.W(apputil.AskLDAPDataInterchangeFormat(requests, editFlags.editor)))
 		editFlags.requests = requests
 		logger.WithField("editor", editFlags.editor).Debug("Asked")
 

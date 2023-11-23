@@ -41,7 +41,7 @@ func editCustomRun(cmd *cobra.Command, _ []string) {
 	logger.Debug("Executing")
 
 	requests := editFlags.requests
-	supererrors.Except(apputil.AskLDAPDataInterchangeFormat(requests, editFlags.editor))
+	_ = supererrors.ExceptFn(supererrors.W(apputil.AskLDAPDataInterchangeFormat(requests, editFlags.editor)))
 	editFlags.requests = requests
 	logger.WithField("editor", editFlags.editor).Debug("Asked")
 }
