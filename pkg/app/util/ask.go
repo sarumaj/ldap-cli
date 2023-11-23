@@ -11,7 +11,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
-func AskBool(cmd *cobra.Command, flagName string, args *[]string) error {
+func AskBool(cmd *cobra.Command, flagName string, args *[]string, opts ...survey.AskOpt) error {
 	f := cmd.Flag(flagName)
 	if f == nil {
 		return fmt.Errorf("flag %q not defined", flagName)
@@ -22,7 +22,7 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string) error {
 		Message: f.Usage + ":",
 		Options: []string{"true", "false", "skip"},
 		Default: "skip",
-	}, &discard, survey.WithValidator(func(answer any) error {
+	}, &discard, append(opts, survey.WithValidator(func(answer any) error {
 		switch answerOption := answer.(core.OptionAnswer); answerOption.Value {
 
 		case "true", "false":
@@ -33,7 +33,7 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string) error {
 			return nil
 
 		}
-	}))
+	}))...)
 
 	if errors.Is(err, terminal.InterruptErr) {
 		PrintlnAndExit("Aborted")
@@ -42,7 +42,7 @@ func AskBool(cmd *cobra.Command, flagName string, args *[]string) error {
 	return err
 }
 
-func AskCommand(cmd *cobra.Command, def *cobra.Command) (*cobra.Command, error) {
+func AskCommand(cmd *cobra.Command, def *cobra.Command, opts ...survey.AskOpt) (*cobra.Command, error) {
 	var options []string
 	for _, child := range cmd.Commands() {
 		options = append(options, child.Name())
@@ -62,7 +62,7 @@ func AskCommand(cmd *cobra.Command, def *cobra.Command) (*cobra.Command, error) 
 
 			return ""
 		},
-	}, &x)
+	}, &x, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
 		PrintlnAndExit("Aborted")
@@ -81,17 +81,23 @@ func AskCommand(cmd *cobra.Command, def *cobra.Command) (*cobra.Command, error) 
 	return def, nil
 }
 
-func AskString(cmd *cobra.Command, flagName string, args *[]string) error {
+func AskString(cmd *cobra.Command, flagName string, args *[]string, password bool, opts ...survey.AskOpt) error {
 	f := cmd.Flag(flagName)
 	if f == nil {
 		return fmt.Errorf("flag %q not defined", flagName)
 	}
 
 	var discard string
-	err := survey.AskOne(&survey.Input{
-		Message: f.Usage + ":",
-		Default: "empty",
-	}, &discard)
+	var prompt survey.Prompt
+	if password {
+		prompt = &survey.Password{Message: f.Usage + ":"}
+	} else {
+		prompt = &survey.Input{
+			Message: f.Usage + ":",
+			Default: "empty",
+		}
+	}
+	err := survey.AskOne(prompt, &discard, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
 		PrintlnAndExit("Aborted")
@@ -109,7 +115,7 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string) error {
 	return nil
 }
 
-func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args *[]string) error {
+func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args *[]string, opts ...survey.AskOpt) error {
 	f := cmd.Flag(flagName)
 	if f == nil {
 		return fmt.Errorf("flag %q not defined", flagName)
@@ -121,7 +127,7 @@ func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args
 			Message: f.Usage + ":",
 			Options: options,
 			Default: def[0],
-		}, &discard); err != nil {
+		}, &discard, opts...); err != nil {
 			return err
 		}
 
@@ -134,7 +140,7 @@ func AskStrings(cmd *cobra.Command, flagName string, options, def []string, args
 		Message: f.Usage + ":",
 		Options: options,
 		Default: def,
-	}, &discard)
+	}, &discard, opts...)
 
 	if errors.Is(err, terminal.InterruptErr) {
 		PrintlnAndExit("Aborted")

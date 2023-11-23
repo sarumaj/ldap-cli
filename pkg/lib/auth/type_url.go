@@ -45,7 +45,7 @@ func NewURL() *URL { return &URL{} }
 func URLFromString(in string) (*URL, error) {
 
 	if !validURLRegex.MatchString(in) {
-		return nil, fmt.Errorf("invalid regex: %s", in)
+		return nil, fmt.Errorf("provided address %q does not match the validation pattern: %q", in, validURLRegex)
 	}
 
 	matches := validURLRegex.FindStringSubmatch(in)
