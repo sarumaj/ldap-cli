@@ -1,6 +1,7 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"sync"
@@ -42,16 +43,26 @@ func FormatError(err error) error {
 		return err
 	}
 
+	var newErrs []error
 	for _, err := range errs {
 		switch err.Tag() {
 
 		case "is_valid":
-			return fmt.Errorf("%s is invalid: %v", err.StructField(), err.Value())
+			newErrs = append(newErrs, fmt.Errorf("%s is invalid: %v", err.StructField(), err.Value()))
+
+		case "required":
+			newErrs = append(newErrs, fmt.Errorf("%s is required", err.StructField()))
+
+		case "required_if":
+			newErrs = append(newErrs, fmt.Errorf("%s is required, since %s", err.StructField(), err.Param()))
+
+		default:
+			newErrs = append(newErrs, err)
 
 		}
 	}
 
-	return nil
+	return errors.Join(newErrs...)
 }
 
 func Validate() *validator.Validate {
