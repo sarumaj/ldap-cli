@@ -1,10 +1,7 @@
 package auth
 
 import (
-	"reflect"
 	"strings"
-
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 type Type int
@@ -40,17 +37,6 @@ func (t Type) String() string {
 	}
 
 	return ""
-}
-
-func init() {
-	util.Validate().RegisterCustomTypeFunc(func(field reflect.Value) any {
-		v, ok := field.Interface().(Type)
-		if ok {
-			return v.String()
-		}
-
-		return nil
-	}, Type(0))
 }
 
 func TypeFromString(str string) Type {

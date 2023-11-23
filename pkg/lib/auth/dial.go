@@ -2,10 +2,7 @@ package auth
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/creasty/defaults"
@@ -17,12 +14,16 @@ type DialOptions struct {
 	SizeLimit  int64         `validate:"required" default:"10"`
 	TimeLimit  time.Duration `validate:"required" default:"10s"`
 	TLSConfig  *tls.Config
-	URL        *url.URL `validate:"required"`
+	URL        *URL `validate:"required"`
 }
 
 func (o *DialOptions) SetDefaults() {
 	if o.URL == nil {
-		o.URL, _ = url.Parse(fmt.Sprintf("ldap://localhost:%d", LDAP))
+		o.URL = &URL{
+			Scheme: LDAP,
+			Host:   "localhost",
+			Port:   LDAP_RW,
+		}
 	}
 }
 
@@ -31,12 +32,7 @@ func (o *DialOptions) SetSizeLimit(limit int64) *DialOptions         { o.SizeLim
 func (o *DialOptions) SetTimeLimit(limit time.Duration) *DialOptions { o.TimeLimit = limit; return o }
 
 func (o *DialOptions) SetURL(addr string) *DialOptions {
-	parsedURL, err := url.Parse(addr)
-	if err != nil {
-		return o
-	}
-
-	o.URL = parsedURL
+	o.URL, _ = URLFromString(addr)
 	return o
 }
 
@@ -54,13 +50,13 @@ func Dial(opts *DialOptions) (net.Conn, error) {
 		return nil, err
 	}
 
-	if strings.HasSuffix(opts.URL.Scheme, "s") {
+	if opts.URL.Scheme == LDAPS {
 		if opts.TLSConfig == nil {
 			opts.TLSConfig = &tls.Config{}
 		}
 
-		return tls.DialWithDialer(&net.Dialer{Timeout: opts.TimeLimit}, "tcp", opts.URL.Host, opts.TLSConfig)
+		return tls.DialWithDialer(&net.Dialer{Timeout: opts.TimeLimit}, "tcp", opts.URL.HostPort(), opts.TLSConfig)
 	}
 
-	return net.DialTimeout("tcp", opts.URL.Host, opts.TimeLimit)
+	return net.DialTimeout("tcp", opts.URL.HostPort(), opts.TimeLimit)
 }
