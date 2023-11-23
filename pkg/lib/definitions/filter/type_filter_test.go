@@ -25,21 +25,21 @@ func TestFilter(t *testing.T) {
 			),
 		), `(&` +
 			(`` +
-				`(objectclass=User)` +
+				`(ObjectClass=User)` +
 				`(&` +
 				(`` +
 					`(|` +
 					(`` +
-						`(accountexpires=0)` +
-						`(accountexpires=9223372036854775807)` + `(accountexpires>=92233720368547758)`) +
+						`(AccountExpires=0)` +
+						`(AccountExpires=9223372036854775807)` + `(AccountExpires>=92233720368547758)`) +
 					`)` +
-					`(accountexpires=*)`) +
+					`(AccountExpires=*)`) +
 				`)` +
 				`(|` +
 				(`` +
-					`(samaccountname=uid12345)` +
-					`(samaccountname=uid54321)` +
-					`(boolean=TRUE)`) +
+					`(SAMAccountName=uid12345)` +
+					`(SAMAccountName=uid54321)` +
+					`(Boolean=TRUE)`) +
 				`)`) +
 			`)`},
 		{"test#2", And(
@@ -52,10 +52,10 @@ func TestFilter(t *testing.T) {
 				attributes.LDAP_MATCHING_RULE_IN_CHAIN,
 			})), `(&` +
 			(`` +
-				`(objectclass=User)` +
-				`(samaccountname=uid12345)` +
-				`(!(useraccountcontrol:1.2.840.113556.1.4.803:=2))` +
-				`(!(memberof:1.2.840.113556.1.4.1941:=CN=SuperUsers,...,DC=com))`) +
+				`(ObjectClass=User)` +
+				`(SAMAccountName=uid12345)` +
+				`(!(UserAccountControl:1.2.840.113556.1.4.803:=2))` +
+				`(!(MemberOf:1.2.840.113556.1.4.1941:=CN=SuperUsers,...,DC=com))`) +
 			`)`},
 		{"test#3", And(
 			Filter{attributes.DisplayName(), EscapeFilter("id@dom"), ""},
@@ -65,24 +65,39 @@ func TestFilter(t *testing.T) {
 			IsUser(),
 			IsEnabled()), `(&` +
 			(`` +
-				`(displayname=id@dom)` +
+				`(DisplayName=id@dom)` +
 				`(|` +
 				`(|` +
 				(`` +
-					(`(accountexpires=0)` +
-						`(accountexpires=9223372036854775807)` +
-						`(accountexpires>=92233720368547758)`) +
+					(`(AccountExpires=0)` +
+						`(AccountExpires=9223372036854775807)` +
+						`(AccountExpires>=92233720368547758)`) +
 					`)` +
-					`(!(accountexpires=*))`) +
+					`(!(AccountExpires=*))`) +
 				`)` +
 				`(!(&` +
 				(`` + (`` +
-					`(objectclass=computer)` +
-					`(useraccountcontrol:1.2.840.113556.1.4.803:=8192)`)) +
+					`(ObjectClass=computer)` +
+					`(UserAccountControl:1.2.840.113556.1.4.803:=8192)`)) +
 				`))` +
-				`(!(objectclass=group))` +
-				`(objectclass=user)` +
-				`(!(useraccountcontrol:1.2.840.113556.1.4.803:=2))`) +
+				`(!(ObjectClass=group))` +
+				`(ObjectClass=user)` +
+				`(!(UserAccountControl:1.2.840.113556.1.4.803:=2))`) +
+			`)`},
+		{"test#4", And(
+			ByID("test"),
+			MemberOf("test#1", true),
+			MemberOf("test#2", false)), `(&` +
+			(`` +
+				`(|` +
+				(`` +
+					`(SAMAccountName=test)` +
+					`(UserPrincipalName=test)` +
+					`(Name=test)` +
+					`(DistinguishedName=test)`) +
+				`)` +
+				`(MemberOf:1.2.840.113556.1.4.1941:=test#1)` +
+				`(MemberOf=test#2)`) +
 			`)`},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

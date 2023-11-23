@@ -1,14 +1,12 @@
 package filter
 
 import (
-	"errors"
 	"regexp"
 	"strings"
 
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
-
-var ErrInvalidLDAPFilter = errors.New("invalid LDAP filter syntax")
 
 var validSimpleFilterRegex = regexp.MustCompile(`^\(` + `(?P<Attribute>[\w\-]+)` + `(?::(?P<Rule>(?:\d+\.){5}\d+):)?` + `(?P<Operator>[~<>]?=)` + `(?P<Value>.*)` + `\)$`)
 var validComplexFilterRegex = regexp.MustCompile(`^\(` + `(?P<Logic>[!&\|])` + `\(` + `(?P<Filters>.+)` + `\)` + `\)$`)
@@ -63,5 +61,5 @@ func ParseRaw(raw string) (*Filter, error) {
 
 	}
 
-	return nil, ErrInvalidLDAPFilter
+	return nil, libutil.ErrInvalidFilter
 }

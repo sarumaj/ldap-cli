@@ -35,17 +35,9 @@ func (v FlagsetGroupType) Eval() (types []string) {
 	}
 
 	if v&GROUP_TYPE_SECURITY != GROUP_TYPE_SECURITY && len(types) > 0 {
-		types = append(types, GROUP_TYPE_DISTRIBUTION.String())
+		types = append(types, groupTypeToString[GROUP_TYPE_DISTRIBUTION])
 	}
 
 	slices.Sort(types)
 	return types
-}
-
-func (g FlagsetGroupType) String() string {
-	if v, ok := groupTypeToString[g]; ok {
-		return v
-	}
-
-	return "UNKNOWN"
 }

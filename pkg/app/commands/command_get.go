@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
-	"strings"
 
 	color "github.com/fatih/color"
+	ldif "github.com/go-ldap/ldif"
 	yaml "github.com/goccy/go-yaml"
 	lexer "github.com/goccy/go-yaml/lexer"
 	printer "github.com/goccy/go-yaml/printer"
@@ -15,7 +15,7 @@ import (
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	logrus "github.com/sirupsen/logrus"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ var defaultGetAttributes = map[string]attributes.Attributes{
 var getFlags struct {
 	format           string
 	searchArguments  client.SearchArguments
-	selectAttributes string
+	selectAttributes []string
 }
 
 var getCmd = func() *cobra.Command {
@@ -44,104 +44,32 @@ var getCmd = func() *cobra.Command {
 	}
 
 	flags := getCmd.PersistentFlags()
-	flags.StringVar(&getFlags.format, "format", "default", "Output format (supported: [\"csv\", \"default\", \"yaml\"])")
+	flags.StringVar(&getFlags.format, "format", "default", fmt.Sprintf("Output format (supported: [%v])", apputil.ListSupportedFormats(true)))
 	flags.StringVar(&getFlags.searchArguments.Path, "path", "", "Specify the query path to search the directory objects in (per default path is derivated from the address of domain controller)")
-	flags.StringVar(&getFlags.selectAttributes, "select", "", "Select specific object attributes (if not provided default attributes are being selected)")
+	flags.StringArrayVar(&getFlags.selectAttributes, "select", nil, "Select specific object attributes (if not provided default attributes are being selected)")
 
 	getCmd.AddCommand(getCustomCmd, getGroupCmd, getUserCmd)
 
 	return getCmd
 }()
 
-func getPersistentPreRun(cmd *cobra.Command, _ []string) {
-	parent := cmd.Parent()
-	parent.PersistentPreRun(parent, nil)
+func getChildCommandRun(cmd *cobra.Command, _ []string) {
+	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getChildCommandRun"})
+	logger.Debug("Executing")
 
-	if getFlags.searchArguments.Path == "" {
-		var components []string
-		for _, dc := range strings.Split(rootFlags.dialOptions.URL.Host, ".") {
-			if dc == "" {
-				continue
-			}
-
-			components = append(components, "DC="+dc)
-		}
-		getFlags.searchArguments.Path = strings.Join(components, ",")
-	}
-
-	if len(getFlags.selectAttributes) > 0 {
-		reader := csv.NewReader(strings.NewReader(getFlags.selectAttributes))
-		reader.LazyQuotes = true
-		reader.TrimLeadingSpace = true
-
-		getFlags.searchArguments.Attributes = attributes.LookupMany(supererrors.ExceptFn(supererrors.W(reader.Read()))...)
-	}
-}
-
-func getRun(cmd *cobra.Command, _ []string) {
-	var args []string
-
-	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getUserCmd)))
-	switch child {
-
-	case getCustomCmd:
-		supererrors.Except(apputil.AskString(child, "filter", &args, false))
-
-	case getGroupCmd:
-		supererrors.Except(apputil.AskString(child, "group-id", &args, false))
-
-	case getUserCmd:
-		supererrors.Except(apputil.AskString(child, "user-id", &args, false))
-		supererrors.Except(apputil.AskBool(child, "enabled", &args))
-		supererrors.Except(apputil.AskBool(child, "expired", &args))
-		supererrors.Except(apputil.AskString(child, "member-of", &args, false))
-		supererrors.Except(apputil.AskBool(child, "recursively", &args))
-
-	}
-
-	supererrors.Except(apputil.AskStrings(child, "select", attributes.LookupMany("*").ToAttributeList(), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
-	supererrors.Except(apputil.AskString(child, "path", &args, false))
-	supererrors.Except(apputil.AskStrings(child, "format", []string{"csv", "default", "yaml"}, []string{"default"}, &args))
-
-	supererrors.Except(child.ParseFlags(args))
-
-	if child.PersistentPreRun != nil {
-		child.PersistentPreRun(child, nil)
-	}
-
-	child.Run(child, nil)
-}
-
-func getXRun(cmd *cobra.Command, _ []string) {
-	logger := apputil.Logger.WithField("command", cmd.CommandPath())
-
-	logger.WithFields(logrus.Fields{
-		"bindParameters.AuthType":         rootFlags.bindParameters.AuthType.String(),
-		"bindParameters.Domain":           rootFlags.bindParameters.Domain,
-		"bindParameters.User":             rootFlags.bindParameters.User,
-		"bindParameters.PasswordProvided": len(rootFlags.bindParameters.Password) > 0,
-		"dialOptions.MaxRetries":          rootFlags.dialOptions.MaxRetries,
-		"dialOptions.SizeLimit":           rootFlags.dialOptions.SizeLimit,
-		"dialOptions.TLSEnabled":          rootFlags.dialOptions.TLSConfig != nil && !rootFlags.dialOptions.TLSConfig.InsecureSkipVerify,
-		"dialOptions.TimeLimit":           rootFlags.dialOptions.TimeLimit,
-		"dialOptions.URL":                 rootFlags.dialOptions.URL.String(),
-	}).Debug("Connecting")
-
+	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
 		&rootFlags.bindParameters,
 		&rootFlags.dialOptions,
 	)))
 
-	logger.WithFields(logrus.Fields{
-		"searchArguments.Attributes": getFlags.searchArguments.Attributes.ToAttributeList(),
-		"searchArguments.Filter":     getFlags.searchArguments.Filter.String(),
-		"searchArguments.Path":       getFlags.searchArguments.Path,
-	}).Debug("Querying")
+	logger.WithFields(apputil.GetFieldsForSearch(&getFlags.searchArguments)).Debug("Querying")
+	results, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, getFlags.searchArguments)))
 
-	results := supererrors.ExceptFn(supererrors.W(client.Search(conn, getFlags.searchArguments)))
-
+	logger.WithField("format", getFlags.format).Debug("Rendering")
 	switch getFlags.format {
-	case "csv":
+
+	case apputil.CSV:
 		lines := make([][]string, len(results)+1)
 		for i, m := range results {
 			for _, a := range attributes.Map(m).Keys() {
@@ -154,7 +82,11 @@ func getXRun(cmd *cobra.Command, _ []string) {
 		}
 		supererrors.Except(csv.NewWriter(apputil.Stdout()).WriteAll(lines))
 
-	case "yaml":
+	case apputil.LDIF:
+		data := supererrors.ExceptFn(supererrors.W(ldif.Marshal(requests)))
+		_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), data)))
+
+	case apputil.YAML:
 		if len(results) == 1 {
 			supererrors.Except(yaml.NewEncoder(apputil.Stdout(), yaml.Indent(2)).Encode(results[0]))
 		} else {
@@ -187,4 +119,63 @@ func getXRun(cmd *cobra.Command, _ []string) {
 			},
 		}).PrintTokens(tokens))))
 	}
+}
+
+func getPersistentPreRun(cmd *cobra.Command, _ []string) {
+	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getPersistentPreRun"})
+	logger.Debug("Executing")
+
+	if getFlags.searchArguments.Path == "" {
+		getFlags.searchArguments.Path = rootFlags.dialOptions.URL.ToBaseDirectoryPath()
+		logger.WithField("searchArguments.Path", getFlags.searchArguments.Path).Debug("Set")
+	}
+
+	if len(getFlags.selectAttributes) > 0 {
+		selected := supererrors.ExceptFn(supererrors.W(libutil.RebuildStringSliceFlag(getFlags.selectAttributes, ',')))
+		getFlags.searchArguments.Attributes = attributes.LookupMany(selected...)
+		logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
+	}
+}
+
+func getRun(cmd *cobra.Command, _ []string) {
+	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getRun"})
+	logger.Debug("Executing")
+
+	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getUserCmd)))
+	logger = logger.WithField("child", child.Name())
+
+	var args []string
+	switch child {
+
+	case getCustomCmd:
+		supererrors.Except(apputil.AskString(child, "filter", &args, false))
+		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Debug("Asked")
+
+	case getGroupCmd:
+		supererrors.Except(apputil.AskString(child, "group-id", &args, false))
+		logger.WithFields(apputil.Fields{"flag": "group-id", "args": args}).Debug("Asked")
+
+	case getUserCmd:
+		supererrors.Except(apputil.AskString(child, "user-id", &args, false))
+		supererrors.Except(apputil.AskBool(child, "enabled", &args))
+		supererrors.Except(apputil.AskBool(child, "expired", &args))
+		supererrors.Except(apputil.AskString(child, "member-of", &args, false))
+		supererrors.Except(apputil.AskBool(child, "recursively", &args))
+		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "enabled", "expired", "member-of", "recursively"}, "args": args}).Debug("Asked")
+
+	}
+
+	supererrors.Except(apputil.AskStrings(child, "select", attributes.LookupMany("*").ToAttributeList(), defaultGetAttributes[child.Name()].ToAttributeList(), &args))
+	supererrors.Except(apputil.AskString(child, "path", &args, false))
+	supererrors.Except(apputil.AskStrings(child, "format", []string{"csv", "default", "ldif", "yaml"}, []string{"default"}, &args))
+	logger.WithFields(apputil.Fields{"flags": []string{"select", "path", "format"}, "args": args}).Debug("Asked")
+
+	supererrors.Except(child.ParseFlags(args))
+	logger.Debug("Parsed")
+
+	if child.PersistentPreRun != nil {
+		child.PersistentPreRun(child, nil)
+	}
+
+	child.Run(child, nil)
 }

@@ -1,0 +1,22 @@
+version: '2'
+services:
+  ldap:
+    image: osixia/openldap:latest
+    container_name: ldap
+    command: "--copy-service --loglevel debug"
+    environment:
+      - LDAP_ORGANISATION=mock-ad
+      - LDAP_DOMAIN=mock-ad.com
+      - "LDAP_BASE_DN=dc=mock-ad,dc=com"
+      - LDAP_ADMIN_PASSWORD=admin
+    volumes:
+      - ./users.ldif:/container/service/slapd/assets/config/bootstrap/ldif/users.ldif
+      - ./groups.ldif:/container/service/slapd/assets/config/bootstrap/ldif/groups.ldif
+      - ./assignments.ldif:/container/service/slapd/assets/config/bootstrap/ldif/assignments.ldif
+    ports:
+      - 389:389
+      - 636:636
+volumes:
+  - ./users.ldif
+  - ./groups.ldif
+  - ./assignments.ldif

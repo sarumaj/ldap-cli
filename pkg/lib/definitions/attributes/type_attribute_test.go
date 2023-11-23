@@ -9,6 +9,24 @@ import (
 	diff "github.com/r3labs/diff/v3"
 )
 
+func TestAppend(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		args Attributes
+		want Attributes
+	}{
+		{"test#1", Attributes{name, accountExpires, displayName, name}, Attributes{accountExpires, displayName, name}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			var got Attributes
+			got.Append(tt.args...)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf(`(Attributes).Append(...) failed: got: %v, want: %v`, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestParse(t *testing.T) {
 	type args struct {
 		a Attribute
@@ -202,80 +220,83 @@ func TestParse(t *testing.T) {
 		{"test#61",
 			args{postalCode, []string{"12345"}},
 			Map{PostalCode(): "12345"}},
-		{"test#60",
+		{"test#62",
 			args{samAccountName, []string{"test"}},
 			Map{SamAccountName(): "test"}},
-		{"test#61",
+		{"test#63",
 			args{samAccountType, []string{"805306368"}},
 			Map{SamAccountType(): []string{"NORMAL_USER_ACCOUNT", "USER_OBJECT"}}},
-		{"test#62",
+		{"test#64",
 			args{surname, []string{"test"}},
 			Map{Surname(): "test"}},
-		{"test#63",
+		{"test#65",
 			args{streetAddress, []string{"test"}},
 			Map{StreetAddress(): "test"}},
-		{"test#64",
+		{"test#66",
 			args{userAccountControl, []string{"8585216"}},
 			Map{
 				UserAccountControl():           []string{"DONT_EXPIRE_PASSWD", "MNS_LOGON_ACCOUNT", "PASSWORD_EXPIRED"},
 				Raw("", "Enabled", TypeBool):   true,
 				Raw("", "LockedOut", TypeBool): false,
 			}},
-		{"test#65",
+		{"test#67",
 			args{userCertificate, []string{"test"}},
 			Map{UserCertificate(): `\x74\x65\x73\x74`}},
-		{"test#66",
+		{"test#68",
 			args{userPrincipalName, []string{"test"}},
 			Map{UserPrincipalName(): "test"}},
-		{"test#67",
+		{"test#69",
 			args{whenChanged, []string{"128271382742968750"}},
 			Map{WhenChanged(): time.Date(2007, 6, 24, 5, 57, 54, 296875000, time.UTC)}},
-		{"test#68",
+		{"test#70",
 			args{whenCreated, []string{"128271382742968750"}},
 			Map{WhenCreated(): time.Date(2007, 6, 24, 5, 57, 54, 296875000, time.UTC)}},
-		{"test#69",
+		{"test#71",
 			args{Raw("unknown", "", TypeRaw), nil},
 			Map{},
 		},
-		{"test#69",
+		{"test#72",
 			args{Raw("unknown", "", TypeRaw), []string{"test"}},
 			Map{Raw("unknown", "", TypeRaw): "test"}},
-		{"test#69",
+		{"test#73",
 			args{Raw("unknown", "", TypeRaw), []string{"test#1", "test#2"}},
 			Map{Raw("unknown", "", TypeRaw): []string{"test#1", "test#2"}}},
-		{"test#70",
+		{"test#74",
 			args{Raw("unknown", "", TypeBool), []string{"true"}},
 			Map{Raw("unknown", "", TypeBool): true}},
-		{"test#71",
+		{"test#75",
 			args{Raw("unknown", "", TypeBool), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeBool): []string{"invalid"}}},
-		{"test#72",
+		{"test#76",
 			args{Raw("unknown", "", TypeDecimal), []string{"12.7"}},
 			Map{Raw("unknown", "", TypeDecimal): float64(12.7)}},
-		{"test#73",
+		{"test#77",
 			args{Raw("unknown", "", TypeDecimal), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeDecimal): []string{"invalid"}}},
-		{"test#74",
+		{"test#78",
 			args{Raw("unknown", "", TypeGroupType), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeGroupType): []string{"invalid"}}},
-		{"test#75",
+		{"test#79",
 			args{Raw("unknown", "", TypeInt), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeInt): []string{"invalid"}}},
-		{"test#76",
+		{"test#80",
 			args{Raw("unknown", "", TypeIPv4Address), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeIPv4Address): []string{"invalid"}}},
-		{"test#77",
+		{"test#81",
 			args{Raw("unknown", "", TypeSAMaccountType), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeSAMaccountType): []string{"invalid"}}},
-		{"test#78",
+		{"test#82",
 			args{Raw("unknown", "", TypeTime), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeTime): []string{"invalid"}}},
-		{"test#79",
+		{"test#83",
 			args{Raw("unknown", "", TypeUserAccountControl), []string{"invalid"}},
 			Map{Raw("unknown", "", TypeUserAccountControl): []string{"invalid"}}},
-		{"test#80",
+		{"test#84",
 			args{Raw("unknown", "", "unknown"), []string{"invalid"}},
 			nil},
+		{"test#85",
+			args{UserPassword(), []string{"pass"}},
+			Map{UserPassword(): "pass"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			attr, attrMap, values := tt.args.a, Map{}, tt.args.v
@@ -293,13 +314,7 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func TestRegistryNotEmpty(t *testing.T) {
-	if len(registry) == 0 {
-		t.Errorf(`no attributes registered`)
-	}
-}
-
-func TestAttributesToAttributeList(t *testing.T) {
+func TestToAttributeList(t *testing.T) {
 	for _, tt := range []struct {
 		name string
 		args Attributes
@@ -307,49 +322,13 @@ func TestAttributesToAttributeList(t *testing.T) {
 	}{
 		{"test#1", nil, nil},
 		{"test#2",
-			[]Attribute{AccountExpires(), UserAccountControl(), CommonName()},
-			[]string{"accountexpires", "cn", "useraccountcontrol"}},
+			[]Attribute{AccountExpires(), UserAccountControl(), CommonName(), CommonName(), Raw("", "custom", TypeRaw)},
+			[]string{"AccountExpires", "CN", "Custom", "UserAccountControl"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.args.ToAttributeList()
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf(`SToStringSlice(...) failed: got: %v, want: %v`, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestLookup(t *testing.T) {
-	for _, tt := range []struct {
-		name string
-		args string
-		want *Attribute
-	}{
-		{"test#1", "name", &name},
-		{"test#2", "invalid", nil},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			got := Lookup(tt.args)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf(`Lookup(%q) failed: got: %p, want: %p`, tt.args, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestLookupMany(t *testing.T) {
-	for _, tt := range []struct {
-		name string
-		args []string
-		want Attributes
-	}{
-		{"test#1", []string{"name", "name", "accountExpires"}, Attributes{accountExpires, name}},
-		{"test#2", []string{"invalid"}, nil},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			got := LookupMany(tt.args...)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf(`LookupMany(%v) failed: got: %v, want: %v`, tt.args, got, tt.want)
+				t.Errorf(`(Attributes).ToStringSlice(...) failed: got: %v, want: %v`, got, tt.want)
 			}
 		})
 	}

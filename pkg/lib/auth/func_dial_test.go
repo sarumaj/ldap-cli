@@ -7,10 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/creasty/defaults"
+	defaults "github.com/creasty/defaults"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 func TestDial(t *testing.T) {
+	libutil.SkipOAT(t)
+
 	for _, tt := range []struct {
 		name    string
 		args    *DialOptions
@@ -18,7 +21,9 @@ func TestDial(t *testing.T) {
 	}{
 		{"test#1", NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}), false},
 		{"test#2", NewDialOptions().SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}), false},
-		{"test#3", nil, true},
+		{"test#3", NewDialOptions().SetURL(os.Getenv("AD_AUTO_URL")), true},
+		{"test#4", NewDialOptions().SetURL("ftp://invalid.com:123"), true},
+		{"test#5", nil, true},
 	} {
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -28,7 +33,7 @@ func TestDial(t *testing.T) {
 				return
 			}
 
-			if conn != nil {
+			if err == nil && conn != nil {
 				_ = conn.Close()
 			}
 		})
@@ -56,7 +61,6 @@ func TestDialOptionsDefaults(t *testing.T) {
 			} else if !reflect.DeepEqual(*opts, tt.want) {
 				t.Errorf(`defaults.Set(%v) failed: did not expect %v`, tt.args, *opts)
 			}
-
 		})
 	}
 }

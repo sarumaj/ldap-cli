@@ -2,9 +2,10 @@ package auth
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 const (
@@ -21,7 +22,7 @@ var typeTranslation = map[AuthType]string{
 	NTLM:            "NTLM",
 }
 
-var _ util.ValidatorInterface = AuthType(0)
+var _ libutil.ValidatorInterface = AuthType(0)
 
 type AuthType int
 
@@ -58,6 +59,7 @@ func ListSupportedAuthTypes(quote bool) []string {
 		}
 	}
 
+	slices.Sort(list)
 	return list
 }
 

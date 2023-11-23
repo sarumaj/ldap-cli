@@ -2,12 +2,11 @@ package auth
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net"
 	"time"
 
-	"github.com/creasty/defaults"
-	"github.com/sarumaj/ldap-cli/pkg/lib/util"
+	defaults "github.com/creasty/defaults"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
 // Options for dialer
@@ -21,7 +20,7 @@ type DialOptions struct {
 	// Custom TLS config
 	TLSConfig *tls.Config
 	// Server URL
-	URL *URL `validate:"required"` // default: ldap://localhost:389
+	URL *URL `validate:"required,is_valid"` // default: ldap://localhost:389
 }
 
 // Sets default URL
@@ -54,12 +53,11 @@ func (o *DialOptions) SetURL(addr string) *DialOptions {
 func (o *DialOptions) SetTLSConfig(conf *tls.Config) *DialOptions { o.TLSConfig = conf; return o }
 
 // Validate fields
-func (o *DialOptions) Validate() error { return util.FormatError(validate.Struct(o)) }
+func (o *DialOptions) Validate() error { return libutil.FormatError(validate.Struct(o)) }
 
 // Dial in
-func Dial(opts *DialOptions) (net.Conn, error) {
+func Dial(opts *DialOptions) (conn net.Conn, err error) {
 	if opts == nil {
-		fmt.Println("was nil")
 		opts = NewDialOptions()
 	}
 
@@ -78,10 +76,12 @@ func Dial(opts *DialOptions) (net.Conn, error) {
 			opts.TLSConfig = &tls.Config{}
 		}
 
-		return tls.DialWithDialer(&net.Dialer{Timeout: opts.TimeLimit}, "tcp", opts.URL.HostPort(), opts.TLSConfig)
+		conn, err = tls.DialWithDialer(&net.Dialer{Timeout: opts.TimeLimit}, "tcp", opts.URL.HostPort(), opts.TLSConfig)
+		return conn, libutil.Handle(err)
 	}
 
-	return net.DialTimeout("tcp", opts.URL.HostPort(), opts.TimeLimit)
+	conn, err = net.DialTimeout("tcp", opts.URL.HostPort(), opts.TimeLimit)
+	return conn, libutil.Handle(err)
 }
 
 func NewDialOptions() *DialOptions { return &DialOptions{} }

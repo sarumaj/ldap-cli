@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/term"
+	term "golang.org/x/term"
 )
 
 func CheckColors(fn func(string, ...any) string, format string, a ...any) string {

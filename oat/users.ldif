@@ -1,0 +1,33 @@
+dn: uid=uix00001,ou=users,{{ LDAP_BASE_DN }}
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: uix00001
+uid: uix00001
+uidNumber: 16859
+gidNumber: 100
+homeDirectory: /home/uix00001
+loginShell: /bin/bash
+gecos: uix00001
+userPassword: 12345
+shadowLastChange: 0
+shadowMax: 0
+shadowWarning: 0
+
+dn: uid=uix00002,ou=users,{{ LDAP_BASE_DN }}
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: uix00002
+uid: uix00002
+uidNumber: 16860
+gidNumber: 100
+homeDirectory: /home/uix00002
+loginShell: /bin/bash
+gecos: uix00002
+userPassword: 12345
+shadowLastChange: 0
+shadowMax: 0
+shadowWarning: 0

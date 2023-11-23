@@ -6,11 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/AlecAivazis/survey/v2/terminal"
+	survey "github.com/AlecAivazis/survey/v2"
+	terminal "github.com/AlecAivazis/survey/v2/terminal"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
+	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 	logrus "github.com/sirupsen/logrus"
 	cobra "github.com/spf13/cobra"
 )
@@ -50,7 +51,7 @@ var rootCmd = func() *cobra.Command {
 	flags.StringVar(&rootFlags.bindParameters.Password, "password", "", fmt.Sprintf("Set password (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
 	flags.StringVar(&rootFlags.bindParameters.User, "user", "", fmt.Sprintf("Set username (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
 
-	rootCmd.AddCommand(getCmd, versionCmd)
+	rootCmd.AddCommand(editCmd, getCmd, versionCmd)
 
 	return rootCmd
 }()
@@ -80,7 +81,7 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 }
 
 func rootRun(cmd *cobra.Command, _ []string) {
-	if rootFlags.authType == auth.UNAUTHENTICATED.String() {
+	if rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED {
 		var confirm bool
 		supererrors.Except(survey.AskOne(&survey.Confirm{
 			Message: "Running in UNAUTHENTICATED mode, proceed?",
@@ -101,7 +102,7 @@ func rootRun(cmd *cobra.Command, _ []string) {
 				return nil
 			})))
 
-			if args[len(args)-1] == auth.NTLM.String() {
+			if len(args) > 0 && args[len(args)-1] == auth.NTLM.String() {
 				supererrors.Except(apputil.AskString(cmd, "domain", &args, false))
 			}
 
@@ -125,7 +126,7 @@ func rootRun(cmd *cobra.Command, _ []string) {
 func Execute(version, buildDate string) {
 	internalVersion, internalBuildDate = version, buildDate
 
-	apputil.Logger.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, apputil.GetExecutablePath())
+	apputil.Logger.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, libutil.GetExecutablePath())
 
 	if err := rootCmd.Execute(); err != nil {
 		apputil.Logger.Debugf("Execution failed: %v", err)

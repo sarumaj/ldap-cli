@@ -1,6 +1,27 @@
 package auth
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
+
+func TestListSupportedAuthTypes(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		args bool
+		want []string
+	}{
+		{"test#1", false, []string{"MD5", "NTLM", "SIMPLE", "UNAUTHENTICATED"}},
+		{"test#2", true, []string{"\"MD5\"", "\"NTLM\"", "\"SIMPLE\"", "\"UNAUTHENTICATED\""}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ListSupportedAuthTypes(tt.args)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf(`ListSupportedAuthTypes(%t) failed: got: %v, want: %v`, tt.args, got, tt.want)
+			}
+		})
+	}
+}
 
 func TestTypeIsValid(t *testing.T) {
 	for _, tt := range []struct {

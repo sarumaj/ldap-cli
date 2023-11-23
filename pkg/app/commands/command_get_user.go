@@ -1,6 +1,7 @@
 package commands
 
 import (
+	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	cobra "github.com/spf13/cobra"
@@ -36,7 +37,7 @@ var getUserCmd = func() *cobra.Command {
 			"get --path \"DC=example,DC=com\" --select \"accountExpires,sAmAccountName\" " +
 			"user --user-id \"uix12345\" --enabled",
 		PersistentPreRun: getUserPersistentPreRun,
-		Run:              getXRun,
+		Run:              getChildCommandRun,
 	}
 
 	flags := getUserCmd.Flags()
@@ -50,19 +51,15 @@ var getUserCmd = func() *cobra.Command {
 }()
 
 func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
-	parent := cmd.Parent()
-	parent.PersistentPreRun(parent, nil)
+	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getUserPersistentPreRun"})
+	logger.Debug("Executing")
 
-	getFlags.searchArguments.Attributes = append(getFlags.searchArguments.Attributes, defaultUserGetAttributes...)
+	getFlags.searchArguments.Attributes.Append(defaultUserGetAttributes...)
+	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
 
 	var filters []filter.Filter
 	if getUserFlags.id != "" {
-		filters = append(filters, filter.Or(
-			filter.Filter{Attribute: attributes.SamAccountName(), Value: getUserFlags.id},
-			filter.Filter{Attribute: attributes.UserPrincipalName(), Value: getUserFlags.id},
-			filter.Filter{Attribute: attributes.Name(), Value: getUserFlags.id},
-			filter.Filter{Attribute: attributes.DistinguishedName(), Value: getUserFlags.id},
-		))
+		filters = append(filters, filter.ByID(getUserFlags.id))
 	}
 
 	switch wasProvided := cmd.Flags().Changed("enabled"); {
@@ -83,14 +80,10 @@ func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	}
 
-	switch {
-	case getUserFlags.memberOf != "" && getUserFlags.recursively:
-		filters = append(filters, filter.Filter{Attribute: attributes.MemberOf(), Value: getUserFlags.memberOf, Rule: attributes.LDAP_MATCHING_RULE_IN_CHAIN})
-
-	case getUserFlags.memberOf != "" && !getUserFlags.recursively:
-		filters = append(filters, filter.Filter{Attribute: attributes.MemberOf(), Value: getUserFlags.memberOf})
-
+	if getUserFlags.memberOf != "" {
+		filters = append(filters, filter.MemberOf(getUserFlags.memberOf, getUserFlags.recursively))
 	}
 
 	getFlags.searchArguments.Filter = filter.And(filter.IsUser(), filters...)
+	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Debug("Set")
 }
