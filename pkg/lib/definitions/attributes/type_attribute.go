@@ -176,8 +176,8 @@ func (a Attribute) Parse(values []string, attrMap *Map) {
 		if err == nil {
 			userAccountControl := FlagsetUserAccountControl(parsed)
 			(*attrMap)[a] = userAccountControl.Eval()
-			(*attrMap)[Raw("", "Enabled", TypeBool).register()] = userAccountControl&USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE == 0
-			(*attrMap)[Raw("", "LockedOut", TypeBool).register()] = userAccountControl&USER_ACCOUNT_CONTROL_LOCKOUT != 0
+			(*attrMap)[Raw("", "Enabled", TypeBool)] = userAccountControl&USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE == 0
+			(*attrMap)[Raw("", "LockedOut", TypeBool)] = userAccountControl&USER_ACCOUNT_CONTROL_LOCKOUT != 0
 		} else {
 			(*attrMap)[a] = values
 		}
@@ -205,14 +205,7 @@ type Attributes []Attribute
 
 func (a Attributes) Sort() {
 	slices.SortStableFunc(a, func(a, b Attribute) int {
-		l, r := a.LDAPDisplayName, b.LDAPDisplayName
-		if l == "" {
-			l = a.PrettyName
-		}
-
-		if r == "" {
-			r = b.PrettyName
-		}
+		l, r := a.String(), b.String()
 
 		switch {
 		case l > r:
