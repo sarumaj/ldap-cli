@@ -41,7 +41,7 @@ for ((j = 0; j < ${#supported_platforms[@]}; j++)); do
         "cmd/ldap-cli/main.go"
 
     (
-        upx --best -qv "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed" -o "dist/ldap-cli_${VERSION}_${p}${ext}" &&
+        upx --best -q -q -v "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed" -o "dist/ldap-cli_${VERSION}_${p}${ext}" &&
             rm "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed"
     ) || mv "dist/ldap-cli_${VERSION}_${p}${ext}.uncompressed" "dist/ldap-cli_${VERSION}_${p}${ext}"
 

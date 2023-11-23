@@ -38,10 +38,11 @@ jobs:
         uses: isbang/compose-action@v1.5.1
         with:
           compose-file: "./oat/docker-compose.yml"
-      - name: Run tests
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v5.0.0
         env:
           TEST_OAT: "true"
-        run: go test -v ./...
+          CC_TEST_REPORTER_ID: "1e15987ddde9b2a41bf176f0fbf3b7fb8d5be5469e99976ce75b0d1453d32579"
       - name: Precompile binaries and upload assets
         uses: cli/gh-extension-precompile@v1
         with:
