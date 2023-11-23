@@ -18,7 +18,10 @@ services:
     networks:
       - openldap
 
+  # docker-compose --profile ldapadmin up
   phpldapadmin:
+    profiles:
+      - ldapadmin
     image: osixia/phpldapadmin:latest
     container_name: phpldapadmin
     hostname: phpldapadmin
