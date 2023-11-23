@@ -21,7 +21,7 @@ func ByID(id string) Filter {
 func HasNotExpired(strict bool) Filter {
 	filter := Or(
 		Filter{Attribute: attributes.AccountExpires(), Value: fmt.Sprint(0)},
-		Filter{Attribute: attributes.AccountExpires(), Value: fmt.Sprint(1<<63 - 1)},
+		Filter{Attribute: attributes.AccountExpires(), Value: fmt.Sprint(int64(1<<63 - 1))},
 		Filter{
 			Attribute: attributes.AccountExpires(),
 			Value:     fmt.Sprintf(">=%d", libutil.TimeSince1601().Nanoseconds()/100),
