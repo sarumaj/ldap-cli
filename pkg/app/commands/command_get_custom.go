@@ -19,9 +19,9 @@ var defaultCustomGetAttributes = attributes.Attributes{
 	attributes.SamAccountType(),
 }
 
-var getCustomFlags struct {
+var getCustomFlags = &struct {
 	filterString string
-}
+}{}
 
 var getCustomCmd = func() *cobra.Command {
 	getCustomCmd := &cobra.Command{

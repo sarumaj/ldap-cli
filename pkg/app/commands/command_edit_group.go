@@ -1,21 +1,20 @@
 package commands
 
 import (
-	ldap "github.com/go-ldap/ldap/v3"
 	supererrors "github.com/sarumaj/go-super/errors"
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
 	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 	cobra "github.com/spf13/cobra"
 )
 
-var editGroupFlags struct {
+var editGroupFlags = &struct {
 	id             string
 	addMembers     []string
 	deleteMembers  []string
 	replaceMembers []string
-}
+}{}
 
 var editGroupCmd = func() *cobra.Command {
 	editGroupCmd := &cobra.Command{
@@ -73,28 +72,15 @@ func editGroupRun(cmd *cobra.Command, _ []string) {
 
 	requests := editFlags.requests
 	entry := requests.Entries[0]
-	request := ldap.NewModifyRequest(entry.Entry.DN, nil)
 
-	var changes int
-	if len(editGroupFlags.replaceMembers) > 0 {
-		changes += len(editGroupFlags.replaceMembers)
-		request.Delete(attributes.Members().String(), editGroupFlags.replaceMembers)
-		logger.WithField("flag", "replace-member").Debug("Set")
-	}
+	request := client.ModifyGroupMembersRequest(
+		entry.Entry.DN,
+		editGroupFlags.addMembers,
+		editGroupFlags.deleteMembers,
+		editGroupFlags.replaceMembers,
+	)
 
-	if len(editGroupFlags.addMembers) > 0 {
-		changes += len(editGroupFlags.addMembers)
-		request.Add(attributes.Members().String(), editGroupFlags.addMembers)
-		logger.WithField("flag", "add-member").Debug("Set")
-	}
-
-	if len(editGroupFlags.deleteMembers) > 0 {
-		changes += len(editGroupFlags.deleteMembers)
-		request.Delete(attributes.Members().String(), editGroupFlags.deleteMembers)
-		logger.WithField("flag", "delete-member").Debug("Set")
-	}
-
-	if changes == 0 {
+	if len(request.Changes) == 0 {
 		supererrors.Except(apputil.AskLDAPDataInterchangeFormat(requests, editFlags.editor))
 		editFlags.requests = requests
 		logger.WithField("editor", editFlags.editor).Debug("Asked")
@@ -105,4 +91,5 @@ func editGroupRun(cmd *cobra.Command, _ []string) {
 	entry.Modify = request
 	requests.Entries[0] = entry
 	editFlags.requests = requests
+	logger.WithField("flag", "modify-member").Debug("Set")
 }
