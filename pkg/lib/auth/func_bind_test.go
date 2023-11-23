@@ -21,11 +21,11 @@ func TestBind(t *testing.T) {
 	}{
 		{"test#1", args{
 			(&DialOptions{}).SetURL(os.Getenv("AD_AUTO_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-			(&BindParameter{}).SetType(SIMPLE).SetUser(os.Getenv("AD_DEFAULT_USER")).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
+			(&BindParameter{}).SetType(SIMPLE).SetDomain("").SetUser(os.Getenv("AD_DEFAULT_USER")).SetPassword(os.Getenv("AD_DEFAULT_PASS")),
 		}},
 		{"test#2", args{
 			(&DialOptions{}).SetURL(os.Getenv("AD_DMZ01_URL")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-			(&BindParameter{}).SetType(UNAUTHENTICATED),
+			nil,
 		}},
 	} {
 

@@ -34,7 +34,7 @@ func (d *DomainController) Read(raw map[string]any) error {
 	}
 
 	if d.AccountExpires > 0 && d.AccountExpires < 1<<63-1 {
-		d.AccountExpiryDate = util.TimeEpochBegin.Add(time.Duration(d.AccountExpires*100) * time.Nanosecond)
+		d.AccountExpiryDate = util.TimeAfter1601(d.AccountExpires)
 	}
 
 	// place for possible implementation of custom computed properties
@@ -43,14 +43,6 @@ func (d *DomainController) Read(raw map[string]any) error {
 		d.UserAccountControl = v.Eval()
 	}
 
-	if d.ObjectGUID != "" {
-		d.ObjectGUID = hexify(d.ObjectGUID)
-	}
-
-	if d.SID != "" {
-		d.SID = hexify(d.SID)
-	}
-
-	d.SamAccountType = attributes.SamAccountType(d.SamAccountTypeRaw).Eval()
+	d.SamAccountType = attributes.SAMAccountType(d.SamAccountTypeRaw).Eval()
 	return nil
 }

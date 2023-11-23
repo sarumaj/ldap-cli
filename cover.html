@@ -1,0 +1,1283 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>auth: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/sarumaj/ldap-cli/pkg/lib/auth/enum_scheme.go (100.0%)</option>
+				
+				<option value="file1">github.com/sarumaj/ldap-cli/pkg/lib/auth/enum_type.go (100.0%)</option>
+				
+				<option value="file2">github.com/sarumaj/ldap-cli/pkg/lib/auth/func_bind.go (77.8%)</option>
+				
+				<option value="file3">github.com/sarumaj/ldap-cli/pkg/lib/auth/func_dial.go (50.0%)</option>
+				
+				<option value="file4">github.com/sarumaj/ldap-cli/pkg/lib/auth/type_connection.go (50.0%)</option>
+				
+				<option value="file5">github.com/sarumaj/ldap-cli/pkg/lib/auth/type_url.go (66.7%)</option>
+				
+				<option value="file6">github.com/sarumaj/ldap-cli/pkg/lib/auth/validator.go (100.0%)</option>
+				
+				<option value="file7">github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes/type_attribute.go (100.0%)</option>
+				
+				<option value="file8">github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes/type_filter.go (100.0%)</option>
+				
+				<option value="file9">github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes/type_group_type.go (90.0%)</option>
+				
+				<option value="file10">github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes/type_matching_rule.go (100.0%)</option>
+				
+				<option value="file11">github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes/type_sam_account_type.go (55.6%)</option>
+				
+				<option value="file12">github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes/type_user_account_control.go (62.5%)</option>
+				
+				<option value="file13">github.com/sarumaj/ldap-cli/pkg/lib/definitions/objects/func_get_field.go (58.3%)</option>
+				
+				<option value="file14">github.com/sarumaj/ldap-cli/pkg/lib/definitions/objects/func_hexify.go (100.0%)</option>
+				
+				<option value="file15">github.com/sarumaj/ldap-cli/pkg/lib/definitions/objects/func_read_map.go (88.0%)</option>
+				
+				<option value="file16">github.com/sarumaj/ldap-cli/pkg/lib/definitions/objects/type_domain_controller.go (0.0%)</option>
+				
+				<option value="file17">github.com/sarumaj/ldap-cli/pkg/lib/definitions/objects/type_group.go (0.0%)</option>
+				
+				<option value="file18">github.com/sarumaj/ldap-cli/pkg/lib/definitions/objects/type_organizational_unit.go (0.0%)</option>
+				
+				<option value="file19">github.com/sarumaj/ldap-cli/pkg/lib/definitions/objects/type_user.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package auth
+
+import "github.com/sarumaj/ldap-cli/pkg/lib/util"
+
+const (
+        LDAP  Scheme = "ldap"
+        LDAPS Scheme = "ldaps"
+)
+
+var _ util.ValidatorInterface = Scheme("")
+
+type Scheme string
+
+// Validate scheme
+func (s Scheme) IsValid() bool <span class="cov8" title="1">{
+        switch s </span>{
+
+        case LDAP, LDAPS:<span class="cov8" title="1">
+                return true</span>
+
+        default:<span class="cov8" title="1">
+                return false</span>
+
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package auth
+
+import (
+        "strings"
+
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+const (
+        UNAUTHENTICATED = iota + 1
+        SIMPLE
+        MD5
+        NTLM
+)
+
+var typeTranslation = map[AuthType]string{
+        UNAUTHENTICATED: "UNAUTHENTICATED",
+        SIMPLE:          "SIMPLE",
+        MD5:             "MD5",
+        NTLM:            "NTLM",
+}
+
+var _ util.ValidatorInterface = AuthType(0)
+
+type AuthType int
+
+// Validate type
+func (t AuthType) IsValid() bool <span class="cov8" title="1">{
+        switch t </span>{
+
+        case UNAUTHENTICATED, SIMPLE, MD5, NTLM:<span class="cov8" title="1">
+                return true</span>
+
+        default:<span class="cov8" title="1">
+                return false</span>
+
+        }
+}
+
+// Type as string
+func (t AuthType) String() string <span class="cov8" title="1">{
+        str, ok := typeTranslation[t]
+        if ok </span><span class="cov8" title="1">{
+                return str
+        }</span>
+
+        <span class="cov8" title="1">return ""</span>
+}
+
+// Parse type from string
+func TypeFromString(str string) AuthType <span class="cov8" title="1">{
+        str = strings.ToUpper(str)
+        for k, v := range typeTranslation </span><span class="cov8" title="1">{
+                if strings.EqualFold(v, str) </span><span class="cov8" title="1">{
+                        return k
+                }</span>
+        }
+
+        <span class="cov8" title="1">return 0</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package auth
+
+import (
+        "strings"
+        "time"
+
+        "github.com/creasty/defaults"
+        "github.com/go-ldap/ldap/v3"
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+// Bind parameters
+type BindParameter struct {
+        // Type of authentication
+        AuthType AuthType `validate:"required,is_valid"` // default: SIMPLE
+        // User's domain (required for NTLM authentication)
+        Domain string `validate:"required_if=AuthType NTLM"`
+        // User's password
+        Password string `validate:"required_unless=AuthType UNAUTHENTICATED"`
+        // Username
+        User string `validate:"required_unless=AuthType UNAUTHENTICATED"`
+}
+
+// Set default Type
+func (p *BindParameter) SetDefaults() <span class="cov8" title="1">{
+        if p.AuthType == 0 || !p.AuthType.IsValid() </span><span class="cov8" title="1">{
+                p.AuthType = SIMPLE
+        }</span>
+
+        <span class="cov8" title="1">if i := strings.Index(p.User, `\\`); i &gt; 0 </span><span class="cov8" title="1">{
+                p.User = strings.Replace(p.User, `\\`, `\`, 1)
+        }</span>
+}
+
+// Set domain (required for NTLM-based authentication)
+func (p *BindParameter) SetDomain(domain string) *BindParameter <span class="cov8" title="1">{
+        p.Domain = domain
+        return p
+}</span>
+
+// Set password
+func (p *BindParameter) SetPassword(password string) *BindParameter <span class="cov8" title="1">{
+        p.Password = password
+        return p
+}</span>
+
+// Set username
+func (p *BindParameter) SetUser(user string) *BindParameter <span class="cov8" title="1">{
+        p.User = user
+        return p
+}</span>
+
+// Set authentication type
+func (p *BindParameter) SetType(authType AuthType) *BindParameter <span class="cov8" title="1">{
+        p.AuthType = authType
+        return p
+}</span>
+
+// Validate fields
+func (p *BindParameter) Validate() error <span class="cov8" title="1">{ return util.FormatError(validate.Struct(p)) }</span>
+
+// Establish connection with the server
+func Bind(parameters *BindParameter, options *DialOptions) (*Connection, error) <span class="cov8" title="1">{
+        if parameters == nil </span><span class="cov8" title="1">{
+                parameters = &amp;BindParameter{AuthType: UNAUTHENTICATED}
+        }</span>
+
+        <span class="cov8" title="1">if err := defaults.Set(parameters); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if err := parameters.Validate(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">c, err := Dial(options)
+        for i, d := uint(0), time.Second; i &lt; options.MaxRetries &amp;&amp; err != nil; i, d = i+1, d*2 </span><span class="cov0" title="0">{
+                &lt;-time.After(d)
+                c, err = Dial(options)
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">ldapConn := ldap.NewConn(c, true)
+        ldapConn.SetTimeout(options.TimeLimit)
+        ldapConn.Start()
+
+        switch parameters.AuthType </span>{
+
+        case UNAUTHENTICATED:<span class="cov8" title="1">
+                err = ldapConn.UnauthenticatedBind(parameters.User)</span>
+
+        case SIMPLE:<span class="cov8" title="1">
+                err = ldapConn.Bind(parameters.User, parameters.Password)</span>
+
+        case MD5:<span class="cov0" title="0">
+                err = ldapConn.MD5Bind(options.URL.Host, parameters.User, parameters.Password)</span>
+
+        case NTLM:<span class="cov0" title="0">
+                err = ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password)</span>
+
+        }
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;Connection{
+                Conn:        ldapConn,
+                DialOptions: options,
+                remoteHost:  util.LookupAddress(c.RemoteAddr().String()),
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package auth
+
+import (
+        "crypto/tls"
+        "net"
+        "time"
+
+        "github.com/creasty/defaults"
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+// Options for dialer
+type DialOptions struct {
+        // Number of max retries if failing
+        MaxRetries uint `validate:"required" default:"3"`
+        // Limits number of objects returned by an LDAP query
+        SizeLimit int64 `validate:"required" default:"10"`
+        // Timeout for connection handshake and LDAP queries
+        TimeLimit time.Duration `validate:"required" default:"10s"`
+        // Custom TLS config
+        TLSConfig *tls.Config
+        // Server URL
+        URL *URL `validate:"required"` // default: ldap://localhost:389
+}
+
+// Sets default URL
+func (o *DialOptions) SetDefaults() <span class="cov8" title="1">{
+        if o.URL == nil </span><span class="cov8" title="1">{
+                o.URL = &amp;URL{
+                        Scheme: LDAP,
+                        Host:   "localhost",
+                        Port:   LDAP_RW,
+                }
+        }</span>
+}
+
+// Set max retries
+func (o *DialOptions) SetMaxRetries(retries uint) *DialOptions <span class="cov0" title="0">{ o.MaxRetries = retries; return o }</span>
+
+// Set size limit
+func (o *DialOptions) SetSizeLimit(limit int64) *DialOptions <span class="cov0" title="0">{ o.SizeLimit = limit; return o }</span>
+
+// Set time limit
+func (o *DialOptions) SetTimeLimit(limit time.Duration) *DialOptions <span class="cov0" title="0">{ o.TimeLimit = limit; return o }</span>
+
+// Set URL
+func (o *DialOptions) SetURL(addr string) *DialOptions <span class="cov8" title="1">{
+        o.URL, _ = URLFromString(addr)
+        return o
+}</span>
+
+// Set custom TLS config
+func (o *DialOptions) SetTLSConfig(conf *tls.Config) *DialOptions <span class="cov8" title="1">{ o.TLSConfig = conf; return o }</span>
+
+// Validate fields
+func (o *DialOptions) Validate() error <span class="cov8" title="1">{ return util.FormatError(validate.Struct(o)) }</span>
+
+// Dial in
+func Dial(opts *DialOptions) (net.Conn, error) <span class="cov8" title="1">{
+        if opts == nil </span><span class="cov0" title="0">{
+                opts = &amp;DialOptions{}
+        }</span>
+
+        <span class="cov8" title="1">if err := defaults.Set(opts); err != nil </span><span class="cov0" title="0">{
+                opts.MaxRetries = 0 // abort immediately
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if err := opts.Validate(); err != nil </span><span class="cov0" title="0">{
+                opts.MaxRetries = 0 // abort immediately
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if opts.URL.Scheme == LDAPS </span><span class="cov8" title="1">{
+                if opts.TLSConfig == nil </span><span class="cov0" title="0">{
+                        opts.TLSConfig = &amp;tls.Config{}
+                }</span>
+
+                <span class="cov8" title="1">return tls.DialWithDialer(&amp;net.Dialer{Timeout: opts.TimeLimit}, "tcp", opts.URL.HostPort(), opts.TLSConfig)</span>
+        }
+
+        <span class="cov0" title="0">return net.DialTimeout("tcp", opts.URL.HostPort(), opts.TimeLimit)</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package auth
+
+import "github.com/go-ldap/ldap/v3"
+
+// Connection object
+type Connection struct {
+        *ldap.Conn
+        *DialOptions
+        remoteHost string
+}
+
+func (c Connection) Close() error       <span class="cov8" title="1">{ return c.Conn.Close() }</span>
+func (c Connection) RemoteHost() string <span class="cov0" title="0">{ return c.remoteHost }</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package auth
+
+import (
+        "fmt"
+        "regexp"
+        "strconv"
+
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+var validURLRegex = regexp.MustCompile(`^(?P&lt;Scheme&gt;[^:]+)://(?P&lt;Host&gt;[^:]+):(?P&lt;Port&gt;\d+)`)
+
+// Server's URL
+type URL struct {
+        // Scheme
+        Scheme Scheme `validate:"required,is_valid"`
+        // Server's domain name
+        Host string `validate:"required"`
+        // Server's port
+        Port Port `validate:"required,gt=0"`
+}
+
+// Get server's hostname and port in form &lt;hostname&gt;:&lt;port&gt;
+func (u URL) HostPort() string <span class="cov8" title="1">{ return fmt.Sprintf("%s:%d", u.Host, u.Port) }</span>
+
+// Set scheme
+func (u *URL) SetScheme(s Scheme) *URL <span class="cov0" title="0">{ u.Scheme = s; return u }</span>
+
+// Set hostname
+func (u *URL) SetHost(h string) *URL <span class="cov0" title="0">{ u.Host = h; return u }</span>
+
+// Set port
+func (u *URL) SetPort(p Port) *URL <span class="cov0" title="0">{ u.Port = p; return u }</span>
+
+// Render URL as &lt;scheme&gt;://&lt;hostname&gt;:&lt;port&gt;
+func (u URL) String() string <span class="cov8" title="1">{ return fmt.Sprintf("%s://%s:%d", u.Scheme, u.Host, u.Port) }</span>
+
+// Validate fields
+func (u *URL) Validate() error <span class="cov8" title="1">{ return util.FormatError(validate.Struct(u)) }</span>
+
+// Parse URL from string matching &lt;scheme&gt;://&lt;hostname&gt;:&lt;port&gt;
+func URLFromString(in string) (*URL, error) <span class="cov8" title="1">{
+
+        if !validURLRegex.MatchString(in) </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("invalid regex: %s", in)
+        }</span>
+
+        <span class="cov8" title="1">matches := validURLRegex.FindStringSubmatch(in)
+        u := &amp;URL{
+                Scheme: Scheme(matches[1]),
+                Host:   matches[2],
+        }
+
+        port, _ := strconv.Atoi(matches[3])
+        u.Port = Port(port)
+
+        if err := u.Validate(); err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return u, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package auth
+
+import (
+        "reflect"
+
+        "github.com/go-playground/validator/v10"
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+// For internal usage
+var validate = func() *validator.Validate <span class="cov8" title="1">{
+        validate := util.Validate()
+
+        // custom type validator for Type
+        // string is casted to typeString which implements util.ValidatorInterface
+        validate.RegisterCustomTypeFunc(
+                func(field reflect.Value) any </span><span class="cov8" title="1">{ return typeString(field.Interface().(AuthType).String()) }</span>,
+                AuthType(0),
+        )
+
+        <span class="cov8" title="1">return validate</span>
+}()
+
+/*
+ * String as util.ValidatorInterface for Type
+ */
+var _ util.ValidatorInterface = typeString("")
+
+type typeString string
+
+func (t typeString) IsValid() bool <span class="cov8" title="1">{ return TypeFromString(string(t)).IsValid() }</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package attributes
+
+import "slices"
+
+const (
+        AttributeAccountExpires          Attribute = "accountExpires"
+        AttributeBadPasswordTime         Attribute = "badPasswordTime"
+        AttributeBadPasswordCount        Attribute = "badPwdCount"
+        AttributeCommonName              Attribute = "cn"
+        AttributeCountryCode             Attribute = "c"
+        AttributeCountryName             Attribute = "co"
+        AttributeDescription             Attribute = "description"
+        AttributeDisplayName             Attribute = "displayName"
+        AttributeDistinguishedName       Attribute = "distinguishedName"
+        AttributeEnabled                 Attribute = "userAccountControl"
+        AttributeGivenName               Attribute = "givenName"
+        AttributeGlobalExtension11       Attribute = "global-ExtensionAttribute11"
+        AttributeGlobalExtension22       Attribute = "global-ExtensionAttribute22"
+        AttributeGlobalExtension26       Attribute = "global-ExtensionAttribute26"
+        AttributeGroupType               Attribute = "groupType"
+        AttributeHostname                Attribute = "dnsHostname"
+        AttributeMail                    Attribute = "mail"
+        AttributeMemberOf                Attribute = "memberOf"
+        AttributeMembers                 Attribute = "member"
+        AttributeName                    Attribute = "name"
+        AttributeOrganizationalUnit      Attribute = "ou"
+        AttributeObjectCategory          Attribute = "objectCategory"
+        AttributeObjectClass             Attribute = "objectClass"
+        AttributeObjectGUID              Attribute = "objectGuid"
+        AttributeSamAccountName          Attribute = "sAMAccountName"
+        AttributeSamAccountType          Attribute = "sAMAccountType"
+        AttributeSID                     Attribute = "objectSid"
+        AttributeSurname                 Attribute = "sn"
+        AttributeUserAccountControl      Attribute = "userAccountControl"
+        AttributeUserPrincipalName       Attribute = "userPrincipalName"
+        AttributeMsRadiusFramedIpAddress Attribute = "msRadiusFramedIPAddress" // custom property used in DMZ
+)
+
+type Attribute string
+
+func (s Attribute) String() string <span class="cov8" title="1">{ return string(s) }</span>
+
+func AttributesToStringSlice(attrs ...Attribute) (list []string) <span class="cov8" title="1">{
+        for _, attr := range attrs </span><span class="cov8" title="1">{
+                list = append(list, attr.String())
+        }</span>
+
+        <span class="cov8" title="1">slices.Sort(list)
+        return list</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package attributes
+
+import (
+        "fmt"
+        "regexp"
+
+        ldap "github.com/go-ldap/ldap/v3"
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+const complexFilterSyntax = "complex"
+
+var nonDefaultOperatorWithValueRegex = regexp.MustCompile(`^(?P&lt;Operator&gt;[~&lt;&gt;]=)(?P&lt;Value&gt;.*)$`)
+
+type Filter struct {
+        Attribute Attribute
+        Value     string
+        Rule      MatchingRule
+}
+
+func (o Filter) String() string <span class="cov8" title="1">{
+        op, value := "=", o.Value
+        if nonDefaultOperatorWithValueRegex.MatchString(value) </span><span class="cov8" title="1">{
+                op, value = value[:2], value[2:]
+        }</span>
+
+        <span class="cov8" title="1">switch </span>{
+
+        case o.Attribute == complexFilterSyntax:<span class="cov8" title="1">
+                return o.Value</span>
+
+        case o.Rule != "":<span class="cov8" title="1">
+                return fmt.Sprintf("(%s:%s:%s%s)", o.Attribute, o.Rule, op, value)</span>
+
+        default:<span class="cov8" title="1">
+                return fmt.Sprintf("(%s%s%s)", o.Attribute, op, value)</span>
+
+        }
+}
+
+// Build complex filter from filters, where all must match
+func And(property Filter, properties ...Filter) Filter <span class="cov8" title="1">{
+        var value string
+        for _, property := range append([]Filter{property}, properties...) </span><span class="cov8" title="1">{
+                value += property.String()
+        }</span>
+
+        <span class="cov8" title="1">return Filter{
+                Attribute: complexFilterSyntax,
+                Value:     "(&amp;" + value + ")",
+        }</span>
+}
+
+// Escape special characters as specified in RFC4515
+func EscapeFilter(filter string) string <span class="cov8" title="1">{ return ldap.EscapeFilter(filter) }</span>
+
+func HasNotExpired(strict bool) Filter <span class="cov8" title="1">{
+        filter := Or(
+                Filter{Attribute: AttributeAccountExpires, Value: fmt.Sprint(0)},
+                Filter{Attribute: AttributeAccountExpires, Value: fmt.Sprint(1&lt;&lt;63 - 1)},
+                Filter{
+                        Attribute: AttributeAccountExpires,
+                        Value:     fmt.Sprintf("&gt;=%d", util.TimeSinceEpoch().Nanoseconds()/100),
+                },
+        )
+
+        if strict </span><span class="cov8" title="1">{
+                return And(filter, Filter{Attribute: AttributeAccountExpires, Value: "*"})
+        }</span>
+
+        <span class="cov8" title="1">return Or(filter, Not(Filter{Attribute: AttributeAccountExpires, Value: "*"}))</span>
+}
+
+func IsDomainController() Filter <span class="cov8" title="1">{
+        return And(
+                Filter{AttributeObjectClass, "computer", ""},
+                Filter{AttributeUserAccountControl, fmt.Sprintf("%d", USER_ACCOUNT_CONTROL_SERVER_TRUST_ACCOUNT), LDAP_MATCHING_RULE_BIT_AND},
+        )
+}</span>
+
+func IsEnabled() Filter <span class="cov8" title="1">{
+        return Not(Filter{AttributeUserAccountControl, "2", LDAP_MATCHING_RULE_BIT_AND})
+}</span>
+
+func IsGroup() Filter <span class="cov8" title="1">{ return Filter{AttributeObjectClass, "group", ""} }</span>
+
+func IsOrganizationalUnit() Filter <span class="cov8" title="1">{ return Filter{AttributeObjectClass, "organizationalUnit", ""} }</span>
+
+func IsUser() Filter <span class="cov8" title="1">{ return Filter{AttributeObjectClass, "user", ""} }</span>
+
+// Negate filter
+func Not(property Filter) Filter <span class="cov8" title="1">{
+        return Filter{
+                Attribute: complexFilterSyntax,
+                Value:     "(!" + property.String() + ")",
+        }
+}</span>
+
+// Build complex filter from filters, where at least one must match
+func Or(property Filter, properties ...Filter) Filter <span class="cov8" title="1">{
+        var value string
+        for _, property := range append([]Filter{property}, properties...) </span><span class="cov8" title="1">{
+                value += property.String()
+        }</span>
+
+        <span class="cov8" title="1">return Filter{
+                Attribute: complexFilterSyntax,
+                Value:     "(|" + value + ")",
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package attributes
+
+import (
+        "slices"
+)
+
+// https://docs.microsoft.com/en-us/windows/win32/adschema/a-grouptype
+const (
+        GROUP_TYPE_CREATED_BY_SYSTEM GroupType = 0x00000001 // Specifies a group that is created by the system.
+        GROUP_TYPE_GLOBAL            GroupType = 0x00000002 // Specifies a group with global scope.
+        GROUP_TYPE_LOCAL             GroupType = 0x00000004 // Specifies a group with domain local scope.
+        GROUP_TYPE_UNIVERSAL         GroupType = 0x00000008 // Specifies a group with universal scope.
+        GROUP_TYPE_APP_BASIC         GroupType = 0x00000010 // Specifies an APP_BASIC group for Windows Server Authorization Manager.
+        GROUP_TYPE_APP_QUERY         GroupType = 0x00000020 // Specifies an APP_QUERY group for Windows Server Authorization Manager.
+        GROUP_TYPE_SECURITY          GroupType = 0x80000000 // Specifies a security group. If this flag is not set, then the group is a distribution group.
+        GROUP_TYPE_DISTRIBUTION      GroupType = 0x7FFFFFFF
+        GROUP_TYPE_UNKNOWN           GroupType = 0xFFFFFFFF
+)
+
+var groupTypeToString = map[GroupType]string{
+        GROUP_TYPE_CREATED_BY_SYSTEM: "CREATED_BY_SYSTEM",
+        GROUP_TYPE_GLOBAL:            "GLOBAL",
+        GROUP_TYPE_LOCAL:             "LOCAL",
+        GROUP_TYPE_UNIVERSAL:         "UNIVERSAL",
+        GROUP_TYPE_APP_BASIC:         "APP_BASIC",
+        GROUP_TYPE_APP_QUERY:         "APP_QUERY",
+        GROUP_TYPE_SECURITY:          "SECURITY",
+        GROUP_TYPE_DISTRIBUTION:      "DISTRIBUTION",
+        GROUP_TYPE_UNKNOWN:           "UNKNOWN",
+}
+
+type GroupType int64
+
+func (v GroupType) Eval() (types []string) <span class="cov8" title="1">{
+        for key, value := range groupTypeToString </span><span class="cov8" title="1">{
+                if v&amp;key == key </span><span class="cov8" title="1">{
+                        types = append(types, value)
+                }</span>
+        }
+
+        <span class="cov8" title="1">if v&amp;GROUP_TYPE_SECURITY != GROUP_TYPE_SECURITY </span><span class="cov8" title="1">{
+                types = append(types, GROUP_TYPE_DISTRIBUTION.String())
+        }</span>
+
+        <span class="cov8" title="1">slices.Sort(types)
+        return types</span>
+}
+
+func (g GroupType) String() string <span class="cov8" title="1">{
+        if v, ok := groupTypeToString[g]; ok </span><span class="cov8" title="1">{
+                return v
+        }</span>
+
+        <span class="cov0" title="0">return groupTypeToString[GROUP_TYPE_UNKNOWN]</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package attributes
+
+// LDAP Matching Rules (extensibleMatch): https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/4e638665-f466-4597-93c4-12f2ebfabab5
+const (
+        LDAP_MATCHING_RULE_BIT_AND         MatchingRule = "1.2.840.113556.1.4.803"  // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/6dd1d7b4-2b2f-4e55-b164-7047c4c5bb00
+        LDAP_MATCHING_RULE_BIT_OR          MatchingRule = "1.2.840.113556.1.4.804"  // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/4e5b2424-642a-40da-acb1-9fff381b46e4
+        LDAP_MATCHING_RULE_IN_CHAIN        MatchingRule = "1.2.840.113556.1.4.1941" // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1e889adc-b503-4423-8985-c28d5c7d4887
+        LDAP_MATCHING_RULE_TRANSITIVE_EVAL MatchingRule = "1.2.840.113556.1.4.1941" // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1e889adc-b503-4423-8985-c28d5c7d4887
+        LDAP_MATCHING_RULE_DN_WITH_DATA    MatchingRule = "1.2.840.113556.1.4.2253" // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/e5bfc285-05b9-494e-a123-c5c4341c450e
+)
+
+type MatchingRule string
+
+func (f MatchingRule) String() string <span class="cov8" title="1">{ return string(f) }</span>
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package attributes
+
+import (
+        "slices"
+        "strings"
+)
+
+// https://docs.microsoft.com/en-us/windows/win32/adschema/a-samaccounttype
+const (
+        SAM_ACCOUNT_TYPE_DOMAIN_OBJECT             SAMAccountType = 0x00000000
+        SAM_ACCOUNT_TYPE_GROUP_OBJECT              SAMAccountType = 0x10000000
+        SAM_ACCOUNT_TYPE_NON_SECURITY_GROUP_OBJECT SAMAccountType = 0x10000001
+        SAM_ACCOUNT_TYPE_ALIAS_OBJECT              SAMAccountType = 0x20000000
+        SAM_ACCOUNT_TYPE_NON_SECURITY_ALIAS_OBJECT SAMAccountType = 0x20000001
+        SAM_ACCOUNT_TYPE_USER_OBJECT               SAMAccountType = 0x30000000
+        SAM_ACCOUNT_TYPE_NORMAL_USER_ACCOUNT       SAMAccountType = 0x30000000
+        SAM_ACCOUNT_TYPE_MACHINE_ACCOUNT           SAMAccountType = 0x30000001
+        SAM_ACCOUNT_TYPE_TRUST_ACCOUNT             SAMAccountType = 0x30000002
+        SAM_ACCOUNT_TYPE_APP_BASIC_GROUP           SAMAccountType = 0x40000000
+        SAM_ACCOUNT_TYPE_APP_QUERY_GROUP           SAMAccountType = 0x40000001
+        SAM_ACCOUNT_TYPE_ACCOUNT_TYPE_MAX          SAMAccountType = 0x7FFFFFFF
+        SAM_ACCOUNT_TYPE_UNKNOWN                   SAMAccountType = 0xFFFFFFFF
+)
+
+var samAccountTypeToString = map[SAMAccountType][]string{
+        SAM_ACCOUNT_TYPE_DOMAIN_OBJECT:             {"DOMAIN_OBJECT"},
+        SAM_ACCOUNT_TYPE_GROUP_OBJECT:              {"GROUP_OBJECT"},
+        SAM_ACCOUNT_TYPE_NON_SECURITY_GROUP_OBJECT: {"NON_SECURITY_GROUP_OBJECT"},
+        SAM_ACCOUNT_TYPE_ALIAS_OBJECT:              {"ALIAS_OBJECT"},
+        SAM_ACCOUNT_TYPE_NON_SECURITY_ALIAS_OBJECT: {"NON_SECURITY_ALIAS_OBJECT"},
+        SAM_ACCOUNT_TYPE_USER_OBJECT:               {"USER_OBJECT", "NORMAL_USER_ACCOUNT"},
+        SAM_ACCOUNT_TYPE_MACHINE_ACCOUNT:           {"MACHINE_ACCOUNT"},
+        SAM_ACCOUNT_TYPE_TRUST_ACCOUNT:             {"TRUST_ACCOUNT"},
+        SAM_ACCOUNT_TYPE_APP_BASIC_GROUP:           {"APP_BASIC_GROUP"},
+        SAM_ACCOUNT_TYPE_APP_QUERY_GROUP:           {"APP_QUERY_GROUP"},
+        SAM_ACCOUNT_TYPE_ACCOUNT_TYPE_MAX:          {"ACCOUNT_TYPE_MAX"},
+        SAM_ACCOUNT_TYPE_UNKNOWN:                   {"UNKNOWN"},
+}
+
+type SAMAccountType int64
+
+func (v SAMAccountType) Eval() (types []string) <span class="cov8" title="1">{
+        for key, value := range samAccountTypeToString </span><span class="cov8" title="1">{
+                if v&amp;key == key </span><span class="cov8" title="1">{
+                        types = append(types, value...)
+                }</span>
+        }
+
+        <span class="cov8" title="1">slices.Sort(types)
+        return types</span>
+}
+
+func (s SAMAccountType) String() string <span class="cov0" title="0">{ return strings.Join(s.Strings(), " | ") }</span>
+
+func (s SAMAccountType) Strings() []string <span class="cov0" title="0">{
+        if v, ok := samAccountTypeToString[s]; ok </span><span class="cov0" title="0">{
+                return v
+        }</span>
+
+        <span class="cov0" title="0">return samAccountTypeToString[SAM_ACCOUNT_TYPE_UNKNOWN]</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package attributes
+
+import "slices"
+
+// https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol
+const (
+        USER_ACCOUNT_CONTROL_LOGON_SCRIPT                           UserAccountControl = 0x00000001 // The logon script is executed.
+        USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE                        UserAccountControl = 0x00000002 // The user account is disabled.
+        USER_ACCOUNT_CONTROL_HOMEDIR_REQUIRED                       UserAccountControl = 0x00000008 // The home directory is required.
+        USER_ACCOUNT_CONTROL_LOCKOUT                                UserAccountControl = 0x00000010 // The account is currently locked out.
+        USER_ACCOUNT_CONTROL_PASSWORD_NOTREQD                       UserAccountControl = 0x00000020 // No password is required.
+        USER_ACCOUNT_CONTROL_PASSWORD_CANT_CHANGE                   UserAccountControl = 0x00000040 // The user cannot change the password.
+        USER_ACCOUNT_CONTROL_ENCRYPTED_TEXT_PASSWORD_ALLOWED        UserAccountControl = 0x00000080 // The user can send an encrypted password.
+        USER_ACCOUNT_CONTROL_TEMP_DUPLICATE_ACCOUNT                 UserAccountControl = 0x00000100 // This is an account for users whose primary account is in another domain. This account provides user access to this domain, but not to any domain that trusts this domain. Also known as a local user account.
+        USER_ACCOUNT_CONTROL_NORMAL_ACCOUNT                         UserAccountControl = 0x00000200 // This is a default account type that represents a typical user.
+        USER_ACCOUNT_CONTROL_INTERDOMAIN_TRUST_ACCOUNT              UserAccountControl = 0x00000800 // This is a permit to trust account for a system domain that trusts other domains.
+        USER_ACCOUNT_CONTROL_WORKSTATION_TRUST_ACCOUNT              UserAccountControl = 0x00001000 // This is a computer account for a computer that is a member of this domain.
+        USER_ACCOUNT_CONTROL_SERVER_TRUST_ACCOUNT                   UserAccountControl = 0x00002000 // This is a computer account for a system backup domain controller that is a member of this domain.
+        USER_ACCOUNT_CONTROL_DONT_EXPIRE_PASSWD                     UserAccountControl = 0x00010000 // The password for this account will never expire.
+        USER_ACCOUNT_CONTROL_MNS_LOGON_ACCOUNT                      UserAccountControl = 0x00020000 // This is an MNS logon account.
+        USER_ACCOUNT_CONTROL_SMARTCARD_REQUIRED                     UserAccountControl = 0x00040000 // The user must log on using a smart card.
+        USER_ACCOUNT_CONTROL_TRUSTED_FOR_DELEGATION                 UserAccountControl = 0x00080000 // The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation. Any such service can impersonate a client requesting the service.
+        USER_ACCOUNT_CONTROL_NOT_DELEGATED                          UserAccountControl = 0x00100000 // The security context of the user will not be delegated to a service even if the service account is set as trusted for Kerberos delegation.
+        USER_ACCOUNT_CONTROL_USE_DES_KEY_ONLY                       UserAccountControl = 0x00200000 // Restrict this principal to use only Data Encryption Standard (DES) encryption types for keys.
+        USER_ACCOUNT_CONTROL_DONT_REQUIRE_PREAUTH                   UserAccountControl = 0x00400000 // This account does not require Kerberos pre-authentication for logon.
+        USER_ACCOUNT_CONTROL_PASSWORD_EXPIRED                       UserAccountControl = 0x00800000 // The user password has expired. This flag is created by the system using data from the Pwd-Last-Set attribute and the domain policy.
+        USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION UserAccountControl = 0x01000000 // The account is enabled for delegation. This is a security-sensitive setting; accounts with this option enabled should be strictly controlled. This setting enables a service running under the account to assume a client identity and authenticate as that user to other remote servers on the network.
+        USER_ACCOUNT_CONTROL_UNKNOWN                                UserAccountControl = 0xFFFFFFFF
+)
+
+var userAccountControlToString = map[UserAccountControl]string{
+        USER_ACCOUNT_CONTROL_LOGON_SCRIPT:                           "LOGON_SCRIPT",
+        USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE:                        "ACCOUNT_DISABLE",
+        USER_ACCOUNT_CONTROL_HOMEDIR_REQUIRED:                       "HOMEDIR_REQUIRED",
+        USER_ACCOUNT_CONTROL_LOCKOUT:                                "LOCKOUT",
+        USER_ACCOUNT_CONTROL_PASSWORD_NOTREQD:                       "PASSWORD_NOTREQD",
+        USER_ACCOUNT_CONTROL_PASSWORD_CANT_CHANGE:                   "PASSWORD_CANT_CHANGE",
+        USER_ACCOUNT_CONTROL_ENCRYPTED_TEXT_PASSWORD_ALLOWED:        "ENCRYPTED_TEXT_PASSWORD_ALLOWED",
+        USER_ACCOUNT_CONTROL_TEMP_DUPLICATE_ACCOUNT:                 "TEMP_DUPLICATE_ACCOUNT",
+        USER_ACCOUNT_CONTROL_NORMAL_ACCOUNT:                         "NORMAL_ACCOUNT",
+        USER_ACCOUNT_CONTROL_INTERDOMAIN_TRUST_ACCOUNT:              "INTERDOMAIN_TRUST_ACCOUNT",
+        USER_ACCOUNT_CONTROL_WORKSTATION_TRUST_ACCOUNT:              "WORKSTATION_TRUST_ACCOUNT",
+        USER_ACCOUNT_CONTROL_SERVER_TRUST_ACCOUNT:                   "SERVER_TRUST_ACCOUNT",
+        USER_ACCOUNT_CONTROL_DONT_EXPIRE_PASSWD:                     "DONT_EXPIRE_PASSWD",
+        USER_ACCOUNT_CONTROL_MNS_LOGON_ACCOUNT:                      "MNS_LOGON_ACCOUNT",
+        USER_ACCOUNT_CONTROL_SMARTCARD_REQUIRED:                     "SMARTCARD_REQUIRED",
+        USER_ACCOUNT_CONTROL_TRUSTED_FOR_DELEGATION:                 "TRUSTED_FOR_DELEGATION",
+        USER_ACCOUNT_CONTROL_NOT_DELEGATED:                          "NOT_DELEGATED",
+        USER_ACCOUNT_CONTROL_USE_DES_KEY_ONLY:                       "USE_DES_KEY_ONLY",
+        USER_ACCOUNT_CONTROL_DONT_REQUIRE_PREAUTH:                   "DONT_REQUIRE_PREAUTH",
+        USER_ACCOUNT_CONTROL_PASSWORD_EXPIRED:                       "PASSWORD_EXPIRED",
+        USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: "TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION",
+        USER_ACCOUNT_CONTROL_UNKNOWN:                                "UNKNOWN",
+}
+
+type UserAccountControl int64
+
+func (v UserAccountControl) Eval() (controls []string) <span class="cov8" title="1">{
+        for key, value := range userAccountControlToString </span><span class="cov8" title="1">{
+                if v&amp;key == key </span><span class="cov8" title="1">{
+                        controls = append(controls, value)
+                }</span>
+        }
+
+        <span class="cov8" title="1">slices.Sort(controls)
+        return controls</span>
+}
+
+func (u UserAccountControl) String() string <span class="cov0" title="0">{
+        if v, ok := userAccountControlToString[u]; ok </span><span class="cov0" title="0">{
+                return v
+        }</span>
+
+        <span class="cov0" title="0">return userAccountControlToString[USER_ACCOUNT_CONTROL_UNKNOWN]</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package objects
+
+import "reflect"
+
+func GetDistinguishedNames[T any](objects []T) []string <span class="cov0" title="0">{
+        return GetProperties[string](objects, "DistinguishedName")
+}</span>
+
+func GetField[S, T any](o *T, property string) S <span class="cov8" title="1">{
+        to := reflect.New(reflect.TypeOf((*S)(nil)).Elem())
+        toValue := reflect.Indirect(to)
+        field := reflect.Indirect(reflect.ValueOf(o)).FieldByName(property)
+
+        if toValue.CanConvert(field.Type()) </span><span class="cov0" title="0">{
+                toValue.Set(toValue.Convert(field.Type()))
+        }</span>
+
+        <span class="cov8" title="1">if toValue.CanSet() &amp;&amp; field.Type().AssignableTo(toValue.Type()) </span><span class="cov8" title="1">{
+                toValue.Set(field)
+        }</span>
+
+        <span class="cov8" title="1">return toValue.Interface().(S)</span>
+}
+
+func GetProperties[S, T any](objects []T, property string) (properties []S) <span class="cov0" title="0">{
+        for _, o := range objects </span><span class="cov0" title="0">{
+                properties = append(properties, GetField[S](&amp;o, property))
+        }</span>
+
+        <span class="cov0" title="0">return</span>
+}
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package objects
+
+import (
+        "fmt"
+        "strconv"
+        "strings"
+)
+
+func hexify(s string) string <span class="cov8" title="1">{
+        var chars []string
+        for _, c := range []byte(s) </span><span class="cov8" title="1">{
+                chars = append(chars, fmt.Sprintf("\\x%02X", c))
+        }</span>
+
+        <span class="cov8" title="1">return strings.Join(chars, "")</span>
+}
+
+func Unhexify(s string) string <span class="cov8" title="1">{
+        chars := []byte{}
+        for _, c := range strings.Split(strings.TrimLeft(s, "\\x"), "\\x") </span><span class="cov8" title="1">{
+                i, _ := strconv.ParseInt(c, 16, 8)
+                chars = append(chars, byte(i))
+        }</span>
+        <span class="cov8" title="1">return string(chars)</span>
+}
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package objects
+
+import (
+        "errors"
+        "fmt"
+        "reflect"
+        "strconv"
+        "strings"
+
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+func readMap[T any](o *T, raw map[string]any) error <span class="cov8" title="1">{
+        v := reflect.ValueOf(o).Elem()
+
+        var errs []error
+        for j := 0; j &lt; v.NumField(); j++ </span><span class="cov8" title="1">{
+                field := v.Field(j)
+
+                // lookup attribute name by tag
+                var map_key string
+                if tag := v.Type().Field(j).Tag.Get("ldap_attr"); tag != "" </span><span class="cov0" title="0">{
+                        map_key = tag
+                }</span> else<span class="cov8" title="1"> {
+                        map_key = v.Type().Field(j).Name
+                }</span>
+
+                <span class="cov8" title="1">if map_key == "-" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">if value, ok := raw[strings.ToLower(map_key)]; ok &amp;&amp; field.IsValid() </span><span class="cov8" title="1">{
+
+                        // handle panic
+                        defer func() </span><span class="cov8" title="1">{
+                                if recovered := recover(); recovered != nil </span><span class="cov0" title="0">{
+                                        errs = append(errs, fmt.Errorf("%v", recovered))
+                                }</span>
+                        }()
+
+                        // type handling
+                        // new types can be added here
+                        <span class="cov8" title="1">switch field.Kind() </span>{
+
+                        case reflect.Array, reflect.Slice:<span class="cov8" title="1">
+                                switch field.Type().Elem().Kind() </span>{
+
+                                case reflect.String:<span class="cov8" title="1">
+                                        if _v, ok := value.(string); ok </span><span class="cov8" title="1">{
+                                                value = []string{_v}
+                                        }</span>
+
+                                }
+
+                        case reflect.Bool:<span class="cov8" title="1">
+                                value = util.PanicIfError(strconv.ParseBool(value.(string)))</span>
+
+                        case reflect.Int:<span class="cov8" title="1">
+                                value = util.PanicIfError(strconv.Atoi(value.(string)))</span>
+
+                        case reflect.Int64:<span class="cov8" title="1">
+                                value = util.PanicIfError(strconv.ParseInt(value.(string), 10, 64))</span>
+
+                        case reflect.String:<span class="cov8" title="1">
+                                if _v, ok := value.([]string); ok </span><span class="cov8" title="1">{
+                                        value = strings.Join(_v, ";")
+                                }</span>
+
+                        }
+
+                        <span class="cov8" title="1">field.Set(reflect.ValueOf(value))</span>
+                }
+        }
+
+        <span class="cov8" title="1">return errors.Join(errs...)</span>
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package objects
+
+import (
+        "time"
+
+        "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+type DomainController struct {
+        AccountExpires        int64     `csv:"Expires"`
+        AccountExpiryDate     time.Time `csv:"-"`
+        Description           string    `csv:"Description"`
+        DistinguishedName     string    `csv:"DN"`
+        Enabled               bool      `csv:"Enabled"`
+        Hostname              string    `ldap_attr:"dnsHostname" csv:"Hostname"`
+        ObjectCategory        string    `csv:"Category"`
+        ObjectClass           []string  `csv:"-"`
+        ObjectGUID            string    `csv:"-"`
+        SamAccountName        string    `csv:"sAMAccountName"`
+        SamAccountType        []string  `ldap_attr:"-" csv:"-"`
+        SamAccountTypeRaw     int64     `ldap_attr:"sAMAccountType" csv:"-"`
+        SID                   string    `ldap_attr:"objectSid" csv:"-"`
+        UserAccountControlRaw int64     `ldap_attr:"userAccountControl" csv:"UserAccountControl"`
+        UserAccountControl    []string  `ldap_attr:"-" csv:"-"`
+}
+
+func (d DomainController) DN() string <span class="cov0" title="0">{ return GetField[string](&amp;d, "DistinguishedName") }</span>
+
+func (d *DomainController) Read(raw map[string]any) error <span class="cov0" title="0">{
+        err := readMap(d, raw)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">if d.AccountExpires &gt; 0 &amp;&amp; d.AccountExpires &lt; 1&lt;&lt;63-1 </span><span class="cov0" title="0">{
+                d.AccountExpiryDate = util.TimeEpochBegin.Add(time.Duration(d.AccountExpires*100) * time.Nanosecond)
+        }</span>
+
+        // place for possible implementation of custom computed properties
+        <span class="cov0" title="0">if v := attributes.UserAccountControl(d.UserAccountControlRaw); v != 0 </span><span class="cov0" title="0">{
+                d.Enabled = v&amp;attributes.USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE == 0
+                d.UserAccountControl = v.Eval()
+        }</span>
+
+        <span class="cov0" title="0">if d.ObjectGUID != "" </span><span class="cov0" title="0">{
+                d.ObjectGUID = hexify(d.ObjectGUID)
+        }</span>
+
+        <span class="cov0" title="0">if d.SID != "" </span><span class="cov0" title="0">{
+                d.SID = hexify(d.SID)
+        }</span>
+
+        <span class="cov0" title="0">d.SamAccountType = attributes.SAMAccountType(d.SamAccountTypeRaw).Eval()
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package objects
+
+import "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+
+type Group struct {
+        CommonName        string   `ldap_attr:"cn" csv:"CN"`
+        Description       string   `csv:"Description"`
+        DisplayName       string   `csv:"DisplayName"`
+        DistinguishedName string   `csv:"DN"`
+        GroupTypeRaw      int64    `ldap_attr:"groupType" csv:"GroupType"`
+        GroupType         []string `ldap_attr:"-" csv:"-"`
+        MemberOf          []string `csv:"-"`
+        Members           []string `ldap_attr:"member" csv:"-"`
+        Name              string   `csv:"Name"`
+        ObjectCategory    string   `csv:"Category"`
+        ObjectClass       []string `csv:"-"`
+        ObjectGUID        string   `csv:"-"`
+        SamAccountName    string   `csv:"sAMAccountName"`
+        SamAccountType    []string `ldap_attr:"-" csv:"-"`
+        SamAccountTypeRaw int64    `ldap_attr:"sAMAccountType" csv:"-"`
+        SID               string   `ldap_attr:"objectSid" csv:"-"`
+}
+
+func (g Group) DN() string <span class="cov0" title="0">{ return GetField[string](&amp;g, "DistinguishedName") }</span>
+
+func (g *Group) Read(raw map[string]any) error <span class="cov0" title="0">{
+        err := readMap(g, raw)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        // place for possible implementation of custom computed properties
+        <span class="cov0" title="0">if v := attributes.GroupType(g.GroupTypeRaw); v != 0 </span><span class="cov0" title="0">{
+                g.GroupType = v.Eval()
+        }</span>
+
+        <span class="cov0" title="0">if g.ObjectGUID != "" </span><span class="cov0" title="0">{
+                g.ObjectGUID = hexify(g.ObjectGUID)
+        }</span>
+
+        <span class="cov0" title="0">if g.SID != "" </span><span class="cov0" title="0">{
+                g.SID = hexify(g.SID)
+        }</span>
+
+        <span class="cov0" title="0">g.SamAccountType = attributes.SAMAccountType(g.SamAccountTypeRaw).Eval()
+
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package objects
+
+type OrganizationalUnit struct {
+        CountryCode        string `ldap_attr:"c" csv:"CountryCode"`
+        CountryName        string `ldap_attr:"co" csv:"CountryName"`
+        Description        string
+        DistinguishedName  string `csv:"DN"`
+        Name               string
+        ObjectCategory     string   `csv:"Category"`
+        ObjectClass        []string `csv:"-"`
+        ObjectGUID         string   `csv:"-"`
+        OrganizationalUnit []string `ldap_attr:"ou" csv:"OrganizationalUnit"`
+}
+
+func (o OrganizationalUnit) DN() string <span class="cov0" title="0">{ return GetField[string](&amp;o, "DistinguishedName") }</span>
+
+func (o *OrganizationalUnit) Read(raw map[string]any) error <span class="cov0" title="0">{
+        err := readMap(o, raw)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        // place for possible implementation of custom computed properties
+        <span class="cov0" title="0">if o.ObjectGUID != "" </span><span class="cov0" title="0">{
+                o.ObjectGUID = hexify(o.ObjectGUID)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package objects
+
+import (
+        "fmt"
+        "strconv"
+        "time"
+
+        "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+        "github.com/sarumaj/ldap-cli/pkg/lib/util"
+)
+
+type User struct {
+        AccountExpires             int64     `csv:"Expires"`
+        AccountExpiryDate          time.Time `csv:"-"`
+        BadPasswordDate            time.Time `csv:"-"`
+        BadPasswordTime            int64     `csv:"-"`
+        BadPwdCount                int       `csv:"-"`
+        CommonName                 string    `ldap_attr:"cn" csv:"CN"`
+        DistinguishedName          string    `csv:"DN"`
+        Enabled                    bool      `csv:"Enabled"`
+        GivenName                  string    `csv:"GivenName"`
+        GlobalExtensionAttribute11 string    `ldap_attr:"global-ExtensionAttribute11" csv:"GlobalExtensionAttribute11"`
+        GlobalExtensionAttribute22 string    `ldap_attr:"global-ExtensionAttribute22" csv:"GlobalExtensionAttribute22"`
+        GlobalExtensionAttribute26 string    `ldap_attr:"global-ExtensionAttribute26" csv:"GlobalExtensionAttribute26"`
+        LockedOut                  bool      `csv:"-"`
+        Mail                       string    `csv:"Email"`
+        MemberOf                   []string  `csv:"-"`
+        MsRadiusFramedIpAddressRaw int64     `ldap_attr:"msRadiusFramedIPAddress" csv:"-"`
+        MsRadiusFramedIpAddress    string    `csv:"-"`
+        Name                       string    `csv:"Name"`
+        ObjectCategory             string    `csv:"Category"`
+        ObjectClass                []string  `csv:"-"`
+        ObjectGUID                 string    `csv:"-"`
+        SamAccountName             string    `csv:"sAMAccountName"`
+        SamAccountType             []string  `ldap_attr:"-" csv:"-"`
+        SamAccountTypeRaw          int64     `ldap_attr:"sAMAccountType" csv:"-"`
+        SID                        string    `ldap_attr:"objectSid" csv:"-"`
+        Surname                    string    `ldap_attr:"sn" csv:"Surname"`
+        UserAccountControlRaw      int64     `ldap_attr:"userAccountControl" csv:"UserAccountControl"`
+        UserAccountControl         []string  `ldap_attr:"-" csv:"-"`
+        UserPrincipalName          string    `csv:"UserPrincipalName"`
+}
+
+func (u User) DN() string <span class="cov0" title="0">{ return GetField[string](&amp;u, "DistinguishedName") }</span>
+
+func (u *User) Read(raw map[string]interface{}) error <span class="cov0" title="0">{
+        err := readMap(u, raw)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        // place for possible implementation of custom computed properties
+        <span class="cov0" title="0">if v := attributes.UserAccountControl(u.UserAccountControlRaw); v != 0 </span><span class="cov0" title="0">{
+                u.Enabled = v&amp;attributes.USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE == 0
+                u.LockedOut = v&amp;attributes.USER_ACCOUNT_CONTROL_LOCKOUT != 0
+                u.UserAccountControl = v.Eval()
+        }</span>
+
+        <span class="cov0" title="0">if v := u.MsRadiusFramedIpAddressRaw; v != 0 </span><span class="cov0" title="0">{
+                u.MsRadiusFramedIpAddress = fmt.Sprintf(
+                        "%s.%s.%s.%s",
+                        strconv.FormatInt((v&gt;&gt;24)&amp;0xff, 10),
+                        strconv.FormatInt((v&gt;&gt;16)&amp;0xff, 10),
+                        strconv.FormatInt((v&gt;&gt;8)&amp;0xff, 10),
+                        strconv.FormatInt((v&amp;0xff), 10),
+                )
+        }</span>
+
+        <span class="cov0" title="0">if u.AccountExpires &gt; 0 &amp;&amp; u.AccountExpires &lt; 1&lt;&lt;63-1 </span><span class="cov0" title="0">{
+                u.AccountExpiryDate = util.TimeEpochBegin.Add(time.Duration(u.AccountExpires*100) * time.Nanosecond)
+        }</span>
+
+        <span class="cov0" title="0">if u.BadPasswordTime &gt; 0 &amp;&amp; u.BadPasswordTime &lt; 1&lt;&lt;63-1 </span><span class="cov0" title="0">{
+                u.BadPasswordDate = util.TimeEpochBegin.Add(time.Duration(u.BadPasswordTime*100) * time.Nanosecond)
+        }</span>
+
+        <span class="cov0" title="0">if u.ObjectGUID != "" </span><span class="cov0" title="0">{
+                u.ObjectGUID = hexify(u.ObjectGUID)
+        }</span>
+
+        <span class="cov0" title="0">if u.SID != "" </span><span class="cov0" title="0">{
+                u.SID = hexify(u.SID)
+        }</span>
+
+        <span class="cov0" title="0">u.SamAccountType = attributes.SAMAccountType(u.SamAccountTypeRaw).Eval()
+        return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
