@@ -168,7 +168,7 @@ func AskMultiline(cmd *cobra.Command, flagName string, args *[]string, opts ...s
 	return true, nil
 }
 
-func AskString(cmd *cobra.Command, flagName string, args *[]string, password bool, opts ...survey.AskOpt) (bool, error) {
+func AskString(cmd *cobra.Command, flagName string, args *[]string, password bool, def string, opts ...survey.AskOpt) (bool, error) {
 	f := cmd.Flag(flagName)
 	if f == nil {
 		return false, fmt.Errorf("flag %q not defined", flagName)
@@ -181,7 +181,9 @@ func AskString(cmd *cobra.Command, flagName string, args *[]string, password boo
 
 	} else {
 		defValue := "empty"
-		if f.DefValue != "" {
+		if def != "" {
+			defValue = def
+		} else if f.DefValue != "" {
 			defValue = f.DefValue
 		}
 
