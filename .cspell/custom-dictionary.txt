@@ -1,0 +1,5 @@
+# Custom Dictionary Words
+creasty
+GSSAPI
+NTLM
+sarumaj
