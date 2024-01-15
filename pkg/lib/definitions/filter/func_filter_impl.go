@@ -18,21 +18,16 @@ func ByID(id string) Filter {
 	)
 }
 
-func HasNotExpired(strict bool) Filter {
-	filter := Or(
-		Filter{Attribute: attributes.AccountExpires(), Value: fmt.Sprint(0)},
-		Filter{Attribute: attributes.AccountExpires(), Value: fmt.Sprint(int64(1<<63 - 1))},
+func HasExpired() Filter {
+	return And(
+		Filter{Attribute: attributes.AccountExpires(), Value: ">0"},
+		Filter{Attribute: attributes.AccountExpires(), Value: fmt.Sprintf("<%d", int64(1<<63-1))},
 		Filter{
 			Attribute: attributes.AccountExpires(),
-			Value:     fmt.Sprintf(">=%d", libutil.TimeSince1601().Nanoseconds()/100),
+			Value:     fmt.Sprintf("<%d", libutil.TimeSince1601().Nanoseconds()/100),
 		},
+		Filter{Attribute: attributes.AccountExpires(), Value: "*"},
 	)
-
-	if strict {
-		return And(filter, Filter{Attribute: attributes.AccountExpires(), Value: "*"})
-	}
-
-	return Or(filter, Not(Filter{Attribute: attributes.AccountExpires(), Value: "*"}))
 }
 
 func IsDomainController() Filter {

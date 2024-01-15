@@ -21,31 +21,29 @@ func TestFilter(t *testing.T) {
 	}{
 		{"test#1", And(
 			Filter{attributes.ObjectClass(), "User", ""},
-			HasNotExpired(true),
+			Not(HasExpired()),
 			Or(
 				Filter{attributes.SamAccountName(), "uid12345", ""},
 				Filter{attributes.SamAccountName(), "uid54321", ""},
+				Filter{attributes.SamAccountName(), "uid54321", ""},
 				Filter{attributes.Raw("boolean", "", attributes.TypeBool), "true", ""},
 			),
-		), `(&` +
-			(`` +
+		),
+			(`(&` +
 				`(ObjectClass=User)` +
-				`(&` +
-				(`` +
-					`(|` +
-					(`` +
-						`(AccountExpires=0)` +
-						`(AccountExpires=9223372036854775807)` + `(AccountExpires>=92233720368547758)`) +
-					`)` +
-					`(AccountExpires=*)`) +
+				(`(!` +
+					(`(&` +
+						`(AccountExpires=>0)` +
+						`(AccountExpires=<9223372036854775807)` + `(AccountExpires=<92233720368547758)` +
+						`(AccountExpires=*)`) +
+					`)`) +
 				`)` +
-				`(|` +
-				(`` +
+				(`(|` +
 					`(SAMAccountName=uid12345)` +
 					`(SAMAccountName=uid54321)` +
 					`(Boolean=TRUE)`) +
 				`)`) +
-			`)`},
+				`)`},
 		{"test#2", And(
 			Filter{attributes.ObjectClass(), "User", ""},
 			Filter{attributes.SamAccountName(), "uid12345", ""},
@@ -54,58 +52,63 @@ func TestFilter(t *testing.T) {
 				attributes.MemberOf(),
 				"CN=SuperUsers,...,DC=com",
 				attributes.LDAP_MATCHING_RULE_IN_CHAIN,
-			})), `(&` +
-			(`` +
+			})),
+			(`(&` +
 				`(ObjectClass=User)` +
 				`(SAMAccountName=uid12345)` +
-				`(!(UserAccountControl:1.2.840.113556.1.4.803:=2))` +
-				`(!(MemberOf:1.2.840.113556.1.4.1941:=CN=SuperUsers,...,DC=com))`) +
-			`)`},
+				(`(!` +
+					`(UserAccountControl:1.2.840.113556.1.4.803:=2)`) +
+				`)` +
+				(`(!` +
+					`(MemberOf:1.2.840.113556.1.4.1941:=CN=SuperUsers,...,DC=com)`) +
+				`)`) +
+				`)`},
 		{"test#3", And(
 			Filter{attributes.DisplayName(), EscapeFilter("id@dom"), ""},
-			HasNotExpired(false).ExpandAlias(),
+			Not(HasExpired().ExpandAlias()),
 			Or(Not(IsDomainController())),
 			And(Not(IsGroup())),
 			IsUser(),
-			IsEnabled()), `(&` +
-			(`` +
+			IsEnabled()),
+			(`(&` +
 				`(DisplayName=id@dom)` +
-				`(|` +
-				`(|` +
-				(`` +
-					(`` +
-						`(AccountExpires=0)` +
-						`(AccountExpires=9223372036854775807)` +
-						`(AccountExpires>=92233720368547758)`) +
-					`)` +
-					`(!(AccountExpires=*))`) +
+				(`(!` +
+					(`(&` +
+						`(AccountExpires=>0)` +
+						`(AccountExpires=<9223372036854775807)` +
+						`(AccountExpires=<92233720368547758)` +
+						`(AccountExpires=*)`) +
+					`)`) +
 				`)` +
-				`(!(&` +
-				(`` + (`` +
-					`(ObjectClass=computer)` +
-					`(UserAccountControl:1.2.840.113556.1.4.803:=8192)`)) +
-				`))` +
-				(`(!(|` +
-					`(ObjectClass=group)` +
-					`(ObjectClass=posixGroup)`) +
-				`))` +
+				(`(!` +
+					(`(&` +
+						`(ObjectClass=computer)` +
+						`(UserAccountControl:1.2.840.113556.1.4.803:=8192)`) +
+					`)`) +
+				`)` +
+				(`(!` +
+					(`(|` +
+						`(ObjectClass=group)` +
+						`(ObjectClass=posixGroup)`) +
+					`)`) +
+				`)` +
 				(`(|` +
 					`(ObjectClass=user)` +
 					`(ObjectClass=posixAccount)`) +
 				`)` +
-				`(!(UserAccountControl:1.2.840.113556.1.4.803:=2))`) +
-			`)`},
+				(`(!` +
+					`(UserAccountControl:1.2.840.113556.1.4.803:=2)`) +
+				`)`) +
+				`)`},
 		{"test#4", And(
 			ByID("test"),
 			MemberOf("test#1", true),
-			MemberOf("test#2", false)), `(&` +
-			(`` +
-				`(|` +
-				(`` +
+			MemberOf("test#2", false)),
+			(`(&` +
+				(`(|` +
 					`(CN=test)` +
 					`(DisplayName=test)` +
-					`(|` +
-					(`` +
+					(`(|` +
 						`(DistinguishedName=test)` +
 						`(DN=test)`) +
 					`)` +
@@ -115,7 +118,7 @@ func TestFilter(t *testing.T) {
 				`)` +
 				`(MemberOf:1.2.840.113556.1.4.1941:=test#1)` +
 				`(MemberOf=test#2)`) +
-			`)`},
+				`)`},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.args.String()

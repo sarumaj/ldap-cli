@@ -94,14 +94,25 @@ func complexFilter(operator rune, property Filter, properties ...Filter) Filter 
 		return property
 	}
 
-	var value string
+	var values []string
+	seen := make(map[string]bool)
 	for _, property := range append([]Filter{property}, properties...) {
-		value += property.String()
+
+		if v, ok := seen[property.String()]; ok && v {
+			continue
+		}
+
+		key := property.String()
+		values, seen[key] = append(values, key), true
+	}
+
+	if len(values) == 1 {
+		return property
 	}
 
 	return Filter{
 		Attribute: attributes.Attribute{LDAPDisplayName: complexFilterSyntax},
-		Value:     "(" + string(operator) + value + ")",
+		Value:     "(" + string(operator) + strings.Join(values, "") + ")",
 	}
 }
 
@@ -110,6 +121,17 @@ func EscapeFilter(filter string) string { return ldap.EscapeFilter(filter) }
 
 // Negate filter
 func Not(property Filter) Filter {
+	if true &&
+		property.Attribute.LDAPDisplayName == complexFilterSyntax &&
+		strings.HasPrefix(property.Value, "(!") &&
+		strings.HasSuffix(property.Value, ")") {
+
+		return Filter{
+			Attribute: property.Attribute,
+			Value:     property.Value[2 : len(property.Value)-1],
+		}
+	}
+
 	return Filter{
 		Attribute: attributes.Attribute{LDAPDisplayName: complexFilterSyntax},
 		Value:     "(!" + property.String() + ")",
