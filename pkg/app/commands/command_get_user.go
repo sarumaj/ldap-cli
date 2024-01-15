@@ -86,10 +86,10 @@ func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 
 	switch wasProvided := cmd.Flags().Changed("expired"); {
 	case wasProvided && getUserFlags.expired:
-		filters = append(filters, filter.Not(filter.HasNotExpired(true)))
+		filters = append(filters, filter.HasExpired())
 
 	case wasProvided && !getUserFlags.expired:
-		filters = append(filters, filter.HasNotExpired(false))
+		filters = append(filters, filter.Not(filter.HasExpired()))
 
 	}
 

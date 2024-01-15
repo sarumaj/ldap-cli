@@ -6,6 +6,7 @@ CLICOLOR
 COLORTERM
 contiwan
 creasty
+creativeprojects
 csvutil
 Debugf
 Decompile
@@ -45,6 +46,7 @@ schollz
 selfupdate
 sirupsen
 SMARTCARD
+submatch
 supererrors
 tracerr
 trimpath

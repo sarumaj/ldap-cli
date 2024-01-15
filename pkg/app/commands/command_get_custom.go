@@ -41,7 +41,7 @@ var getCustomCmd = func() *cobra.Command {
 	}
 
 	for _, alias := range filter.ListAliases() {
-		getCustomCmd.Long += fmt.Sprintf(" - %16s: %s\n", alias.Alias, alias.Substitution)
+		getCustomCmd.Long += fmt.Sprintf(" - %16s: %s\n", alias.String(), alias.Substitution(alias.Parameters))
 	}
 
 	flags := getCustomCmd.Flags()
