@@ -84,7 +84,7 @@ func TestReplaceAliases(t *testing.T) {
 				`(MemberOf=CN=SuperUsers,...,DC=com)` +
 				`(MemberOf=CN=LocalUsers,...,DC=com)`) +
 				`)`},
-		{"test#15", "$MEMBER_OF_RECURSIVE(CN=SuperUsers,...,DC=com)", "(MemberOf:1.2.840.113556.1.4.1941:=CN=SuperUsers,...,DC=com)"},
+		{"test#15", "$NESTED_MEMBER_OF(CN=SuperUsers,...,DC=com)", "(MemberOf:1.2.840.113556.1.4.1941:=CN=SuperUsers,...,DC=com)"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := ReplaceAliases(tt.args); got != tt.want {

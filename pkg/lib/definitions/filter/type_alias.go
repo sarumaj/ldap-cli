@@ -20,13 +20,15 @@ var aliases = []Alias{
 	{`$NOT_EXPIRED`, nil, func([]string) string { return Not(HasExpired()).String() }},
 	{`$ID`, []string{"id"}, func(params []string) string { return ByID(params[0]).String() }},
 	{`$MEMBER_OF`, []string{"dn"}, func(params []string) string { return MemberOf(params[0], false).String() }},
-	{`$MEMBER_OF_RECURSIVE`, []string{"dn"}, func(params []string) string { return MemberOf(params[0], true).String() }},
+	{`$NESTED_MEMBER_OF`, []string{"dn"}, func(params []string) string { return MemberOf(params[0], true).String() }},
 	// matching rules
 	{`$AND`, nil, func([]string) string { return string(attributes.LDAP_MATCHING_RULE_BIT_AND) }},
 	{`$OR`, nil, func([]string) string { return string(attributes.LDAP_MATCHING_RULE_BIT_OR) }},
 	{`$RECURSIVE`, nil, func([]string) string { return string(attributes.LDAP_MATCHING_RULE_IN_CHAIN) }},
 	{`$DATA`, nil, func([]string) string { return string(attributes.LDAP_MATCHING_RULE_DN_WITH_DATA) }},
 }
+
+var delimiter = regexp.MustCompile(`;\s*`)
 
 type Alias struct {
 	ID           string
@@ -64,7 +66,7 @@ func ReplaceAliases(raw string) string {
 				MustCompile(`(?P<Alias>`+regexp.QuoteMeta(alias.ID)+`)\((?P<Parameters>[^\)]+)\)`).
 				FindAllStringSubmatch(raw, -1) {
 
-				raw = strings.ReplaceAll(raw, match[1]+"("+match[2]+")", alias.Substitution(regexp.MustCompile(`;\s*`).Split(match[2], -1)))
+				raw = strings.ReplaceAll(raw, match[1]+"("+match[2]+")", alias.Substitution(delimiter.Split(match[2], -1)))
 			}
 
 		} else {
