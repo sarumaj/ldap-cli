@@ -30,7 +30,7 @@ var editCustomCmd = func() *cobra.Command {
 	}
 
 	for _, alias := range filter.ListAliases() {
-		editCustomCmd.Long += fmt.Sprintf(" - %-16s %s\n", alias.String(), alias.Substitution(alias.Parameters))
+		editCustomCmd.Long += fmt.Sprintf(" - %-24s: %s\n", alias.String(), alias.Substitution(alias.Parameters))
 	}
 
 	flags := editCustomCmd.Flags()
