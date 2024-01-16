@@ -100,6 +100,10 @@ func rootRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootRun"})
 	logger.Debug("Executing")
 
+	if err := rootFlags.bindParameters.FromKeyring(); err != nil {
+		apputil.Logger.Debugf("Failed to access keyring: %v", err)
+	}
+
 	if rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED {
 		var confirm bool
 		if err := survey.AskOne(&survey.Confirm{
@@ -155,5 +159,9 @@ func Execute(version, buildDate string, args ...string) {
 
 	if err := rootCmd.Execute(); err != nil {
 		apputil.Logger.Debugf("Execution failed: %v", err)
+	}
+
+	if err := rootFlags.bindParameters.ToKeyring(); err != nil {
+		apputil.Logger.Debugf("Failed to access keyring: %v", err)
 	}
 }

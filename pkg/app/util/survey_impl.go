@@ -2,8 +2,8 @@ package util
 
 import (
 	supererrors "github.com/sarumaj/go-super/errors"
-	"github.com/sarumaj/ldap-cli/pkg/lib/client"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
+	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
+	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	cobra "github.com/spf13/cobra"
 )
 

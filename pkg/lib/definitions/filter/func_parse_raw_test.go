@@ -45,7 +45,7 @@ func TestParseRaw(t *testing.T) {
 		{"test#5", `(&(!(CN=test#1))(CN=test#2)`, want{"", true}},
 		{"test#6", `(&(!(CN=test#1))(CN:test#2))`, want{"", true}},
 		{"test#7", `(CN:test)`, want{"", true}},
-		{"test#8", `(&(ObjectClass=user)(!(UserAccountControl:$AND:=2)))`,
+		{"test#8", `(&(ObjectClass=user)(!(UserAccountControl:$BAND:=2)))`,
 			want{(`(&` +
 				`(ObjectClass=user)` +
 				(`(!` +

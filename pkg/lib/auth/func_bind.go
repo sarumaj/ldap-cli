@@ -21,6 +21,42 @@ type BindParameters struct {
 	User string `validate:"required_unless=AuthType UNAUTHENTICATED"`
 }
 
+// Load from keyring
+func (p *BindParameters) FromKeyring() error {
+	var err error
+	if p.User == "" {
+		p.User, err = libutil.GetFromKeyring("user")
+		if err != nil {
+			return err
+		}
+	}
+
+	if p.Password == "" {
+		p.Password, err = libutil.GetFromKeyring("password")
+		if err != nil {
+			return err
+		}
+	}
+
+	if p.Domain == "" {
+		p.Domain, err = libutil.GetFromKeyring("domain")
+		if err != nil {
+			return err
+		}
+	}
+
+	if p.AuthType == 0 || !p.AuthType.IsValid() {
+		authType, err := libutil.GetFromKeyring("type")
+		if err != nil {
+			return err
+		}
+
+		p.AuthType = TypeFromString(authType)
+	}
+
+	return nil
+}
+
 // Set default Type
 func (p *BindParameters) SetDefaults() {
 	if p.AuthType == 0 || !p.AuthType.IsValid() {
@@ -42,6 +78,27 @@ func (p *BindParameters) SetDomain(domain string) *BindParameters {
 func (p *BindParameters) SetPassword(password string) *BindParameters {
 	p.Password = password
 	return p
+}
+
+// Save to keyring
+func (p BindParameters) ToKeyring() error {
+	if err := libutil.SetToKeyring("user", p.User); err != nil {
+		return err
+	}
+
+	if err := libutil.SetToKeyring("password", p.Password); err != nil {
+		return err
+	}
+
+	if err := libutil.SetToKeyring("domain", p.Domain); err != nil {
+		return err
+	}
+
+	if err := libutil.SetToKeyring("type", p.AuthType.String()); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Set username

@@ -74,8 +74,8 @@ func TestReplaceAliases(t *testing.T) {
 					`(UserPrincipalName=12346)`) +
 				`)`) +
 				`)`},
-		{"test#9", "$AND", string(attributes.LDAP_MATCHING_RULE_BIT_AND)},
-		{"test#10", "$OR", string(attributes.LDAP_MATCHING_RULE_BIT_OR)},
+		{"test#9", "$BAND", string(attributes.LDAP_MATCHING_RULE_BIT_AND)},
+		{"test#10", "$BOR", string(attributes.LDAP_MATCHING_RULE_BIT_OR)},
 		{"test#11", "$RECURSIVE", string(attributes.LDAP_MATCHING_RULE_IN_CHAIN)},
 		{"test#12", "$DATA", string(attributes.LDAP_MATCHING_RULE_DN_WITH_DATA)},
 		{"test#13", "$MEMBER_OF(CN=SuperUsers,...,DC=com)", "(MemberOf=CN=SuperUsers,...,DC=com)"},

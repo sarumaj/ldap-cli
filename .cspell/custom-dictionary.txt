@@ -25,6 +25,7 @@ Hexify
 Infof
 INTERDOMAIN
 jszwec
+Keychain
 LDAPS
 ldflags
 LDIF
