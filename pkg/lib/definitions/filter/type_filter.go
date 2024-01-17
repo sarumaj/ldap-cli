@@ -10,16 +10,23 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// complexFilterSyntax is used to identify complex filters (internal agreement)
 const complexFilterSyntax = "complex"
 
+// notDefaultOperatorWithValueRegex matches operators that are not the default operator ("=") for the given attribute type
 var notDefaultOperatorWithValueRegex = regexp.MustCompile(`^(?P<Operator>[~<>]=)` + `(?P<Value>.*)$`)
 
+// Filter is used to define an LDAP filter
 type Filter struct {
+	// Attribute is the attribute to filter on
 	Attribute attributes.Attribute
-	Value     string
-	Rule      attributes.MatchingRule
+	// Value is the value to filter for
+	Value string
+	// Rule is the matching rule bit mask to use
+	Rule attributes.MatchingRule
 }
 
+// ExpandAlias expands an filter to a filter by itself or its attribute alias
 func (o Filter) ExpandAlias() Filter {
 	if o.Attribute.Alias != "" {
 		return Or(o, Filter{
@@ -32,6 +39,7 @@ func (o Filter) ExpandAlias() Filter {
 	return o
 }
 
+// String returns a string representation of a filter (LDAP filter syntax)
 func (o Filter) String() string {
 	if o.Attribute.LDAPDisplayName == complexFilterSyntax {
 		return o.Value
@@ -84,11 +92,12 @@ func (o Filter) String() string {
 	}
 }
 
-// Build complex filter from filters, where all must match
+// And returns a filter that matches all given filters
 func And(property Filter, properties ...Filter) Filter {
 	return complexFilter('&', property, properties...)
 }
 
+// complexFilter is used to build complex filters
 func complexFilter(operator rune, property Filter, properties ...Filter) Filter {
 	if len(properties) == 0 {
 		return property
@@ -116,10 +125,10 @@ func complexFilter(operator rune, property Filter, properties ...Filter) Filter 
 	}
 }
 
-// Escape special characters as specified in RFC4515
+// EscapeFilter returns a string representation of a filter with escaped values according to RFC 4515
 func EscapeFilter(filter string) string { return ldap.EscapeFilter(filter) }
 
-// Negate filter
+// Not returns a filter that matches the opposite of the given filter
 func Not(property Filter) Filter {
 	if true &&
 		property.Attribute.LDAPDisplayName == complexFilterSyntax &&
@@ -138,7 +147,7 @@ func Not(property Filter) Filter {
 	}
 }
 
-// Build complex filter from filters, where at least one must match
+// Or returns a filter that matches any of the given filters
 func Or(property Filter, properties ...Filter) Filter {
 	return complexFilter('|', property, properties...)
 }

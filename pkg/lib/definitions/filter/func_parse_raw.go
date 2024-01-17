@@ -9,9 +9,13 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// validSimpleFilterRegex matches a simple LDAP filter (RFC 4515)
 var validSimpleFilterRegex = regexp.MustCompile(`^\((?P<Attribute>[\w\-]+)(?::(?P<Rule>(?:\d+\.){6}\d+):)?(?P<Operator>[~<>]?=)(?P<Value>.*)\)$`)
+
+// validComplexFilterRegex matches a complex (nested) LDAP filter (RFC 4515)
 var validComplexFilterRegex = regexp.MustCompile(`^\((?P<Logic>[!&\|])\((?P<Filters>.+)\)\)$`)
 
+// balanceClosingParenthesis balances closing parenthesis in a complex filter
 func balanceClosingParenthesis(in string) string {
 	// count continuous consecutive closing parenthesis to determine complexity level of the filter
 	var highestCount, currentCount, leftCount, rightCount int
@@ -55,6 +59,7 @@ func balanceClosingParenthesis(in string) string {
 	return padLeft + in + padRight
 }
 
+// ParseRaw parses and validates a raw LDAP filter (RFC 4515)
 func ParseRaw(raw string) (*Filter, error) {
 	switch raw = ReplaceAliases(raw); {
 
@@ -115,6 +120,7 @@ func ParseRaw(raw string) (*Filter, error) {
 	return nil, fmt.Errorf("%w: %s", libutil.ErrInvalidFilter, raw)
 }
 
+// splitFilterComponents splits a complex filter into its components
 func splitFilterComponents(in string) []string {
 	// determine split indexes
 	var openings, endings int

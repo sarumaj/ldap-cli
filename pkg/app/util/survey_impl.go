@@ -7,6 +7,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// AskFilterString asks for a filter string (LDAP syntax according to RFC 4515)
 func AskFilterString(cmd *cobra.Command, flagName string, filterString *string, searchArguments *client.SearchArguments) {
 	if *filterString == "" {
 		var args []string
@@ -17,6 +18,7 @@ func AskFilterString(cmd *cobra.Command, flagName string, filterString *string, 
 	searchArguments.Filter = *supererrors.ExceptFn(supererrors.W(filter.ParseRaw(*filterString)))
 }
 
+// AskID asks for an ID (CN, DN, GUID, SAN, UPN, Name or DisplayName)
 func AskID(cmd *cobra.Command, flagName string, id *string, searchArguments *client.SearchArguments) {
 	if *id == "" {
 		var args []string

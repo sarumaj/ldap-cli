@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// SkipOAT skips the test if TEST_OAT is not set to true
 func SkipOAT(t testing.TB) {
 	switch os.Getenv("TEST_OAT") {
 

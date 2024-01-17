@@ -6,13 +6,20 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// Attribute is an LDAP attribute
 type Attribute struct {
-	Alias           string
+	// Alias is the alias of the attribute
+	Alias string
+	// LDAPDisplayName is the LDAP display name of the attribute
 	LDAPDisplayName string
-	PrettyName      string
-	Type            Type
+	// PrettyName is the pretty name of the attribute (CamelCase)
+	PrettyName string
+	// Type is the type of the attribute defined in RFC 4517
+	Type Type
 }
 
+// Parse parses a value and stores it in a map of attributes
+//
 //gocyclo:ignore
 func (a Attribute) Parse(values []string, attrMap *Map) {
 	if len(values) == 0 || attrMap == nil {
@@ -43,11 +50,13 @@ func (a Attribute) Parse(values []string, attrMap *Map) {
 	}
 }
 
+// Register registers an attribute in the registry
 func (a Attribute) Register() Attribute {
 	registry.Append(a)
 	return a
 }
 
+// String returns the string representation of an attribute (first its pretty name, then its LDAP display name)
 func (a Attribute) String() string {
 	if a.PrettyName != "" {
 		return a.PrettyName
@@ -56,8 +65,10 @@ func (a Attribute) String() string {
 	return a.LDAPDisplayName
 }
 
+// Attributes is a slice of attributes
 type Attributes []Attribute
 
+// Append appends attributes to the slice only if they are not already present
 func (a *Attributes) Append(attrs ...Attribute) {
 	for _, add := range attrs {
 		seen := false
@@ -76,6 +87,7 @@ func (a *Attributes) Append(attrs ...Attribute) {
 	a.Sort()
 }
 
+// Sort sorts the attributes by their string representation
 func (a Attributes) Sort() {
 	slices.SortStableFunc(a, func(a, b Attribute) int {
 		l, r := a.String(), b.String()
@@ -88,6 +100,7 @@ func (a Attributes) Sort() {
 	})
 }
 
+// ToAttributeList returns a list of attributes as strings
 func (a Attributes) ToAttributeList() (list []string) {
 	seen := make(map[Attribute]bool)
 	for _, attr := range a {

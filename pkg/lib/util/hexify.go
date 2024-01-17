@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Hexify converts a string to a hex representation
 func Hexify(s string) string {
 	var chars []string
 	for _, c := range []byte(s) {
@@ -15,6 +16,7 @@ func Hexify(s string) string {
 	return strings.Join(chars, "")
 }
 
+// Unhexify converts a hex representation to a string
 func Unhexify(s string) string {
 	chars := []byte{}
 	for _, c := range strings.Split(strings.TrimLeft(s, "\\x"), "\\x") {

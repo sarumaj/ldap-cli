@@ -9,9 +9,10 @@ const (
 
 var _ libutil.ValidatorInterface = Scheme("")
 
+// Scheme is an LDAP scheme
 type Scheme string
 
-// Validate scheme
+// IsValid returns true if the scheme is valid
 func (s Scheme) IsValid() bool {
 	switch s {
 

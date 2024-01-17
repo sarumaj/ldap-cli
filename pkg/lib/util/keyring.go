@@ -7,6 +7,7 @@ import (
 	survey "github.com/AlecAivazis/survey/v2"
 )
 
+// Config is the configuration for the keyring
 var Config = keyring.Config{
 	AllowedBackends:                keyring.AvailableBackends(),
 	FileDir:                        "~/.config/ldap-cli",
@@ -28,6 +29,7 @@ var Config = keyring.Config{
 	WinCredPrefix:                  "ldap-cli.",
 }
 
+// GetFromKeyring retrieves a value from the keyring
 func GetFromKeyring(key string) (string, error) {
 	ring, err := keyring.Open(Config)
 	if err != nil {
@@ -42,15 +44,20 @@ func GetFromKeyring(key string) (string, error) {
 	return string(item.Data), nil
 }
 
+// passwordFunc is a helper function to ask for a password
 func passwordFunc(s string) (string, error) {
 	var got string
-	err := survey.AskOne(&survey.Password{Message: s}, &got, survey.WithValidator(survey.ComposeValidators(survey.Required, func(ans interface{}) error {
-		if str, ok := ans.(string); !ok || len(str) < 12 {
-			return fmt.Errorf("password must be at least 12 characters long")
-		}
+	prompt := &survey.Password{Message: "Please, provide a password to secure your credentials"}
+	err := survey.AskOne(prompt, &got, survey.WithValidator(survey.ComposeValidators(
+		survey.Required,
+		func(ans interface{}) error {
+			if str, ok := ans.(string); !ok || len(str) < 12 {
+				return fmt.Errorf("password must be at least 12 characters long")
+			}
 
-		return nil
-	})))
+			return nil
+		},
+	)))
 
 	if err != nil {
 		return "", err
@@ -59,6 +66,7 @@ func passwordFunc(s string) (string, error) {
 	return got, nil
 }
 
+// RemoveFromKeyRing removes a value from the keyring
 func RemoveFromKeyRing(key string) error {
 	ring, err := keyring.Open(Config)
 	if err != nil {
@@ -68,6 +76,7 @@ func RemoveFromKeyRing(key string) error {
 	return ring.Remove(key)
 }
 
+// SetToKeyring sets a value to the keyring
 func SetToKeyring(key, value string) error {
 	ring, err := keyring.Open(Config)
 	if err != nil {

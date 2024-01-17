@@ -9,4 +9,5 @@ const (
 	LDAP_MATCHING_RULE_DN_WITH_DATA    MatchingRule = "1.2.840.113556.1.4.2253" // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/e5bfc285-05b9-494e-a123-c5c4341c450e
 )
 
+// MatchingRule is used to define an LDAP matching rule bit mask
 type MatchingRule string

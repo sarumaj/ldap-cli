@@ -25,8 +25,10 @@ var groupTypeToString = map[FlagsetGroupType]string{
 	GROUP_TYPE_DISTRIBUTION:      "DISTRIBUTION",
 }
 
+// FlagsetGroupType is a binary flagset of group types (multi-valued)
 type FlagsetGroupType uint32
 
+// Eval evaluates a binary flagset of group types
 func (v FlagsetGroupType) Eval() (types []string) {
 	for key, value := range groupTypeToString {
 		if v&key == key {

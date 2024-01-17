@@ -7,6 +7,7 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// ByID returns a filter that matches an object by its ID (CN, DN, GUID, SAN, UPN, Name or DisplayName)
 func ByID(id string) Filter {
 	return Or(
 		Filter{Attribute: attributes.CommonName(), Value: id},
@@ -15,9 +16,11 @@ func ByID(id string) Filter {
 		Filter{Attribute: attributes.Name(), Value: id},
 		Filter{Attribute: attributes.SamAccountName(), Value: id},
 		Filter{Attribute: attributes.UserPrincipalName(), Value: id},
+		Filter{Attribute: attributes.ObjectGUID(), Value: id},
 	)
 }
 
+// HasExpired returns a filter that matches an object that has expired
 func HasExpired() Filter {
 	return And(
 		Filter{Attribute: attributes.AccountExpires(), Value: ">0"},
@@ -30,6 +33,7 @@ func HasExpired() Filter {
 	)
 }
 
+// IsDomainController returns a filter that matches a domain controller
 func IsDomainController() Filter {
 	return And(
 		Filter{attributes.ObjectClass(), "computer", ""},
@@ -37,10 +41,12 @@ func IsDomainController() Filter {
 	)
 }
 
+// IsEnabled returns a filter that matches a not disabled user object
 func IsEnabled() Filter {
 	return Not(Filter{attributes.UserAccountControl(), "2", attributes.LDAP_MATCHING_RULE_BIT_AND})
 }
 
+// IsGroup returns a filter that matches a group
 func IsGroup() Filter {
 	return Or(
 		Filter{attributes.ObjectClass(), "group", ""},
@@ -48,6 +54,7 @@ func IsGroup() Filter {
 	)
 }
 
+// IsUser returns a filter that matches a user
 func IsUser() Filter {
 	return Or(
 		Filter{attributes.ObjectClass(), "user", ""},
@@ -55,6 +62,7 @@ func IsUser() Filter {
 	)
 }
 
+// MemberOf returns a filter that matches a member of a group
 func MemberOf(parent string, recursive bool) Filter {
 	if recursive {
 		return Filter{Attribute: attributes.MemberOf(), Value: parent, Rule: attributes.LDAP_MATCHING_RULE_IN_CHAIN}

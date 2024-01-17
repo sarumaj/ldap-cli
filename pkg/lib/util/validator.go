@@ -9,10 +9,12 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// ValidatorInterface is an interface for validating structs
 type ValidatorInterface interface {
 	IsValid() bool
 }
 
+// sync.Pool is a pool of objects that may be individually saved and retrieved (simpleton approach)
 var validate = sync.Pool{New: func() any {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
@@ -28,6 +30,7 @@ var validate = sync.Pool{New: func() any {
 	return validate
 }}
 
+// FormatError formats a validation error
 func FormatError(err error) error {
 	if err == nil {
 		return nil
@@ -75,6 +78,7 @@ func FormatError(err error) error {
 	return errors.Join(newErrs...)
 }
 
+// Validate returns a validator instance
 func Validate() *validator.Validate {
 	return validate.Get().(*validator.Validate)
 }

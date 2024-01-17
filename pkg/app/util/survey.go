@@ -13,6 +13,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// splitByNewLineRegex is a regular expression to split a string by new line
 var splitByNewLineRegex = regexp.MustCompile("\r?\n")
 
 // Ask to provide a boolean value for given flag, while offering the option to deny answer (skip)

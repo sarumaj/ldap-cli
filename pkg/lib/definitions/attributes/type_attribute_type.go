@@ -15,4 +15,5 @@ const (
 	TypeUserAccountControl Type = "UserAccountControl"
 )
 
+// Type represents the type of an attribute
 type Type string

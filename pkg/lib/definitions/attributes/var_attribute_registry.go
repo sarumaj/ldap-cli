@@ -76,6 +76,7 @@ var (
 	whenCreated             = Attribute{"", "WhenCreated", "", TypeTime}.Register()
 )
 
+// registry is a list of all known attributes
 var registry Attributes
 
 func AccountExpires() Attribute          { return accountExpires }
@@ -150,11 +151,15 @@ func UserPrincipalName() Attribute       { return userPrincipalName }
 func WhenChanged() Attribute             { return whenChanged }
 func WhenCreated() Attribute             { return whenCreated }
 
+// Any returns an attribute that matches any attribute
 func Any() Attribute { return Attribute{"", "*", "", TypeRaw} }
+
+// Raw returns an attribute that matches the given LDAP name
 func Raw(LDAPName, prettyName string, attrType Type) Attribute {
 	return Attribute{"", LDAPName, prettyName, attrType}
 }
 
+// Lookup returns the attribute that matches the given LDAP name, pretty name or alias
 func Lookup(in string) *Attribute {
 	for _, attr := range registry {
 		switch {
@@ -172,6 +177,8 @@ func Lookup(in string) *Attribute {
 	return nil
 }
 
+// LookupMany returns a list of attributes that match the given LDAP names, pretty names or aliases
+// (for "*"" it returns all attributes)
 func LookupMany(strict bool, in ...string) (list Attributes) {
 	var asterisk bool
 	for _, s := range in {

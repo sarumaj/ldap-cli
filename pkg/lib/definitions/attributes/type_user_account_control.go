@@ -51,8 +51,10 @@ var userAccountControlToString = map[FlagsetUserAccountControl]string{
 	USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: "TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION",
 }
 
+// FlagsetUserAccountControl is a set of flags for the userAccountControl attribute (multi-valued).
 type FlagsetUserAccountControl uint32
 
+// Eval returns a list of strings representing the flags set in the userAccountControl attribute.
 func (v FlagsetUserAccountControl) Eval() (controls []string) {
 	for key, value := range userAccountControlToString {
 		if v&key == key {

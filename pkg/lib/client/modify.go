@@ -5,6 +5,7 @@ import (
 	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
 )
 
+// ModifyGroupMembersRequest returns a modify request to add, delete or replace group members
 func ModifyGroupMembersRequest(dn string, add, delete, replace []string, memberAttribute attributes.Attribute) *ldap.ModifyRequest {
 	request := ldap.NewModifyRequest(dn, nil)
 	if len(add) > 0 {
@@ -23,6 +24,7 @@ func ModifyGroupMembersRequest(dn string, add, delete, replace []string, memberA
 
 }
 
+// ModifyPasswordRequest returns a modify request to change a password
 func ModifyPasswordRequest(dn, newPassword string, passwordAttribute attributes.Attribute) *ldap.ModifyRequest {
 	request := ldap.NewModifyRequest(dn, nil)
 	request.Replace(passwordAttribute.String(), []string{newPassword})

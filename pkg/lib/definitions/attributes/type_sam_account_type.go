@@ -30,8 +30,10 @@ var samAccountTypeToString = map[FlagSAMAccountType][]string{
 	SAM_ACCOUNT_TYPE_ACCOUNT_TYPE_MAX:          {"ACCOUNT_TYPE_MAX"},
 }
 
+// FlagSAMAccountType is a representation of the SAMAccountType attribute
 type FlagSAMAccountType uint32
 
+// Eval evaluates a binary flag of a SAM account type
 func (v FlagSAMAccountType) Eval() []string {
 	for key, value := range samAccountTypeToString {
 		if v == key {

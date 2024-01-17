@@ -17,6 +17,7 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+// rootFlags holds the command line flags for the root command.
 var rootFlags struct {
 	address        string `flag:"url"`
 	authType       string `flag:"auth-type"`

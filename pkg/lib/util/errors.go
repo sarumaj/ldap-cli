@@ -93,6 +93,7 @@ var errorMapping = map[uint16]error{
 	ldap.ErrorEmptyPassword:                           ErrAuthenticationFailed,
 }
 
+// Handle maps LDAP errors to more specific errors
 func Handle(err error) error {
 	if err == nil {
 		return nil

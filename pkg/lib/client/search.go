@@ -15,8 +15,10 @@ import (
 	progressbar "github.com/schollz/progressbar/v3"
 )
 
+// searchRangeRegex is a regular expression to match ranged attributes
 var searchRangeRegex = regexp.MustCompile(`(\w+);range\=(?P<from>\d+)\-(?P<to>\d+)`)
 
+// searchRecursivelyArguments is a struct to hold arguments for recursive search
 type searchRecursivelyArguments struct {
 	From, To, ID        int
 	Path, AttributeName string
@@ -24,6 +26,7 @@ type searchRecursivelyArguments struct {
 	Repeat              bool
 }
 
+// searchRecursively searches for ranged attributes recursively
 func searchRecursively(conn *auth.Connection, args searchRecursivelyArguments, result map[string][]string) error {
 	var rName string
 	standardizedName := libutil.ToTitleNoLower(args.AttributeName)
@@ -96,12 +99,15 @@ func searchRecursively(conn *auth.Connection, args searchRecursivelyArguments, r
 	return nil
 }
 
+// SearchArguments is a struct to hold arguments for search
 type SearchArguments struct {
 	Path       string
 	Attributes attributes.Attributes
 	Filter     filter.Filter
 }
 
+// Search searches for entries in AD
+//
 //gocyclo:ignore
 func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.ProgressBar) (results attributes.Maps, requests *ldif.LDIF, err error) {
 	if conn == nil {

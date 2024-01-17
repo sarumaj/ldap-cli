@@ -9,11 +9,11 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
-// Bind parameters
+// BindParameters are parameters for binding to the server
 type BindParameters struct {
-	// Type of authentication
+	// AuthType is the authentication type
 	AuthType AuthType `validate:"required,is_valid"` // default: SIMPLE
-	// User's domain (required for NTLM authentication)
+	// Domain is user's domain (required for NTLM authentication)
 	Domain string `validate:"required_if=AuthType NTLM"`
 	// User's password
 	Password string `validate:"required_unless=AuthType UNAUTHENTICATED"`
@@ -21,7 +21,7 @@ type BindParameters struct {
 	User string `validate:"required_unless=AuthType UNAUTHENTICATED"`
 }
 
-// Load from keyring
+// FromKeyring loads credentials from keyring
 func (p *BindParameters) FromKeyring() error {
 	var err error
 	if p.User == "" {
@@ -57,7 +57,7 @@ func (p *BindParameters) FromKeyring() error {
 	return nil
 }
 
-// Set default Type
+// SetDefaults sets default values
 func (p *BindParameters) SetDefaults() {
 	if p.AuthType == 0 || !p.AuthType.IsValid() {
 		p.AuthType = UNAUTHENTICATED
@@ -80,7 +80,7 @@ func (p *BindParameters) SetPassword(password string) *BindParameters {
 	return p
 }
 
-// Save to keyring
+// ToKeyring saves credentials to keyring
 func (p BindParameters) ToKeyring() error {
 	if err := libutil.SetToKeyring("user", p.User); err != nil {
 		return err
@@ -113,7 +113,7 @@ func (p *BindParameters) SetType(authType AuthType) *BindParameters {
 	return p
 }
 
-// Validate fields
+// Validate parameters to bind to the server
 func (p *BindParameters) Validate() error { return libutil.FormatError(validate.Struct(p)) }
 
 // Establish connection with the server

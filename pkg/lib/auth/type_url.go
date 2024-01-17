@@ -9,6 +9,7 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// validURLRegex is a regex to validate URL
 var validURLRegex = regexp.MustCompile(`^(?P<Scheme>[^:]+)://(?P<Host>[^:]+):(?P<Port>\d+)`)
 
 var _ libutil.ValidatorInterface = URL{}
@@ -26,7 +27,7 @@ type URL struct {
 // Get server's hostname and port in form <hostname>:<port>
 func (u URL) HostPort() string { return fmt.Sprintf("%s:%d", u.Host, u.Port) }
 
-// Implement util.ValidatorInterface
+// IsValid returns true if the URL is valid
 func (u URL) IsValid() bool { return validate.Struct(&u) == nil }
 
 // Set scheme
@@ -55,7 +56,7 @@ func (u URL) ToBaseDirectoryPath() string {
 	return strings.Join(components, ",")
 }
 
-// Validate fields
+// Validate URL
 func (u *URL) Validate() error { return libutil.FormatError(validate.Struct(u)) }
 
 // Make empty URL

@@ -27,6 +27,8 @@ var validate = func() *validator.Validate {
 
 var _ libutil.ValidatorInterface = typeString("")
 
+// typeString is a string that implements util.ValidatorInterface
 type typeString string
 
+// IsValid returns true if the string is a valid Type
 func (t typeString) IsValid() bool { return TypeFromString(string(t)).IsValid() }

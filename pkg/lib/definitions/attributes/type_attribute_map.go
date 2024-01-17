@@ -9,8 +9,10 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
+// Map is a map of attributes to values
 type Map map[Attribute]any
 
+// Keys returns the keys of a map of attributes
 func (attrMap Map) Keys() (keys Attributes) {
 	for a := range attrMap {
 		keys.Append(a)
@@ -20,6 +22,7 @@ func (attrMap Map) Keys() (keys Attributes) {
 	return
 }
 
+// ParseBool parses a boolean value
 func (attrMap *Map) ParseBool(a Attribute, values []string) {
 	if parsed, err := strconv.ParseBool(values[0]); err == nil {
 		(*attrMap)[a] = parsed
@@ -29,6 +32,7 @@ func (attrMap *Map) ParseBool(a Attribute, values []string) {
 
 }
 
+// ParseDecimal parses a decimal value
 func (attrMap *Map) ParseDecimal(a Attribute, values []string) {
 	if parsed, err := strconv.ParseFloat(values[0], 64); err == nil {
 		(*attrMap)[a] = parsed
@@ -37,6 +41,7 @@ func (attrMap *Map) ParseDecimal(a Attribute, values []string) {
 	}
 }
 
+// ParseGroupType parses a group type value
 func (attrMap *Map) ParseGroupType(a Attribute, values []string) {
 	if parsed, err := strconv.ParseInt(values[0], 10, 64); err == nil {
 		(*attrMap)[a] = FlagsetGroupType(parsed).Eval()
@@ -45,6 +50,7 @@ func (attrMap *Map) ParseGroupType(a Attribute, values []string) {
 	}
 }
 
+// ParseInt parses an integer value
 func (attrMap *Map) ParseInt(a Attribute, values []string) {
 	if parsed, err := strconv.ParseInt(values[0], 10, 64); err == nil {
 		(*attrMap)[a] = parsed
@@ -53,6 +59,7 @@ func (attrMap *Map) ParseInt(a Attribute, values []string) {
 	}
 }
 
+// ParseIPv4Address parses an IPv4 address value
 func (attrMap *Map) ParseIPv4Address(a Attribute, values []string) {
 	if parsed, err := strconv.ParseInt(values[0], 10, 64); err == nil {
 		ip := make(net.IP, 4)
@@ -63,6 +70,7 @@ func (attrMap *Map) ParseIPv4Address(a Attribute, values []string) {
 	}
 }
 
+// ParseTime parses a time value
 func (attrMap *Map) ParseTime(a Attribute, values []string) {
 	if parsed, err := strconv.ParseInt(strings.Split(values[0], ".")[0], 10, 64); err == nil {
 		(*attrMap)[a] = libutil.TimeAfter1601(parsed)
@@ -71,6 +79,7 @@ func (attrMap *Map) ParseTime(a Attribute, values []string) {
 	}
 }
 
+// ParseSAMAccountName parses a SAM account name (SAN) value
 func (attrMap *Map) ParseSAMAccountType(a Attribute, values []string) {
 	if parsed, err := strconv.ParseInt(values[0], 10, 64); err == nil {
 		(*attrMap)[a] = FlagSAMAccountType(parsed).Eval()
@@ -79,6 +88,7 @@ func (attrMap *Map) ParseSAMAccountType(a Attribute, values []string) {
 	}
 }
 
+// ParseUserAccountControl parses a user account control (AUC) value
 func (attrMap *Map) ParseUserAccountControl(a Attribute, values []string) {
 	if parsed, err := strconv.ParseInt(values[0], 10, 64); err == nil {
 		userAccountControl := FlagsetUserAccountControl(parsed)
@@ -90,4 +100,5 @@ func (attrMap *Map) ParseUserAccountControl(a Attribute, values []string) {
 	}
 }
 
-type Maps []map[Attribute]any
+// Maps is a slice of maps of attributes to values
+type Maps []Map

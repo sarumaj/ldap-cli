@@ -15,6 +15,7 @@ const (
 	NTLM
 )
 
+// typeTranslation is a map of AuthType to string
 var typeTranslation = map[AuthType]string{
 	UNAUTHENTICATED: "UNAUTHENTICATED",
 	SIMPLE:          "SIMPLE",
@@ -24,9 +25,10 @@ var typeTranslation = map[AuthType]string{
 
 var _ libutil.ValidatorInterface = AuthType(0)
 
+// AuthType is an LDAP authentication type (RFC 4511)
 type AuthType int
 
-// Validate type
+// IsValid returns true if the authentication type is valid
 func (t AuthType) IsValid() bool {
 	switch t {
 
@@ -39,7 +41,7 @@ func (t AuthType) IsValid() bool {
 	}
 }
 
-// Type as string
+// String returns the string representation of an authentication type
 func (t AuthType) String() string {
 	str, ok := typeTranslation[t]
 	if ok {

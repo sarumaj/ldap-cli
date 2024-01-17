@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 )
 
+// NewGUID generates a new GUID
 func NewGUID() string {
 	bytes := make([]byte, 16)
 	_, _ = rand.Read(bytes)
