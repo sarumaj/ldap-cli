@@ -32,6 +32,9 @@ jobs:
           sudo apt-get update && \
           sudo apt-get install -y gnupg2 pass && \
           mkdir -p ~/.gnupg && \
+          chown -R $(whoami) ~/.gnupg && \
+          chmod 600 ~/.gnupg/* && \
+          chmod 700 ~/.gnupg && \
           {
           gpg --command-fd 0 --no-tty --batch --gen-key << EOF
             %echo Generating a basic OpenPGP key
@@ -65,7 +68,7 @@ jobs:
 
       - name: Run linters
         run: gofmt -s -d ./ && golangci-lint run -v
-        
+
       - name: Setup openldap mock-up
         uses: isbang/compose-action@v1.5.1
         with:

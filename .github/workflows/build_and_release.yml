@@ -27,6 +27,9 @@ jobs:
           sudo apt-get update && \
           sudo apt-get install -y gnupg2 pass && \
           mkdir -p ~/.gnupg && \
+          chown -R $(whoami) ~/.gnupg && \
+          chmod 600 ~/.gnupg/* && \
+          chmod 700 ~/.gnupg && \
           {
           gpg --command-fd 0 --no-tty --batch --gen-key << EOF
             %echo Generating a basic OpenPGP key
