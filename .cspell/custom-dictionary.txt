@@ -3,8 +3,10 @@ Aivazis
 apputil
 blang
 CLICOLOR
+CODECLIMATE
 COLORTERM
 contiwan
+coverprofile
 creasty
 creativeprojects
 csvutil
@@ -19,13 +21,19 @@ fernstudium
 gecos
 GOARCH
 goccy
+gocov
 gocyclo
+gofmt
+golangci
+gopls
 GSSAPI
 Hexify
 Infof
 INTERDOMAIN
+isbang
 jszwec
 Keychain
+keydetails
 LDAPS
 ldflags
 LDIF
@@ -36,6 +44,7 @@ netgo
 NOTREQD
 NTLM
 osusergo
+paambaati
 pflag
 posix
 PREAUTH
@@ -47,6 +56,7 @@ schollz
 selfupdate
 sirupsen
 SMARTCARD
+Subkey
 submatch
 supererrors
 tracerr

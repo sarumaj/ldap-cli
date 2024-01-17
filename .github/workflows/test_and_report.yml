@@ -26,6 +26,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install pass keyring
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update && \
+          sudo apt-get install -y gnupg2 pass && \
+          mkdir -p ~/.gnupg && \
+          gpg --command-fd 0 --no-tty --batch --gen-key << EOT
+          %echo Generating a basic OpenPGP key
+          Key-Type: RSA
+          Key-Length: 2048
+          Subkey-Type: RSA
+          Subkey-Length: 2048
+          Name-Real: TestUser
+          Name-Email: user@example.com
+          Expire-Date: 0
+          %no-ask-passphrase
+          %no-protection
+          %commit
+          %echo done
+          EOT && \
+          pass init "TestUser"
+          
       - name: Install go
         uses: actions/setup-go@v4
         with:

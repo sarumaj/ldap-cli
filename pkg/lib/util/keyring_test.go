@@ -1,13 +1,14 @@
 package util
 
 import (
+	"os/exec"
 	"testing"
-
-	"github.com/zalando/go-keyring"
 )
 
 func TestKeyringFlow(t *testing.T) {
-	keyring.MockInit()
+	if _, err := exec.LookPath("pass"); err != nil {
+		t.Skipf(`Skipping keyring test, since it requires "pass" to be installed`)
+	}
 
 	if err := SetToKeyring("test", "12345"); err != nil {
 		t.Errorf(`SetToKeyring("test", "12345") failed: %v`, err)
