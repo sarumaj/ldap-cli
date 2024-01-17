@@ -13,7 +13,7 @@ var Config = keyring.Config{
 	FileDir:                        "~/.config/ldap-cli",
 	FilePasswordFunc:               passwordFunc,
 	KeyCtlScope:                    "user",
-	KeyCtlPerm:                     keyring.KEYCTL_PERM_USER,
+	KeyCtlPerm:                     0, // keep default permissions
 	KeychainAccessibleWhenUnlocked: true,
 	KeychainName:                   "ldap-cli",
 	KeychainPasswordFunc:           passwordFunc,
