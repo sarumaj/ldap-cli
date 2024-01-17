@@ -27,6 +27,7 @@ var rootFlags struct {
 	disableTLS     bool `flag:"disable-tls"`
 }
 
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = func() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:              "ldap-cli",
