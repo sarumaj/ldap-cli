@@ -48,7 +48,7 @@ jobs:
           EOF
           } && \
           gpg --list-keys && \
-          pass init "TestUser"
+          pass init $(gpg --list-keys --with-colons | head -n 5 | awk -F: '/^pub:/ { print $5 }')
 
       - name: Install upx
         uses: crazy-max/ghaction-upx@v3

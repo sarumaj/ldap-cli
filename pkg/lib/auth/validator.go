@@ -7,7 +7,7 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
 )
 
-// For internal usage
+// For internal usage (used to register custom type validators)
 var validate = func() *validator.Validate {
 	validate := libutil.Validate()
 
