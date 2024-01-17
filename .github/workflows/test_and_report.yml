@@ -47,11 +47,12 @@ jobs:
             %no-ask-passphrase
             %no-protection
             %pubring pubring.gpg
-            %secring  secring.gpg
+            %secring secring.gpg
             %commit
             %echo done
           EOF
           } && \
+          gpg --list-keys && \
           pass init "TestUser"
           
       - name: Install go
