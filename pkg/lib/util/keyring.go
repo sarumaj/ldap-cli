@@ -7,19 +7,22 @@ import (
 	survey "github.com/AlecAivazis/survey/v2"
 )
 
+// forked KEYCTL_PERM modes from github.com/99designs/keyring to make the config platform independent
 const (
-	KEYCTL_PERM_VIEW    = uint32(1 << 0)
-	KEYCTL_PERM_READ    = uint32(1 << 1)
-	KEYCTL_PERM_WRITE   = uint32(1 << 2)
-	KEYCTL_PERM_SEARCH  = uint32(1 << 3)
-	KEYCTL_PERM_LINK    = uint32(1 << 4)
-	KEYCTL_PERM_SETATTR = uint32(1 << 5)
-	KEYCTL_PERM_ALL     = uint32((1 << 6) - 1)
+	KEYCTL_PERM_VIEW = uint32(1 << iota)
+	KEYCTL_PERM_READ
+	KEYCTL_PERM_WRITE
+	KEYCTL_PERM_SEARCH
+	KEYCTL_PERM_LINK
+	KEYCTL_PERM_SETATTR
+	KEYCTL_PERM_ALL = uint32((1 << iota) - 1)
+)
 
-	KEYCTL_PERM_OTHERS  = 0
-	KEYCTL_PERM_GROUP   = 8
-	KEYCTL_PERM_USER    = 16
-	KEYCTL_PERM_PROCESS = 24
+const (
+	KEYCTL_PERM_OTHERS uint32 = iota * 8
+	KEYCTL_PERM_GROUP
+	KEYCTL_PERM_USER
+	KEYCTL_PERM_PROCESS
 )
 
 // Config is the configuration for the keyring
