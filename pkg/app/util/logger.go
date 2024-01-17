@@ -63,7 +63,7 @@ var Logger = func() *logrus.Logger {
 // Log fields in JSON format mode (default)
 type Fields = logrus.Fields
 
-// Produce log fields describing a bind request
+// GetFieldsForBind produces log fields describing a bind request
 func GetFieldsForBind(bindParameters *auth.BindParameters, dialOptions *auth.DialOptions) logrus.Fields {
 	fields := make(logrus.Fields)
 	if bindParameters == nil {
@@ -92,7 +92,7 @@ func GetFieldsForBind(bindParameters *auth.BindParameters, dialOptions *auth.Dia
 	return fields
 }
 
-// Produce log fields describing a search request
+// GetFieldsForSearch produces log fields describing a search request
 func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
 	fields := make(logrus.Fields)
 	if searchArguments == nil {
@@ -108,7 +108,7 @@ func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
 	return fields
 }
 
-// Print to Stdout and exit
+// PrintColors prints a string with colors and exits with provided code
 func PrintlnAndExit(code int, format string, a ...any) {
 	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(Stderr(), PrintColors(color.RedString, format, a...))))
 	os.Exit(code)

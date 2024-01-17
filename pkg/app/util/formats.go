@@ -105,7 +105,7 @@ func Flush(results attributes.Maps, requests *ldif.LDIF, format string, out io.W
 	}
 }
 
-// List supported formats
+// ListSupportedFormats returns a list of supported formats
 func ListSupportedFormats(quote bool) (list []string) {
 	for _, f := range supportedFormats {
 		if quote {
@@ -119,7 +119,7 @@ func ListSupportedFormats(quote bool) (list []string) {
 	return
 }
 
-// Detect expected format from file extension
+// SniffFormat returns the format of a file from its extension
 func SniffFormat(filename, format string) string {
 	switch format := strings.TrimPrefix(filepath.Ext(filename), "."); format {
 

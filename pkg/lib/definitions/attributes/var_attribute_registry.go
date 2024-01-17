@@ -56,7 +56,7 @@ var (
 	mail                    = Attribute{"", "Mail", "", TypeString}.Register()
 	memberOf                = Attribute{"", "MemberOf", "", TypeStringSlice}.Register()
 	members                 = Attribute{"", "Member", "Members", TypeStringSlice}.Register()
-	msRadiusFramedIpAddress = Attribute{"", "MSRadiusFramedIPAddress", "", TypeIPv4Address} // custom property used in DMZ.Register()
+	msRadiusFramedIPAddress = Attribute{"", "MSRadiusFramedIPAddress", "", TypeIPv4Address} // custom property used in DMZ.Register()
 	name                    = Attribute{"", "Name", "", TypeString}.Register()
 	objectCategory          = Attribute{"", "ObjectCategory", "", TypeString}.Register()
 	objectClass             = Attribute{"", "ObjectClass", "", TypeStringSlice}.Register()
@@ -132,7 +132,7 @@ func LastLogonTimestamp() Attribute      { return lastLogonTimestamp }
 func Mail() Attribute                    { return mail }
 func MemberOf() Attribute                { return memberOf }
 func Members() Attribute                 { return members }
-func MsRadiusFramedIpAddress() Attribute { return msRadiusFramedIpAddress }
+func MsRadiusFramedIPAddress() Attribute { return msRadiusFramedIPAddress }
 func Name() Attribute                    { return name }
 func ObjectCategory() Attribute          { return objectCategory }
 func ObjectClass() Attribute             { return objectClass }

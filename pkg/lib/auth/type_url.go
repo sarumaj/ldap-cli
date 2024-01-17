@@ -14,7 +14,7 @@ var validURLRegex = regexp.MustCompile(`^(?P<Scheme>[^:]+)://(?P<Host>[^:]+):(?P
 
 var _ libutil.ValidatorInterface = URL{}
 
-// Server's URL
+// URL is a URL (RFC 4516)
 type URL struct {
 	// Scheme
 	Scheme Scheme `validate:"required,is_valid"`
@@ -24,25 +24,25 @@ type URL struct {
 	Port Port `validate:"required,gt=0"`
 }
 
-// Get server's hostname and port in form <hostname>:<port>
+// HostPort returns <hostname>:<port>
 func (u URL) HostPort() string { return fmt.Sprintf("%s:%d", u.Host, u.Port) }
 
 // IsValid returns true if the URL is valid
 func (u URL) IsValid() bool { return validate.Struct(&u) == nil }
 
-// Set scheme
+// SetScheme sets scheme
 func (u *URL) SetScheme(s Scheme) *URL { u.Scheme = s; return u }
 
-// Set hostname
+// SetHost sets host
 func (u *URL) SetHost(h string) *URL { u.Host = h; return u }
 
-// Set port
+// SetPort sets port
 func (u *URL) SetPort(p Port) *URL { u.Port = p; return u }
 
-// Render URL as <scheme>://<hostname>:<port>
+// String returns the string representation of an URL (<scheme>://<hostname>:<port>)
 func (u URL) String() string { return fmt.Sprintf("%s://%s:%d", u.Scheme, u.Host, u.Port) }
 
-// Build base DN from host
+// ToBaseDirectoryPath builds base DN from host
 func (u URL) ToBaseDirectoryPath() string {
 	var components []string
 	for _, dc := range strings.Split(u.Host, ".") {
@@ -56,13 +56,13 @@ func (u URL) ToBaseDirectoryPath() string {
 	return strings.Join(components, ",")
 }
 
-// Validate URL
+// Validate validates the URL
 func (u *URL) Validate() error { return libutil.FormatError(validate.Struct(u)) }
 
-// Make empty URL
+// NewURL returns a new URL
 func NewURL() *URL { return &URL{} }
 
-// Parse URL from string matching <scheme>://<hostname>:<port>
+// URLFromString returns an URL from a string (<scheme>://<hostname>:<port>)
 func URLFromString(in string) (*URL, error) {
 
 	if !validURLRegex.MatchString(in) {

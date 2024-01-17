@@ -15,6 +15,5 @@ var BuildDate = "0000-00-00 00:00:00 UTC"
 
 func main() {
 	apputil.Logger.Debugf("version: %q, build date: %q", Version, BuildDate)
-
 	commands.Execute(Version, BuildDate)
 }

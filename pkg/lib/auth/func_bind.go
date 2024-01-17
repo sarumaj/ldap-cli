@@ -68,13 +68,13 @@ func (p *BindParameters) SetDefaults() {
 	}
 }
 
-// Set domain (required for NTLM-based authentication)
+// SetDomain sets domain (required for NTLM-based authentication)
 func (p *BindParameters) SetDomain(domain string) *BindParameters {
 	p.Domain = domain
 	return p
 }
 
-// Set password
+// SetPassword sets password
 func (p *BindParameters) SetPassword(password string) *BindParameters {
 	p.Password = password
 	return p
@@ -101,22 +101,22 @@ func (p BindParameters) ToKeyring() error {
 	return nil
 }
 
-// Set username
+// SetUser sets username
 func (p *BindParameters) SetUser(user string) *BindParameters {
 	p.User = user
 	return p
 }
 
-// Set authentication type
+// SetType sets authentication type
 func (p *BindParameters) SetType(authType AuthType) *BindParameters {
 	p.AuthType = authType
 	return p
 }
 
-// Validate parameters to bind to the server
+// Validate validates bind parameters
 func (p *BindParameters) Validate() error { return libutil.FormatError(validate.Struct(p)) }
 
-// Establish connection with the server
+// Bind establishes a connection to the server and binds to it
 func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error) {
 	if parameters == nil {
 		parameters = NewBindParameters()
@@ -169,5 +169,5 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 	}, nil
 }
 
-// Create new bind parameters
+// NewBindParameters creates a new BindParameters instance
 func NewBindParameters() *BindParameters { return &BindParameters{AuthType: UNAUTHENTICATED} }

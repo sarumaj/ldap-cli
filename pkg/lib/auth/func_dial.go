@@ -35,28 +35,28 @@ func (o *DialOptions) SetDefaults() {
 	}
 }
 
-// Set max retries
+// SetMaxRetries sets max retries
 func (o *DialOptions) SetMaxRetries(retries uint) *DialOptions { o.MaxRetries = retries; return o }
 
-// Set size limit
+// SetSizeLimit sets size limit
 func (o *DialOptions) SetSizeLimit(limit int64) *DialOptions { o.SizeLimit = limit; return o }
 
-// Set time limit
+// SetTimeLimit sets time limit
 func (o *DialOptions) SetTimeLimit(limit time.Duration) *DialOptions { o.TimeLimit = limit; return o }
 
-// Set URL
+// SetURL sets URL
 func (o *DialOptions) SetURL(addr string) *DialOptions {
 	o.URL, _ = URLFromString(addr)
 	return o
 }
 
-// Set custom TLS config
+// SetTLSConfig sets TLS config
 func (o *DialOptions) SetTLSConfig(conf *tls.Config) *DialOptions { o.TLSConfig = conf; return o }
 
-// Validate fields
+// Validate validates options
 func (o *DialOptions) Validate() error { return libutil.FormatError(validate.Struct(o)) }
 
-// Dial in
+// Dial connects to an LDAP server
 func Dial(opts *DialOptions) (conn net.Conn, err error) {
 	if opts == nil {
 		opts = NewDialOptions()
@@ -101,5 +101,5 @@ func Dial(opts *DialOptions) (conn net.Conn, err error) {
 	return conn, libutil.Handle(err)
 }
 
-// Create new dial-in options
+// NewDialOptions creates new options
 func NewDialOptions() *DialOptions { return &DialOptions{} }

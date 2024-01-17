@@ -8,7 +8,7 @@ import (
 	term "golang.org/x/term"
 )
 
-// Check if current terminal supports ANSI 256-bit color codes.
+// Is256ColorSupported checks if current terminal supports ANSI 256-bit color codes.
 // Env variables TERM and COLORTERM are considered
 func Is256ColorSupported() bool {
 	return IsTrueColorSupported() ||
@@ -16,7 +16,7 @@ func Is256ColorSupported() bool {
 		strings.Contains(os.Getenv("COLORTERM"), "256")
 }
 
-// Check if current terminal has colors enabled.
+// IsColorEnabled checks if current terminal supports ANSI color codes.
 // Env variables CLICOLOR_FORCE, NO_COLOR and CLICOLOR are being considered
 func IsColorEnabled() bool {
 	switch {
@@ -32,12 +32,12 @@ func IsColorEnabled() bool {
 	return false
 }
 
-// Check if given terminal descriptor is a terminal or just a pipe
+// IsTerminal checks if given file descriptor is a terminal or just a pipe
 func IsTerminal(f *os.File) bool {
 	return term.IsTerminal(int(f.Fd()))
 }
 
-// Check fif terminal supports true color mode.
+// IsTrueColorSupported checks if current terminal supports ANSI 24-bit color codes.
 // Env variables TERM and COLORTERM are evaluated
 func IsTrueColorSupported() bool {
 	spec := os.Getenv("TERM")
@@ -49,7 +49,7 @@ func IsTrueColorSupported() bool {
 		strings.Contains(colorSpec, "truecolor")
 }
 
-// Print colorized text only if terminal supports ANSI color codes
+// PrintColors prints formatted string with colors if supported
 func PrintColors(fn func(string, ...any) string, format string, a ...any) string {
 	if IsColorEnabled() {
 		return fn(format, a...)
@@ -58,11 +58,16 @@ func PrintColors(fn func(string, ...any) string, format string, a ...any) string
 	return fmt.Sprintf(format, a...)
 }
 
-func Stderr() *os.File { return os.Stderr } // Standard destination for errors
-func Stdin() *os.File  { return os.Stdin }  // Standard input
-func Stdout() *os.File { return os.Stdout } // Standard output
+// Stderr returns standard error file descriptor
+func Stderr() *os.File { return os.Stderr }
 
-// Get size of current terminal window
+// Stdin returns standard input file descriptor
+func Stdin() *os.File { return os.Stdin }
+
+// Stdout returns standard output file descriptor
+func Stdout() *os.File { return os.Stdout }
+
+// TerminalSize returns terminal size in columns and rows
 func TerminalSize(f *os.File) (int, int, error) {
 	return term.GetSize(int(f.Fd()))
 }
