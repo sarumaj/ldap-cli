@@ -58,6 +58,7 @@ Sasl
 schollz
 secring
 selfupdate
+SETATTR
 sirupsen
 SMARTCARD
 Subkey

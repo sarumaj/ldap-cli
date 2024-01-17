@@ -7,13 +7,28 @@ import (
 	survey "github.com/AlecAivazis/survey/v2"
 )
 
+const (
+	KEYCTL_PERM_VIEW    = uint32(1 << 0)
+	KEYCTL_PERM_READ    = uint32(1 << 1)
+	KEYCTL_PERM_WRITE   = uint32(1 << 2)
+	KEYCTL_PERM_SEARCH  = uint32(1 << 3)
+	KEYCTL_PERM_LINK    = uint32(1 << 4)
+	KEYCTL_PERM_SETATTR = uint32(1 << 5)
+	KEYCTL_PERM_ALL     = uint32((1 << 6) - 1)
+
+	KEYCTL_PERM_OTHERS  = 0
+	KEYCTL_PERM_GROUP   = 8
+	KEYCTL_PERM_USER    = 16
+	KEYCTL_PERM_PROCESS = 24
+)
+
 // Config is the configuration for the keyring
 var Config = keyring.Config{
 	AllowedBackends:                keyring.AvailableBackends(),
 	FileDir:                        "~/.config/ldap-cli",
 	FilePasswordFunc:               passwordFunc,
 	KeyCtlScope:                    "user",
-	KeyCtlPerm:                     0, // keep default permissions
+	KeyCtlPerm:                     (KEYCTL_PERM_ALL << KEYCTL_PERM_USER) | (KEYCTL_PERM_ALL << KEYCTL_PERM_PROCESS),
 	KeychainAccessibleWhenUnlocked: true,
 	KeychainName:                   "ldap-cli",
 	KeychainPasswordFunc:           passwordFunc,
