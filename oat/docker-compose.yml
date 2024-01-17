@@ -18,6 +18,7 @@ services:
     networks:
       - openldap
 
+  # To run ldapadmin, use the following command:
   # docker-compose --profile ldapadmin up
   phpldapadmin:
     profiles:

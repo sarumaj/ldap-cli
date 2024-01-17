@@ -87,6 +87,7 @@ func Dial(opts *DialOptions) (conn net.Conn, err error) {
 
 	}
 
+	// switch over to TLS if necessary
 	if opts.URL.Scheme == LDAPS {
 		if opts.TLSConfig == nil {
 			opts.TLSConfig = &tls.Config{}

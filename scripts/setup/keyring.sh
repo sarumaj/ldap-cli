@@ -20,10 +20,10 @@ gpg --command-fd 0 --no-tty --batch --gen-key <<- EOF
 	Expire-Date: 0
 	%no-ask-passphrase
 	%no-protection
-	%pubring pubring.gpg
-	%secring secring.gpg
 	%commit
 	%echo done
 EOF
 
 pass init "$(gpg --list-keys --with-colons | head -n 5 | awk -F: '/^pub:/ { print $5 }')"
+
+git log --oneline --decorate --graph --all -n 10
