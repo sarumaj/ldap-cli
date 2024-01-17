@@ -52,8 +52,7 @@ jobs:
             %echo done
           EOF
           } && \
-          gpg --list-keys && \
-          pass init $(gpg --list-keys --with-colons | head -n 5 | awk -F: '/^pub:/ { print $5 }')
+          pass init "$(gpg --list-keys --with-colons | head -n 5 | awk -F: '/^pub:/ { print $5 }')"
           
       - name: Install go
         uses: actions/setup-go@v4

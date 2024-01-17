@@ -60,7 +60,7 @@ var Logger = func() *logrus.Logger {
 	return l
 }()
 
-// Log fields in JSON format mode
+// Log fields in JSON format mode (default)
 type Fields = logrus.Fields
 
 // Produce log fields describing a bind request
@@ -68,21 +68,25 @@ func GetFieldsForBind(bindParameters *auth.BindParameters, dialOptions *auth.Dia
 	fields := make(logrus.Fields)
 	if bindParameters == nil {
 		fields["bindParameters"] = nil
+
 	} else {
 		fields["bindParameters.AuthType"] = bindParameters.AuthType.String()
 		fields["bindParameters.Domain"] = bindParameters.Domain
 		fields["bindParameters.User"] = bindParameters.User
 		fields["bindParameters.PasswordProvided"] = len(bindParameters.Password) > 0
+
 	}
 
 	if dialOptions == nil {
 		fields["dialOptions"] = nil
+
 	} else {
 		fields["dialOptions.MaxRetries"] = dialOptions.MaxRetries
 		fields["dialOptions.SizeLimit"] = dialOptions.SizeLimit
 		fields["dialOptions.TLSEnabled"] = dialOptions.TLSConfig != nil && !dialOptions.TLSConfig.InsecureSkipVerify
 		fields["dialOptions.TimeLimit"] = dialOptions.TimeLimit
 		fields["dialOptions.URL"] = dialOptions.URL.String()
+
 	}
 
 	return fields
@@ -93,10 +97,12 @@ func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
 	fields := make(logrus.Fields)
 	if searchArguments == nil {
 		fields["searchArguments"] = nil
+
 	} else {
 		fields["searchArguments.Attributes"] = searchArguments.Attributes.ToAttributeList()
 		fields["searchArguments.Filter"] = searchArguments.Filter.String()
 		fields["searchArguments.Path"] = searchArguments.Path
+
 	}
 
 	return fields
