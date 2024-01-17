@@ -28,8 +28,8 @@ jobs:
           sudo apt-get install -y gnupg2 pass && \
           mkdir -p ~/.gnupg && \
           chown -R $(whoami) ~/.gnupg && \
-          chmod 600 ~/.gnupg/* && \
-          chmod 700 ~/.gnupg && \
+          find ~/.gnupg -type f -exec chmod 600 {} && \
+          find ~/.gnupg -type d -exec chmod 700 {} && \
           {
           gpg --command-fd 0 --no-tty --batch --gen-key << EOF
             %echo Generating a basic OpenPGP key
