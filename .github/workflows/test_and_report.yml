@@ -43,9 +43,11 @@ jobs:
           Expire-Date: 0
           %no-ask-passphrase
           %no-protection
+          %pubring pubring.gpg
+          %secring  secring.gpg
           %commit
           %echo done
-          EOT && \
+EOT && \
           pass init "TestUser"
           
       - name: Install go

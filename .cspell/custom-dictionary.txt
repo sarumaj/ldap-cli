@@ -49,10 +49,12 @@ pflag
 posix
 PREAUTH
 progressbar
+pubring
 rhysd
 sarumaj
 Sasl
 schollz
+secring
 selfupdate
 sirupsen
 SMARTCARD
