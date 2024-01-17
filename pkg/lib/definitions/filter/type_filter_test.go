@@ -114,7 +114,8 @@ func TestFilter(t *testing.T) {
 					`)` +
 					`(Name=test)` +
 					`(SAMAccountName=test)` +
-					`(UserPrincipalName=test)`) +
+					`(UserPrincipalName=test)` +
+					`(ObjectGuid=test)`) +
 				`)` +
 				`(MemberOf:1.2.840.113556.1.4.1941:=test#1)` +
 				`(MemberOf=test#2)`) +

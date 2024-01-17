@@ -60,7 +60,8 @@ func TestReplaceAliases(t *testing.T) {
 					`)` +
 					`(Name=12345)` +
 					`(SAMAccountName=12345)` +
-					`(UserPrincipalName=12345)`) +
+					`(UserPrincipalName=12345)` +
+					`(ObjectGuid=12345)`) +
 				`)` +
 				(`(|` +
 					`(CN=12346)` +
@@ -71,7 +72,8 @@ func TestReplaceAliases(t *testing.T) {
 					`)` +
 					`(Name=12346)` +
 					`(SAMAccountName=12346)` +
-					`(UserPrincipalName=12346)`) +
+					`(UserPrincipalName=12346)` +
+					`(ObjectGuid=12346)`) +
 				`)`) +
 				`)`},
 		{"test#9", "$BAND", string(attributes.LDAP_MATCHING_RULE_BIT_AND)},

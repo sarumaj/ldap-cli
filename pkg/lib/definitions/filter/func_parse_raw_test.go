@@ -63,7 +63,8 @@ func TestParseRaw(t *testing.T) {
 					`)` +
 					`(Name=1)` +
 					`(SAMAccountName=1)` +
-					`(UserPrincipalName=1)`) +
+					`(UserPrincipalName=1)` +
+					`(ObjectGuid=1)`) +
 				`)` +
 				(`(|` +
 					`(CN=2)` +
@@ -74,7 +75,8 @@ func TestParseRaw(t *testing.T) {
 					`)` +
 					`(Name=2)` +
 					`(SAMAccountName=2)` +
-					`(UserPrincipalName=2)`) +
+					`(UserPrincipalName=2)` +
+					`(ObjectGuid=2)`) +
 				`)`) +
 				`)`, false}},
 	} {
