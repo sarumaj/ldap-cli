@@ -32,22 +32,24 @@ jobs:
           sudo apt-get update && \
           sudo apt-get install -y gnupg2 pass && \
           mkdir -p ~/.gnupg && \
-          gpg --command-fd 0 --no-tty --batch --gen-key << EOT
-          %echo Generating a basic OpenPGP key
-          Key-Type: RSA
-          Key-Length: 2048
-          Subkey-Type: RSA
-          Subkey-Length: 2048
-          Name-Real: TestUser
-          Name-Email: user@example.com
-          Expire-Date: 0
-          %no-ask-passphrase
-          %no-protection
-          %pubring pubring.gpg
-          %secring  secring.gpg
-          %commit
-          %echo done
-EOT && \
+          {
+          gpg --command-fd 0 --no-tty --batch --gen-key << EOF
+            %echo Generating a basic OpenPGP key
+            Key-Type: RSA
+            Key-Length: 2048
+            Subkey-Type: RSA
+            Subkey-Length: 2048
+            Name-Real: TestUser
+            Name-Email: user@example.com
+            Expire-Date: 0
+            %no-ask-passphrase
+            %no-protection
+            %pubring pubring.gpg
+            %secring  secring.gpg
+            %commit
+            %echo done
+          EOF
+          } && \
           pass init "TestUser"
           
       - name: Install go
@@ -63,6 +65,7 @@ EOT && \
 
       - name: Run linters
         run: gofmt -s -d ./ && golangci-lint run -v
+        
       - name: Setup openldap mock-up
         uses: isbang/compose-action@v1.5.1
         with:

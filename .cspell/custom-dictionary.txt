@@ -19,6 +19,7 @@ extldflags
 fatih
 fernstudium
 gecos
+ghaction
 GOARCH
 goccy
 gocov
@@ -33,6 +34,7 @@ INTERDOMAIN
 isbang
 jszwec
 Keychain
+KEYCTL
 keydetails
 LDAPS
 ldflags
@@ -61,6 +63,7 @@ SMARTCARD
 Subkey
 submatch
 supererrors
+Synchronizable
 tracerr
 trimpath
 truecolor
