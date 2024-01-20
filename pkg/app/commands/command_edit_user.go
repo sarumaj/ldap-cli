@@ -46,7 +46,7 @@ func editUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent.PersistentPreRun(parent, nil)
 
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editUserPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	apputil.AskID(cmd, "user-id", &editUserFlags.id, &editFlags.searchArguments)
 
@@ -56,13 +56,13 @@ func editUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 
 	editFlags.searchArguments.Filter = filter.And(filter.IsUser(), filters...)
-	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Debug("Set")
+	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Trace("Set")
 }
 
 // Actual "run" prepares a modify request
 func editUserRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editUserRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	requests := editFlags.requests
 	entry := requests.Entries[0]
@@ -70,7 +70,7 @@ func editUserRun(cmd *cobra.Command, _ []string) {
 	if editUserFlags.password == "" {
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskLDAPDataInterchangeFormat(requests, editFlags.editor)))
 		editFlags.requests = requests
-		logger.WithField("editor", editFlags.editor).Debug("Asked")
+		logger.WithField("editor", editFlags.editor).Trace("Asked")
 
 		return
 	}
@@ -79,5 +79,5 @@ func editUserRun(cmd *cobra.Command, _ []string) {
 	requests.Entries[0] = entry
 	editFlags.requests = requests
 
-	logger.WithField("flag", "new-password").Debug("Set")
+	logger.WithField("flag", "new-password").Trace("Set")
 }

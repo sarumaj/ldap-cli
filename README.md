@@ -63,7 +63,7 @@ $ chmod +x /usr/local/bin/ldap-cli
 - [x] Interactive mode operandi
   - [x] Ask for inputs
   - [x] Utilize ANSI code sequences if available
-- [x] Support multiple output format (CSV, LDIF, YAML)
+- [x] Support multiple output formats (CSV, LDIF, YAML)
 
 ## Usage
 
@@ -88,7 +88,7 @@ $ ldap-cli --help
 >>
 >> Flags:
 >>       --auth-type string   Set authentication schema (supported: ["MD5", "NTLM", "SIMPLE", "UNAUTHENTICATED"]) (default "UNAUTHENTICATED")
->>       --debug              Set log level to debug
+>>   -v, --debug              Set log level to debug (-v for verbose, -vv for trace)
 >>       --disable-tls        Disable TLS (not recommended)
 >>       --domain string      Set domain (required for NTLM authentication schema)
 >>   -h, --help               help for ldap-cli

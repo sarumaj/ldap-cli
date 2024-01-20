@@ -8,5 +8,5 @@ import (
 // englishToTitle is a TitleCase converter for English language
 var englishToTitleNoLower = cases.Title(language.English, cases.NoLower)
 
-// Convert English words to title case (prevent lowercasing)
+// ToTitleNoLower converts a string to title case without lowercasing
 func ToTitleNoLower(in string) string { return englishToTitleNoLower.String(in) }

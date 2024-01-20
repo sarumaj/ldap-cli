@@ -61,14 +61,14 @@ func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent.PersistentPreRun(parent, nil)
 
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getUserPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	apputil.AskID(cmd, "user-id", &getUserFlags.id, &getFlags.searchArguments)
 
 	if len(getFlags.searchArguments.Attributes) == 0 {
 		getFlags.searchArguments.Attributes.Append(defaultUserGetAttributes...)
 	}
-	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
+	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Trace("Set")
 
 	var filters []filter.Filter
 	if getUserFlags.id != "" {
@@ -102,5 +102,5 @@ func getUserPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 
 	getFlags.searchArguments.Filter = filter.And(filter.IsUser(), filters...)
-	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Debug("Set")
+	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Trace("Set")
 }

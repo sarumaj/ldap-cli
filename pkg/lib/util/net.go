@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Resolve Internet Protocol address to domain name
+// LookupAddress returns the hostname for the given address
 func LookupAddress(address string) string {
 	ip, port, found := strings.Cut(strings.Trim(address, "[]"), ":")
 

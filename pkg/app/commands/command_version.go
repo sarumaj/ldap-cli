@@ -17,17 +17,15 @@ import (
 // Address of remote repository where the newest version of gh-gr is released.
 const remoteRepository = "sarumaj/ldap-cli"
 
-// Version holds the application version.
-// It gets filled automatically at build time.
-var internalVersion string
-
-// BuildDate holds the date and time at which the application was build.
-// It gets filled automatically at build time.
-var internalBuildDate string
-
 // Command options
 var versionFlags struct {
-	update bool
+	// Version holds the application version.
+	// It gets filled automatically at build time.
+	internalVersion string
+	// BuildDate holds the date and time at which the application was build.
+	// It gets filled automatically at build time.
+	internalBuildDate string
+	update            bool
 }
 
 // "version" command
@@ -47,7 +45,7 @@ var versionCmd = func() *cobra.Command {
 
 // Check app version or/and update to the latest
 func versionRun(*cobra.Command, []string) {
-	current := supererrors.ExceptFn(supererrors.W(semver.ParseTolerant(internalVersion)))
+	current := supererrors.ExceptFn(supererrors.W(semver.ParseTolerant(versionFlags.internalVersion)))
 	repository := selfupdate.ParseSlug(remoteRepository)
 	latest, found, err := selfupdate.DetectLatest(context.Background(), repository)
 
@@ -75,7 +73,7 @@ func versionRun(*cobra.Command, []string) {
 
 	}
 
-	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Version: %s", internalVersion+vSuffix))))
-	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Built at: %s", internalBuildDate))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Version: %s", versionFlags.internalVersion+vSuffix))))
+	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Built at: %s", versionFlags.internalBuildDate))))
 	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(apputil.Stdout(), apputil.PrintColors(color.CyanString, "Executable path: %s", libutil.GetExecutablePath()))))
 }

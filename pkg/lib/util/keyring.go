@@ -8,6 +8,7 @@ import (
 )
 
 // forked KEYCTL_PERM modes from github.com/99designs/keyring to make the config platform independent
+// e.g. (KEYCTL_PERM_ALL << KEYCTL_PERM_USER) | (KEYCTL_PERM_ALL << KEYCTL_PERM_PROCESS)
 const (
 	KEYCTL_PERM_VIEW = uint32(1 << iota)
 	KEYCTL_PERM_READ
@@ -26,26 +27,69 @@ const (
 )
 
 // Config is the configuration for the keyring
-var Config = keyring.Config{
-	AllowedBackends:                keyring.AvailableBackends(),
-	FileDir:                        "~/.config/ldap-cli",
-	FilePasswordFunc:               passwordFunc,
-	KeyCtlScope:                    "user",
-	KeyCtlPerm:                     (KEYCTL_PERM_ALL << KEYCTL_PERM_USER) | (KEYCTL_PERM_ALL << KEYCTL_PERM_PROCESS),
-	KeychainAccessibleWhenUnlocked: true,
-	KeychainName:                   "ldap-cli",
-	KeychainPasswordFunc:           passwordFunc,
-	KeychainSynchronizable:         false,
-	KeychainTrustApplication:       true,
-	KWalletAppID:                   "ldap-cli",
-	KWalletFolder:                  "ldap-cli",
-	LibSecretCollectionName:        "ldap-cli",
-	PassCmd:                        "pass",
-	PassDir:                        "~/.password-store",
-	PassPrefix:                     "ldap-cli.",
-	ServiceName:                    "ldap-cli",
-	WinCredPrefix:                  "ldap-cli.",
-}
+var Config = func() keyring.Config {
+	cfg := &keyring.Config{
+		AllowedBackends:                nil, // will be overwritten
+		FileDir:                        "~/.config/ldap-cli",
+		FilePasswordFunc:               passwordFunc,
+		KeyCtlScope:                    "user",
+		KeyCtlPerm:                     (KEYCTL_PERM_ALL << KEYCTL_PERM_USER) | (KEYCTL_PERM_ALL << KEYCTL_PERM_PROCESS),
+		KeychainAccessibleWhenUnlocked: true,
+		KeychainName:                   "ldap-cli",
+		KeychainPasswordFunc:           nil, // will be overwritten
+		KeychainSynchronizable:         false,
+		KeychainTrustApplication:       true,
+		KWalletAppID:                   "ldap-cli",
+		KWalletFolder:                  "ldap-cli",
+		LibSecretCollectionName:        "ldap-cli",
+		PassCmd:                        "pass",
+		PassDir:                        "~/.password-store",
+		PassPrefix:                     "ldap-cli.",
+		ServiceName:                    "ldap-cli",
+		WinCredPrefix:                  "ldap-cli.",
+	}
+
+	// avoid interactive password prompt
+	cfg.KeychainPasswordFunc = keyring.FixedStringPrompt("test")
+
+	// evaluate available backends
+	var backends []keyring.BackendType
+	for _, backend := range keyring.AvailableBackends() {
+		// skip file backend, since it is supposed to be always available
+		if backend == keyring.FileBackend {
+			continue
+		}
+
+		cfg.AllowedBackends = []keyring.BackendType{backend}
+		// try to open the keyring
+		ring, err := keyring.Open(*cfg)
+		if err != nil {
+			continue
+		}
+
+		// try to set
+		if err := ring.Set(keyring.Item{Key: "test", Data: []byte("test")}); err != nil {
+			continue
+		}
+
+		// cleanup
+		_ = ring.Remove("test")
+
+		// bakcend is available
+		backends = append(backends, backend)
+	}
+
+	// add file backend as last resort
+	backends = append(backends, keyring.FileBackend)
+
+	// set evaluated backends
+	cfg.AllowedBackends = backends
+
+	// reenable interactive password prompt
+	cfg.KeychainPasswordFunc = passwordFunc
+
+	return *cfg
+}()
 
 // GetFromKeyring retrieves a value from the keyring
 func GetFromKeyring(key string) (string, error) {
@@ -96,10 +140,20 @@ func RemoveFromKeyRing(key string) error {
 
 // SetToKeyring sets a value to the keyring
 func SetToKeyring(key, value string) error {
+	if value == "" {
+		return nil
+	}
+
 	ring, err := keyring.Open(Config)
 	if err != nil {
 		return err
 	}
 
-	return ring.Set(keyring.Item{Key: key, Data: []byte(value), Label: "LDAP CLI"})
+	return ring.Set(keyring.Item{
+		Key:                         key,
+		Data:                        []byte(value),
+		Label:                       "LDAP CLI",
+		KeychainNotTrustApplication: !Config.KeychainTrustApplication,
+		KeychainNotSynchronizable:   !Config.KeychainSynchronizable,
+	})
 }

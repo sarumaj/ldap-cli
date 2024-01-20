@@ -57,21 +57,21 @@ var getCmd = func() *cobra.Command {
 // It will bind to a domain controller and execute the search query
 func getChildCommandRun(cmd *cobra.Command, args []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getChildCommandRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
-	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
+	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Trace("Connecting")
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
 		&rootFlags.bindParameters,
 		&rootFlags.dialOptions,
 	)))
 
-	logger.WithFields(apputil.GetFieldsForSearch(&getFlags.searchArguments)).Debug("Querying")
+	logger.WithFields(apputil.GetFieldsForSearch(&getFlags.searchArguments)).Trace("Querying")
 	results, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, getFlags.searchArguments, progressbar.NewOptions(-1,
 		progressbar.OptionSetWriter(apputil.Stdout()),
 		progressbar.OptionEnableColorCodes(apputil.IsColorEnabled()),
 	))))
 
-	logger.WithField("format", getFlags.format).WithField("output", getFlags.output).Debug("Rendering")
+	logger.WithField("format", getFlags.format).WithField("output", getFlags.output).Trace("Rendering")
 	if getFlags.output == "stdout" {
 		supererrors.Except(apputil.Flush(results, requests, getFlags.format, apputil.Stdout()))
 	} else {
@@ -89,24 +89,24 @@ func getPersistentPreRun(cmd *cobra.Command, args []string) {
 	parent.PersistentPreRun(parent, args)
 
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	if getFlags.searchArguments.Path == "" {
 		getFlags.searchArguments.Path = rootFlags.dialOptions.URL.ToBaseDirectoryPath()
-		logger.WithField("searchArguments.Path", getFlags.searchArguments.Path).Debug("Set")
+		logger.WithField("searchArguments.Path", getFlags.searchArguments.Path).Trace("Set")
 	}
 
 	if len(getFlags.selectAttributes) > 0 {
 		selected := supererrors.ExceptFn(supererrors.W(libutil.RebuildStringSliceFlag(getFlags.selectAttributes, ',')))
 		getFlags.searchArguments.Attributes = attributes.LookupMany(false, selected...)
-		logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
+		logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Trace("Set")
 	}
 }
 
 // Runs "get" command in interactive mode by asking user to provide values for command parameters
 func getRun(cmd *cobra.Command, args []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, getUserCmd)))
 	logger = logger.WithField("child", child.Name())
@@ -115,11 +115,11 @@ func getRun(cmd *cobra.Command, args []string) {
 
 	case getCustomCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "filter", &args, false, "")))
-		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Debug("Asked")
+		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Trace("Asked")
 
 	case getGroupCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false, "")))
-		logger.WithFields(apputil.Fields{"flag": "group-id", "args": args}).Debug("Asked")
+		logger.WithFields(apputil.Fields{"flag": "group-id", "args": args}).Trace("Asked")
 
 	case getUserCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false, "")))
@@ -128,7 +128,7 @@ func getRun(cmd *cobra.Command, args []string) {
 		if supererrors.ExceptFn(supererrors.W(apputil.AskMultiline(child, "member-of", &args))) {
 			_ = supererrors.ExceptFn(supererrors.W(apputil.AskBool(child, "recursively", &args)))
 		}
-		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "enabled", "expired", "member-of", "recursively"}, "args": args}).Debug("Asked")
+		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "enabled", "expired", "member-of", "recursively"}, "args": args}).Trace("Asked")
 
 	}
 
@@ -136,10 +136,10 @@ func getRun(cmd *cobra.Command, args []string) {
 	_ = supererrors.ExceptFn(supererrors.W(apputil.AskStrings(child, "select", options, defaults, &args)))
 	_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "path", &args, false, rootFlags.dialOptions.URL.ToBaseDirectoryPath())))
 	_ = supererrors.ExceptFn(supererrors.W(apputil.AskStrings(child, "format", []string{"csv", "default", "ldif", "yaml"}, []string{"default"}, &args)))
-	logger.WithFields(apputil.Fields{"flags": []string{"select", "path", "format"}, "args": args}).Debug("Asked")
+	logger.WithFields(apputil.Fields{"flags": []string{"select", "path", "format"}, "args": args}).Trace("Asked")
 
 	supererrors.Except(child.ParseFlags(args))
-	logger.Debug("Parsed")
+	logger.Trace("Parsed")
 
 	child.PersistentPreRun(child, args)
 	child.Run(child, args)

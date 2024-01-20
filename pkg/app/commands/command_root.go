@@ -22,7 +22,7 @@ var rootFlags struct {
 	address        string `flag:"url"`
 	authType       string `flag:"auth-type"`
 	bindParameters auth.BindParameters
-	debug          bool `flag:"Debug"`
+	debug          int `flag:"Debug"`
 	dialOptions    auth.DialOptions
 	disableTLS     bool `flag:"disable-tls"`
 }
@@ -35,11 +35,11 @@ var rootCmd = func() *cobra.Command {
 		PersistentPreRun: rootPersistentPreRun,
 		Run:              rootRun,
 		Example:          `ldap-cli --user "DOMAIN\\user" --password "password" --url "ldaps://example.com:636" <command>`,
-		Version:          internalVersion,
+		Version:          versionFlags.internalVersion,
 	}
 
 	flags := rootCmd.PersistentFlags()
-	flags.BoolVar(&rootFlags.debug, "debug", false, "Set log level to debug")
+	flags.CountVarP(&rootFlags.debug, "debug", "v", "Set log level to debug (-v for verbose, -vv for trace)")
 
 	// dial options
 	flags.UintVar(&rootFlags.dialOptions.MaxRetries, "max-retries", 3, "Specify number of retries")
@@ -62,18 +62,30 @@ var rootCmd = func() *cobra.Command {
 // Runs always before all executions (inherited by child commands provided).
 // Intelligently sets bind request options
 func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
-	if rootFlags.debug {
+	if rootFlags.debug > 1 {
+		apputil.Logger.SetLevel(logrus.TraceLevel)
+	}
+
+	if rootFlags.debug > 0 {
 		apputil.Logger.SetLevel(logrus.DebugLevel)
 	}
 
+	apputil.Logger.Debugf(
+		"Version: %s, build date: %s, executable path: %s, keyring backends: %v",
+		versionFlags.internalVersion,
+		versionFlags.internalBuildDate,
+		libutil.GetExecutablePath(),
+		libutil.Config.AllowedBackends,
+	)
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	_ = rootFlags.dialOptions.SetURL(rootFlags.address)
-	logger.WithField("dialOptions.URL", rootFlags.dialOptions.URL.String()).Debug("Set")
+	logger.WithField("dialOptions.URL", rootFlags.dialOptions.URL.String()).Trace("Set")
 	if rootFlags.dialOptions.URL.Scheme == auth.LDAPS {
 		_ = rootFlags.dialOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: rootFlags.disableTLS})
-		logger.WithField("dialOptions.TLSConfig.InsecureSkipVerify", rootFlags.dialOptions.TLSConfig.InsecureSkipVerify).Debug("Set")
+		logger.WithField("dialOptions.TLSConfig.InsecureSkipVerify", rootFlags.dialOptions.TLSConfig.InsecureSkipVerify).Trace("Set")
 	}
 
 	switch _ = rootFlags.bindParameters.SetType(auth.TypeFromString(rootFlags.authType)); {
@@ -83,27 +95,27 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 			rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
 
 		_ = rootFlags.bindParameters.SetType(auth.SIMPLE)
-		logger.WithField("bindParameters.Type", rootFlags.bindParameters.AuthType.String()).Debug("Set")
+		logger.WithField("bindParameters.Type", rootFlags.bindParameters.AuthType.String()).Trace("Set")
 
 	case
 		len(rootFlags.bindParameters.User)*len(rootFlags.bindParameters.Password)*len(rootFlags.bindParameters.Domain) != 0 &&
 			rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED:
 
 		_ = rootFlags.bindParameters.SetType(auth.NTLM)
-		logger.WithField("bindParameters.Type", rootFlags.bindParameters.AuthType.String()).Debug("Set")
+		logger.WithField("bindParameters.Type", rootFlags.bindParameters.AuthType.String()).Trace("Set")
 
 	}
 
-	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Options")
+	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Trace("Options")
 }
 
 // Runs in interactive mode by asking user to provide values for app parameters
 func rootRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	if err := rootFlags.bindParameters.FromKeyring(); err != nil {
-		apputil.Logger.Debugf("Failed to access keyring: %v", err)
+		apputil.Logger.Warnf("Failed to access keyring: %v", err)
 	}
 
 	if rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED {
@@ -151,9 +163,7 @@ func rootRun(cmd *cobra.Command, _ []string) {
 // Execute executes the root command.
 // For test purpose, command arguments can be provided
 func Execute(version, buildDate string, args ...string) {
-	internalVersion, internalBuildDate = version, buildDate
-
-	apputil.Logger.Debugf("Version: %s, build date: %s, executable path: %s", internalVersion, internalBuildDate, libutil.GetExecutablePath())
+	versionFlags.internalVersion, versionFlags.internalBuildDate = version, buildDate
 
 	if len(args) > 0 {
 		rootCmd.SetArgs(args)

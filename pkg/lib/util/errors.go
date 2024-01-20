@@ -14,6 +14,7 @@ var ErrNetworkFailure = errors.New("network error")
 var ErrNothingReturned = errors.New("nothing returned")
 var ErrUbiquitousResults = errors.New("ubiquitous response")
 
+// errorMapping maps LDAP error codes to more general errors
 var errorMapping = map[uint16]error{
 	ldap.LDAPResultSuccess:                            nil,
 	ldap.LDAPResultOperationsError:                    ErrOperationFailed,

@@ -52,7 +52,7 @@ func editGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent.PersistentPreRun(parent, nil)
 
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editGroupPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	apputil.AskID(cmd, "group-id", &editGroupFlags.id, &editFlags.searchArguments)
 
@@ -74,13 +74,13 @@ func editGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 
 	editFlags.searchArguments.Filter = filter.And(filter.IsGroup(), filters...)
-	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Debug("Set")
+	logger.WithField("searchArguments.Filter", editFlags.searchArguments.Filter.String()).Trace("Set")
 }
 
 // Actual "run" prepares a modify request
 func editGroupRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editGroupRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	requests := editFlags.requests
 	entry := requests.Entries[0]
@@ -96,7 +96,7 @@ func editGroupRun(cmd *cobra.Command, _ []string) {
 	if len(request.Changes) == 0 {
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskLDAPDataInterchangeFormat(requests, editFlags.editor)))
 		editFlags.requests = requests
-		logger.WithField("editor", editFlags.editor).Debug("Asked")
+		logger.WithField("editor", editFlags.editor).Trace("Asked")
 
 		return
 	}
@@ -104,5 +104,5 @@ func editGroupRun(cmd *cobra.Command, _ []string) {
 	entry.Modify = request
 	requests.Entries[0] = entry
 	editFlags.requests = requests
-	logger.WithField("flag", "modify-member").Debug("Set")
+	logger.WithField("flag", "modify-member").Trace("Set")
 }

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Get path of the executable that started current gr process.
+// GetExecutablePath returns the path to the current executable
 func GetExecutablePath() string {
 	executablePath, err := os.Executable()
 	if err != nil {
@@ -22,7 +22,7 @@ func GetExecutablePath() string {
 	return evaluatedPath
 }
 
-// Parse string slice or string array flags by using custom csv reader
+// RebuildStringSliceFlag rebuilds a string slice flag from a string by using custom CSV reader
 func RebuildStringSliceFlag(flags []string, delimiter rune) ([]string, error) {
 	in := strings.Join(flags, string(delimiter))
 	reader := csv.NewReader(strings.NewReader(in))

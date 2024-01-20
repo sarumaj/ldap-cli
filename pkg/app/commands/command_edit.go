@@ -50,15 +50,15 @@ var editCmd = func() *cobra.Command {
 // Runs prior to "run" and executes search query for a child command
 func editChildCommandPreRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editChildCommandPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
-	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
+	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Trace("Connecting")
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
 		&rootFlags.bindParameters,
 		&rootFlags.dialOptions,
 	)))
 
-	logger.WithFields(apputil.GetFieldsForSearch(&editFlags.searchArguments)).Debug("Querying")
+	logger.WithFields(apputil.GetFieldsForSearch(&editFlags.searchArguments)).Trace("Querying")
 	_, requests := supererrors.ExceptFn2(supererrors.W2(client.Search(conn, editFlags.searchArguments, progressbar.NewOptions(-1,
 		progressbar.OptionSetWriter(apputil.Stdout()),
 		progressbar.OptionEnableColorCodes(apputil.IsColorEnabled()),
@@ -78,9 +78,9 @@ func editChildCommandPreRun(cmd *cobra.Command, _ []string) {
 // Runs after a "run" and executes a modify request for a child command
 func editChildCommandPostRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editChildCommandPostRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
-	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Debug("Connecting")
+	logger.WithFields(apputil.GetFieldsForBind(&rootFlags.bindParameters, &rootFlags.dialOptions)).Trace("Connecting")
 	conn := supererrors.ExceptFn(supererrors.W(auth.Bind(
 		&rootFlags.bindParameters,
 		&rootFlags.dialOptions,
@@ -88,17 +88,17 @@ func editChildCommandPostRun(cmd *cobra.Command, _ []string) {
 
 	for i, entry := range editFlags.requests.Entries {
 		if entry.Add != nil {
-			logger.WithField(fmt.Sprintf("requests.Entries[%d].Add", i), entry.Add).Debug("Creating")
+			logger.WithField(fmt.Sprintf("requests.Entries[%d].Add", i), entry.Add).Trace("Creating")
 			supererrors.Except(conn.Add(entry.Add))
 		}
 
 		if entry.Del != nil {
-			logger.WithField(fmt.Sprintf("requests.Entries[%d].Del", i), entry.Del).Debug("Applying")
+			logger.WithField(fmt.Sprintf("requests.Entries[%d].Del", i), entry.Del).Trace("Applying")
 			supererrors.Except(conn.Del(entry.Del))
 		}
 
 		if entry.Modify != nil {
-			logger.WithField(fmt.Sprintf("requests.Entries[%d].Modify", i), entry.Modify).Debug("Applying")
+			logger.WithField(fmt.Sprintf("requests.Entries[%d].Modify", i), entry.Modify).Trace("Applying")
 			supererrors.Except(conn.Modify(entry.Modify))
 		}
 	}
@@ -112,22 +112,22 @@ func editPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent.PersistentPreRun(parent, nil)
 
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	if editFlags.searchArguments.Path == "" {
 		editFlags.searchArguments.Path = rootFlags.dialOptions.URL.ToBaseDirectoryPath()
-		logger.WithField("searchArguments.Path", editFlags.searchArguments.Path).Debug("Set")
+		logger.WithField("searchArguments.Path", editFlags.searchArguments.Path).Trace("Set")
 	}
 
 	// select all properties, even the unregistered ones
 	editFlags.searchArguments.Attributes = attributes.LookupMany(false, "*")
-	logger.WithField("searchArguments.attributes", editFlags.searchArguments.Attributes).Debug("Set")
+	logger.WithField("searchArguments.attributes", editFlags.searchArguments.Attributes).Trace("Set")
 }
 
 // Runs in an interactive mode by asking user to provide options for the command
 func editRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "editRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	child := supererrors.ExceptFn(supererrors.W(apputil.AskCommand(cmd, editGroupCmd)))
 	logger = logger.WithField("child", child.Name())
@@ -137,7 +137,7 @@ func editRun(cmd *cobra.Command, _ []string) {
 
 	case editCustomCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "filter", &args, false, "")))
-		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Debug("Asked")
+		logger.WithFields(apputil.Fields{"flag": "filter", "args": args}).Trace("Asked")
 
 	case editGroupCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "group-id", &args, false, "")))
@@ -151,22 +151,22 @@ func editRun(cmd *cobra.Command, _ []string) {
 			supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "member-attribute", &args, false, attributes.Members().String())))
 		}
 
-		logger.WithFields(apputil.Fields{"flags": []string{"group-id", "add-member", "remove-member", "replace-member"}, "args": args}).Debug("Asked")
+		logger.WithFields(apputil.Fields{"flags": []string{"group-id", "add-member", "remove-member", "replace-member"}, "args": args}).Trace("Asked")
 
 	case editUserCmd:
 		_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "user-id", &args, false, "")))
 		if supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "new-password", &args, true, ""))) {
 			_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "password-attribute", &args, false, attributes.UnicodePassword().String())))
 		}
-		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "new-password", "password-attribute"}, "args": args}).Debug("Asked")
+		logger.WithFields(apputil.Fields{"flags": []string{"user-id", "new-password", "password-attribute"}, "args": args}).Trace("Asked")
 
 	}
 
 	_ = supererrors.ExceptFn(supererrors.W(apputil.AskString(child, "path", &args, false, rootFlags.dialOptions.URL.ToBaseDirectoryPath())))
-	logger.WithFields(apputil.Fields{"flag": "path", "args": args}).Debug("Asked")
+	logger.WithFields(apputil.Fields{"flag": "path", "args": args}).Trace("Asked")
 
 	supererrors.Except(child.ParseFlags(args))
-	logger.Debug("Parsed")
+	logger.Trace("Parsed")
 
 	child.PersistentPreRun(child, args)
 	child.PreRun(child, args)

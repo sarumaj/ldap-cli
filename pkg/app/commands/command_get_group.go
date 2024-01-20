@@ -53,14 +53,14 @@ func getGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent.PersistentPreRun(parent, nil)
 
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getGroupPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	apputil.AskID(cmd, "group-id", &getGroupFlags.id, &getFlags.searchArguments)
 
 	if len(getFlags.searchArguments.Attributes) == 0 {
 		getFlags.searchArguments.Attributes.Append(defaultGroupGetAttributes...)
 	}
-	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
+	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Trace("Set")
 
 	var filters []filter.Filter
 	if getGroupFlags.id != "" {
@@ -68,5 +68,5 @@ func getGroupPersistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 
 	getFlags.searchArguments.Filter = filter.And(filter.IsGroup(), filters...)
-	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Debug("Set")
+	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Trace("Set")
 }

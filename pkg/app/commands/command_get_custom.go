@@ -1,11 +1,8 @@
 package commands
 
 import (
-	"fmt"
-
 	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
 	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -31,8 +28,7 @@ var getCustomCmd = func() *cobra.Command {
 	getCustomCmd := &cobra.Command{
 		Use:   "custom",
 		Short: "Get arbitrary directory object(s)",
-		Long: "Get  arbitrary directory object(s).\n\n" +
-			"Filter option supports following interpolations:\n",
+		Long:  "Get  arbitrary directory object(s).\n\n",
 		Example: "ldap-cli --user \"DOMAIN\\\\user\" --password \"password\" --url \"ldaps://example.com:636\" " +
 			"get --path \"DC=example,DC=com\" --select \"sAmAccountName,AccountExpires\" " +
 			"custom --filter \"(&(cn=commonName)(memberof:${RECURSIVE}:=groupName))\"",
@@ -40,9 +36,7 @@ var getCustomCmd = func() *cobra.Command {
 		Run:              getChildCommandRun,
 	}
 
-	for _, alias := range filter.ListAliases() {
-		getCustomCmd.Long += fmt.Sprintf(" - %-24s: %s\n", alias.String(), alias.Substitution(alias.Parameters))
-	}
+	apputil.HelpAliases(&getCustomCmd.Long)
 
 	flags := getCustomCmd.Flags()
 	flags.StringVar(&getCustomFlags.filterString, "filter", "", "Provide custom LDAP query filter")
@@ -56,13 +50,13 @@ func getCustomPersistentPreRun(cmd *cobra.Command, _ []string) {
 	parent.PersistentPreRun(parent, nil)
 
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "getCustomPersistentPreRun"})
-	logger.Debug("Executing")
+	logger.Trace("Executing")
 
 	if len(getFlags.searchArguments.Attributes) == 0 {
 		getFlags.searchArguments.Attributes.Append(defaultCustomGetAttributes...)
 	}
-	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Debug("Set")
+	logger.WithField("searchArguments.Attributes", getFlags.searchArguments.Attributes).Trace("Set")
 
 	apputil.AskFilterString(cmd, "filter", &getCustomFlags.filterString, &getFlags.searchArguments)
-	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Debug("Set")
+	logger.WithField("searchArguments.Filter", getFlags.searchArguments.Filter.String()).Trace("Set")
 }

@@ -14,7 +14,7 @@ type ValidatorInterface interface {
 	IsValid() bool
 }
 
-// sync.Pool is a pool of objects that may be individually saved and retrieved (simpleton approach)
+// validate is a pool of validator(s) that may be individually saved and retrieved (simpleton approach)
 var validate = sync.Pool{New: func() any {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
