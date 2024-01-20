@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"reflect"
 
 	keyring "github.com/99designs/keyring"
 	survey "github.com/AlecAivazis/survey/v2"
@@ -112,9 +113,10 @@ func passwordFunc(s string) (string, error) {
 	prompt := &survey.Password{Message: "Please, provide a password to secure your credentials"}
 	err := survey.AskOne(prompt, &got, survey.WithValidator(survey.ComposeValidators(
 		survey.Required,
-		func(ans interface{}) error {
-			if str, ok := ans.(string); !ok || len(str) < 12 {
-				return fmt.Errorf("password must be at least 12 characters long")
+		func(ans any) error {
+			if reflect.Indirect(reflect.ValueOf(ans)).Len() < 12 {
+				//lint:ignore ST1005 this error message should render as capitalized
+				return fmt.Errorf("Password must be at least 12 characters long")
 			}
 
 			return nil
