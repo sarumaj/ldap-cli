@@ -7,7 +7,7 @@ import (
 
 func TestGetExecutablePath(t *testing.T) {
 	got := GetExecutablePath()
-	if got == "unknown" {
+	if got == "" {
 		t.Errorf(`GetExecutablePath() failed: got : %q`, got)
 	}
 }
@@ -31,6 +31,7 @@ func TestRebuildStringSliceFlag(t *testing.T) {
 		{"test#1",
 			args{[]string{`test#1;test#2`, `"test#3;test#4";test#5;`}, ';'},
 			want{[]string{`test#1`, `test#2`, `test#3;test#4`, `test#5`}, false}},
+		{"test#2", args{}, want{nil, true}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := RebuildStringSliceFlag(tt.args.flags, tt.args.delimiter)

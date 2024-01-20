@@ -11,6 +11,10 @@ func TestKeyringFlow(t *testing.T) {
 		t.Errorf(`SetToKeyring("test", "12345") failed: %v`, err)
 	}
 
+	if err := SetToKeyring("nothing", ""); err != nil {
+		t.Errorf(`SetToKeyring("nothing", "") failed: %v`, err)
+	}
+
 	got, err := GetFromKeyring("test")
 	if err != nil {
 		t.Errorf(`GetFromKeyring("test") failed: %v`, err)
