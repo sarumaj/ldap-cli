@@ -195,7 +195,7 @@ $ ldap-cli \
 > member: CN=Musterfrau Ulrike (12347),OU=Users,DC=example,DC=com
 ```
 
-### Object alternation
+#### Object alternation
 
 Reuse credentials from keyring and add group member:
 
