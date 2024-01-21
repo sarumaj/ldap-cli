@@ -76,7 +76,7 @@ var Config = func() keyring.Config {
 		// cleanup
 		_ = ring.Remove("test")
 
-		// bakcend is available
+		// backend is available
 		backends = append(backends, backend)
 	}
 

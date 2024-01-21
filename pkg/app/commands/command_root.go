@@ -78,6 +78,10 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 		libutil.Config.AllowedBackends,
 	)
 
+	if err := rootFlags.bindParameters.FromKeyring(); err != nil {
+		apputil.Logger.Debugf("Failed to access keyring: %v", err)
+	}
+
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootPersistentPreRun"})
 	logger.Trace("Executing")
 
@@ -113,10 +117,6 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 func rootRun(cmd *cobra.Command, _ []string) {
 	logger := apputil.Logger.WithFields(apputil.Fields{"command": cmd.CommandPath(), "step": "rootRun"})
 	logger.Trace("Executing")
-
-	if err := rootFlags.bindParameters.FromKeyring(); err != nil {
-		apputil.Logger.Warnf("Failed to access keyring: %v", err)
-	}
 
 	if rootFlags.bindParameters.AuthType == auth.UNAUTHENTICATED {
 		var confirm bool

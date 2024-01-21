@@ -25,5 +25,3 @@ gpg --command-fd 0 --no-tty --batch --gen-key <<- EOF
 EOF
 
 pass init "$(gpg --list-keys --with-colons | head -n 5 | awk -F: '/^pub:/ { print $5 }')"
-
-git log --oneline --decorate --graph --all -n 10

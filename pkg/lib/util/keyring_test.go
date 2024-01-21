@@ -1,11 +1,16 @@
 package util
 
 import (
+	"os/exec"
 	"testing"
 )
 
 func TestKeyringFlow(t *testing.T) {
 	SkipOAT(t)
+
+	if _, err := exec.LookPath(Config.PassCmd); err != nil {
+		t.Skipf("pass keyring not found: %v", err)
+	}
 
 	if err := SetToKeyring("test", "12345"); err != nil {
 		t.Errorf(`SetToKeyring("test", "12345") failed: %v`, err)

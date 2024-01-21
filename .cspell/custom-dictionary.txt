@@ -42,9 +42,12 @@ LDIF
 libutil
 logrus
 moshable
+Musterfrau
+Mustermann
 netgo
 NOTREQD
 NTLM
+operatorvalue
 osusergo
 paambaati
 pflag
@@ -56,6 +59,8 @@ rhysd
 sarumaj
 Sasl
 schollz
+secretpassword
+secretuser
 secring
 selfupdate
 SETATTR
@@ -68,6 +73,7 @@ Synchronizable
 tracerr
 trimpath
 truecolor
+Ulrike
 uncolorize
 Unhexify
 Unpatch
