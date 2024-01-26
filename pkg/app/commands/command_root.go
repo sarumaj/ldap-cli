@@ -10,9 +10,9 @@ import (
 	survey "github.com/AlecAivazis/survey/v2"
 	terminal "github.com/AlecAivazis/survey/v2/terminal"
 	supererrors "github.com/sarumaj/go-super/errors"
-	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
-	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
+	auth "github.com/sarumaj/ldap-cli/v2/pkg/lib/auth"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 	logrus "github.com/sirupsen/logrus"
 	cobra "github.com/spf13/cobra"
 )

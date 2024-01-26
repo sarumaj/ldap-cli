@@ -3,7 +3,7 @@ package util
 import (
 	"fmt"
 
-	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
+	filter "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/filter"
 )
 
 func HelpAliases(msg *string) {

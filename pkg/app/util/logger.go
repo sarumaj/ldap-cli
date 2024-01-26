@@ -7,8 +7,8 @@ import (
 
 	color "github.com/fatih/color"
 	supererrors "github.com/sarumaj/go-super/errors"
-	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
-	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
+	auth "github.com/sarumaj/ldap-cli/v2/pkg/lib/auth"
+	client "github.com/sarumaj/ldap-cli/v2/pkg/lib/client"
 	logrus "github.com/sirupsen/logrus"
 	tracerr "github.com/ztrue/tracerr"
 )

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"bou.ke/monkey"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
 )
 
 func TestFilter(t *testing.T) {

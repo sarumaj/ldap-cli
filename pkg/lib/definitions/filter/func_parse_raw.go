@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 // validSimpleFilterRegex matches a simple LDAP filter (RFC 4515)

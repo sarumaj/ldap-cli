@@ -1,8 +1,8 @@
 package commands
 
 import (
-	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
 	cobra "github.com/spf13/cobra"
 )
 

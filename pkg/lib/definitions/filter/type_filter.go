@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	ldap "github.com/go-ldap/ldap/v3"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 // complexFilterSyntax is used to identify complex filters (internal agreement)

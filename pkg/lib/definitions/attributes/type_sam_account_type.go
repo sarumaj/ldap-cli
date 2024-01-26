@@ -1,6 +1,6 @@
 package attributes
 
-// https://docs.microsoft.com/en-us/windows/win32/adschema/a-samaccounttype
+// sAMaccountName implementation corresponding to: [https://docs.microsoft.com/en-us/windows/win32/adschema/a-samaccounttype].
 const (
 	SAM_ACCOUNT_TYPE_DOMAIN_OBJECT             FlagSAMAccountType = 0x00000000
 	SAM_ACCOUNT_TYPE_GROUP_OBJECT              FlagSAMAccountType = 0x10000000
@@ -16,6 +16,7 @@ const (
 	SAM_ACCOUNT_TYPE_ACCOUNT_TYPE_MAX          FlagSAMAccountType = 0x7FFFFFFF
 )
 
+// samAccountTypeToString is a map of SAM account types to their string representation (multi-valued)
 var samAccountTypeToString = map[FlagSAMAccountType][]string{
 	SAM_ACCOUNT_TYPE_DOMAIN_OBJECT:             {"DOMAIN_OBJECT"},
 	SAM_ACCOUNT_TYPE_GROUP_OBJECT:              {"GROUP_OBJECT"},

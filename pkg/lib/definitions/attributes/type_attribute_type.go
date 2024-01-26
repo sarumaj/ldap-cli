@@ -1,5 +1,6 @@
 package attributes
 
+// Possible values for the Type attribute
 const (
 	TypeBool               Type = "Bool"
 	TypeDecimal            Type = "Decimal"

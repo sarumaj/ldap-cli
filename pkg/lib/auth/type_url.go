@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 // validURLRegex is a regex to validate URL

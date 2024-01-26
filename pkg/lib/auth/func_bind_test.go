@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	defaults "github.com/creasty/defaults"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 func TestBind(t *testing.T) {

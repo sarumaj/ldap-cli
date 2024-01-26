@@ -2,11 +2,11 @@ package commands
 
 import (
 	supererrors "github.com/sarumaj/go-super/errors"
-	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
-	client "github.com/sarumaj/ldap-cli/pkg/lib/client"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
+	client "github.com/sarumaj/ldap-cli/v2/pkg/lib/client"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	filter "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/filter"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 	cobra "github.com/spf13/cobra"
 )
 

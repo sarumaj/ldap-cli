@@ -3,8 +3,8 @@ package filter
 import (
 	"fmt"
 
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 // ByID returns a filter that matches an object by its ID (CN, DN, GUID, SAN, UPN, Name or DisplayName)

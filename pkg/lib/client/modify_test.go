@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	auth "github.com/sarumaj/ldap-cli/v2/pkg/lib/auth"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 func TestModifyGroupMembersRequest(t *testing.T) {
