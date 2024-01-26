@@ -34,7 +34,7 @@ $ git clone https://github.com/sarumaj/ldap-cli
 $ cd ldap-cli
 $ go build \
     -trimpath \
-    -ldflags="-s -w -X 'main.Version=$(git describe --tags --abbrev=0)' -X 'main.BuildDate=$(date -u "+%Y-%m-%d %H:%M:%S UTC")' -extldflags=-static" \
+    -ldflags="-s -w -X 'main.Version=$(git describe --tags $(git rev-list --tags --max-count=1))' -X 'main.BuildDate=$(date -u "+%Y-%m-%d %H:%M:%S UTC")' -extldflags=-static" \
     -tags="osusergo netgo static_build" \
     -o /usr/local/bin/ldap-cli \
     "cmd/ldap-cli/main.go"
