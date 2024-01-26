@@ -3,6 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/sarumaj/ldap-cli)](https://goreportcard.com/report/github.com/sarumaj/ldap-cli)
 [![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/sarumaj/ldap-cli.svg)](https://codeclimate.com/github/sarumaj/ldap-cli/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/147f265284b27931c2d2/test_coverage)](https://codeclimate.com/github/sarumaj/ldap-cli/test_coverage)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sarumaj/ldap-cli/v2.svg)](https://pkg.go.dev/github.com/sarumaj/ldap-cli/v2)
 
 ---
 
@@ -10,7 +11,11 @@
 
 **ldap-cli** is a cross-platform compatible LDAP-based command-line interface allowing ETL operations on Directory objects using LDAP Data Interchange Format (LDIF).
 
-Developed as Computer Science Project for IU (www.iu-fernstudium.de).
+The CLI application is written in Go and uses the Cobra framework.
+It is mainly intended for administrators and developers who want to query and edit directory objects.
+It is highly adopted to work with Microsoft Active Directory, although openldap implementations are being used for testing.
+
+Developed as Computer Science Project for IU ([www.iu-fernstudium.de](https://iu-fernstudium.de)).
 
 ## Installation
 

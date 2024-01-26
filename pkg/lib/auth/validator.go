@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	validator "github.com/go-playground/validator/v10"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 // For internal usage (used to register custom type validators)

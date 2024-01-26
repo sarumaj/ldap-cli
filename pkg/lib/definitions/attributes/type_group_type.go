@@ -4,16 +4,17 @@ import "slices"
 
 // https://docs.microsoft.com/en-us/windows/win32/adschema/a-grouptype
 const (
-	GROUP_TYPE_CREATED_BY_SYSTEM FlagsetGroupType = 0x00000001 // Specifies a group that is created by the system.
-	GROUP_TYPE_GLOBAL            FlagsetGroupType = 0x00000002 // Specifies a group with global scope.
-	GROUP_TYPE_LOCAL             FlagsetGroupType = 0x00000004 // Specifies a group with domain local scope.
-	GROUP_TYPE_UNIVERSAL         FlagsetGroupType = 0x00000008 // Specifies a group with universal scope.
-	GROUP_TYPE_APP_BASIC         FlagsetGroupType = 0x00000010 // Specifies an APP_BASIC group for Windows Server Authorization Manager.
-	GROUP_TYPE_APP_QUERY         FlagsetGroupType = 0x00000020 // Specifies an APP_QUERY group for Windows Server Authorization Manager.
-	GROUP_TYPE_SECURITY          FlagsetGroupType = 0x80000000 // Specifies a security group. If this flag is not set, then the group is a distribution group.
-	GROUP_TYPE_DISTRIBUTION      FlagsetGroupType = ^GROUP_TYPE_SECURITY
+	GROUP_TYPE_CREATED_BY_SYSTEM FlagsetGroupType = 0x00000001           // Specifies a group that is created by the system.
+	GROUP_TYPE_GLOBAL            FlagsetGroupType = 0x00000002           // Specifies a group with global scope.
+	GROUP_TYPE_LOCAL             FlagsetGroupType = 0x00000004           // Specifies a group with domain local scope.
+	GROUP_TYPE_UNIVERSAL         FlagsetGroupType = 0x00000008           // Specifies a group with universal scope.
+	GROUP_TYPE_APP_BASIC         FlagsetGroupType = 0x00000010           // Specifies an APP_BASIC group for Windows Server Authorization Manager.
+	GROUP_TYPE_APP_QUERY         FlagsetGroupType = 0x00000020           // Specifies an APP_QUERY group for Windows Server Authorization Manager.
+	GROUP_TYPE_SECURITY          FlagsetGroupType = 0x80000000           // Specifies a security group. If this flag is not set, then the group is a distribution group.
+	GROUP_TYPE_DISTRIBUTION      FlagsetGroupType = ^GROUP_TYPE_SECURITY // Specifies a distribution group. If this flag is not set, then the group is a security group.
 )
 
+// groupTypeToString is a map of group types to their string representation (single-valued
 var groupTypeToString = map[FlagsetGroupType]string{
 	GROUP_TYPE_CREATED_BY_SYSTEM: "CREATED_BY_SYSTEM",
 	GROUP_TYPE_GLOBAL:            "GLOBAL",

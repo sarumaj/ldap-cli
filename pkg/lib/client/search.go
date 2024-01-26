@@ -8,10 +8,10 @@ import (
 
 	ldap "github.com/go-ldap/ldap/v3"
 	ldif "github.com/go-ldap/ldif"
-	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	auth "github.com/sarumaj/ldap-cli/v2/pkg/lib/auth"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	filter "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/filter"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 	progressbar "github.com/schollz/progressbar/v3"
 )
 

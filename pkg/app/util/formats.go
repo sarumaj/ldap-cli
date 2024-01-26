@@ -14,7 +14,7 @@ import (
 	yaml "github.com/goccy/go-yaml"
 	lexer "github.com/goccy/go-yaml/lexer"
 	printer "github.com/goccy/go-yaml/printer"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
 )
 
 const (

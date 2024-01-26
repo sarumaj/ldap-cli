@@ -3,7 +3,7 @@ package attributes
 import (
 	"slices"
 
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 // Attribute is an LDAP attribute

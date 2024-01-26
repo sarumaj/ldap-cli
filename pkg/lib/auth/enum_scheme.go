@@ -1,6 +1,6 @@
 package auth
 
-import libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+import libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 
 const (
 	LDAP  Scheme = "ldap"

@@ -2,7 +2,7 @@ package attributes
 
 import "slices"
 
-// https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol
+// userAccountControl implemented corresponding to: [https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol].
 const (
 	USER_ACCOUNT_CONTROL_LOGON_SCRIPT                           FlagsetUserAccountControl = 0x00000001 // The logon script is executed.
 	USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE                        FlagsetUserAccountControl = 0x00000002 // The user account is disabled.
@@ -27,6 +27,7 @@ const (
 	USER_ACCOUNT_CONTROL_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION FlagsetUserAccountControl = 0x01000000 // The account is enabled for delegation. This is a security-sensitive setting; accounts with this option enabled should be strictly controlled. This setting enables a service running under the account to assume a client identity and authenticate as that user to other remote servers on the network.
 )
 
+// userAccountControlToString is a map of user account control flags to their string representation (flags are multi-valued).
 var userAccountControlToString = map[FlagsetUserAccountControl]string{
 	USER_ACCOUNT_CONTROL_LOGON_SCRIPT:                           "LOGON_SCRIPT",
 	USER_ACCOUNT_CONTROL_ACCOUNT_DISABLE:                        "ACCOUNT_DISABLE",

@@ -2,7 +2,7 @@ package client
 
 import (
 	ldap "github.com/go-ldap/ldap/v3"
-	"github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
 )
 
 // ModifyGroupMembersRequest returns a modify request to add, delete or replace group members

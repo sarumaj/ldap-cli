@@ -9,9 +9,9 @@ import (
 
 	monkey "bou.ke/monkey"
 	supererrors "github.com/sarumaj/go-super/errors"
-	commands "github.com/sarumaj/ldap-cli/pkg/app/commands"
-	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	commands "github.com/sarumaj/ldap-cli/v2/pkg/app/commands"
+	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 func TestExecute(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
 )
 
 // list of registry

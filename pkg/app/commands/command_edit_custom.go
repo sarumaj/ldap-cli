@@ -2,7 +2,7 @@ package commands
 
 import (
 	supererrors "github.com/sarumaj/go-super/errors"
-	apputil "github.com/sarumaj/ldap-cli/pkg/app/util"
+	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
 	cobra "github.com/spf13/cobra"
 )
 

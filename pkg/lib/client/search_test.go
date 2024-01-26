@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	auth "github.com/sarumaj/ldap-cli/pkg/lib/auth"
-	attributes "github.com/sarumaj/ldap-cli/pkg/lib/definitions/attributes"
-	filter "github.com/sarumaj/ldap-cli/pkg/lib/definitions/filter"
-	libutil "github.com/sarumaj/ldap-cli/pkg/lib/util"
+	auth "github.com/sarumaj/ldap-cli/v2/pkg/lib/auth"
+	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	filter "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/filter"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 func TestSearch(t *testing.T) {
