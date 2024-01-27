@@ -4,15 +4,13 @@ import (
 	"testing"
 	"time"
 
-	"bou.ke/monkey"
 	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
+	"github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
 func TestFilter(t *testing.T) {
-	defer monkey.Patch(
-		time.Now,
-		func() time.Time { return time.Date(2023, 9, 12, 16, 27, 13, 0, time.UTC) },
-	).Unpatch()
+	util.Now = func() time.Time { return time.Date(2023, 9, 12, 16, 27, 13, 0, time.UTC) }
+	t.Cleanup(func() { util.Now = time.Now })
 
 	for _, tt := range []struct {
 		name string

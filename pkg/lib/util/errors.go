@@ -52,7 +52,7 @@ var errorMapping = map[uint16]error{
 	ldap.LDAPResultObjectClassViolation:               ErrOperationFailed,
 	ldap.LDAPResultNotAllowedOnNonLeaf:                ErrOperationFailed,
 	ldap.LDAPResultNotAllowedOnRDN:                    ErrOperationFailed,
-	ldap.LDAPResultEntryAlreadyExists:                 ErrOperationFailed,
+	ldap.LDAPResultEntryAlreadyExists:                 nil,
 	ldap.LDAPResultObjectClassModsProhibited:          ErrOperationFailed,
 	ldap.LDAPResultResultsTooLarge:                    ErrQuotaExceeded,
 	ldap.LDAPResultAffectsMultipleDSAs:                ErrOperationFailed,
@@ -92,6 +92,17 @@ var errorMapping = map[uint16]error{
 	ldap.ErrorUnexpectedMessage:                       ErrOperationFailed,
 	ldap.ErrorUnexpectedResponse:                      ErrOperationFailed,
 	ldap.ErrorEmptyPassword:                           ErrAuthenticationFailed,
+}
+
+// ErrorsIs checks if an error is any of the provided errors
+func ErrorIs(err error, errs ...error) bool {
+	for _, e := range errs {
+		if errors.Is(err, e) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Handle maps LDAP errors to more specific errors

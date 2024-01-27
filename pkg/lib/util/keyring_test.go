@@ -1,15 +1,31 @@
 package util
 
 import (
+	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/99designs/keyring"
 )
 
 func TestKeyringFlow(t *testing.T) {
 	SkipOAT(t)
 
 	if _, err := exec.LookPath(Config.PassCmd); err != nil {
-		t.Skipf("pass keyring not found: %v", err)
+		t.Logf("%v: falling back to file backend", err)
+
+		OpenKeyring = func(cfg keyring.Config) (keyring.Keyring, error) {
+			return keyring.Open(keyring.Config{
+				AllowedBackends:  []keyring.BackendType{keyring.FileBackend},
+				FileDir:          "/tmp/ldap-cli-test",
+				FilePasswordFunc: keyring.FixedStringPrompt("test"),
+			})
+		}
+
+		t.Cleanup(func() {
+			OpenKeyring = keyring.Open
+			_ = os.RemoveAll("/tmp/ldap-cli-test")
+		})
 	}
 
 	if err := SetToKeyring("test", "12345"); err != nil {

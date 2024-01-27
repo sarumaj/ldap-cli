@@ -3,7 +3,14 @@ package util
 import (
 	"os"
 	"testing"
+	"time"
 )
+
+// Exit is reference to os.Exit (can be mocked)
+var Exit = os.Exit
+
+// Now is reference to time.Now (can be mocked)
+var Now = time.Now
 
 // SkipOAT skips the test if TEST_OAT is not set to true
 func SkipOAT(t testing.TB) {

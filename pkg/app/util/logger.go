@@ -2,13 +2,13 @@ package util
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	color "github.com/fatih/color"
 	supererrors "github.com/sarumaj/go-super/errors"
 	auth "github.com/sarumaj/ldap-cli/v2/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/v2/pkg/lib/client"
+	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 	logrus "github.com/sirupsen/logrus"
 	tracerr "github.com/ztrue/tracerr"
 )
@@ -111,5 +111,5 @@ func GetFieldsForSearch(searchArguments *client.SearchArguments) logrus.Fields {
 // PrintColors prints a string with colors and exits with provided code
 func PrintlnAndExit(code int, format string, a ...any) {
 	_ = supererrors.ExceptFn(supererrors.W(fmt.Fprintln(Stderr(), PrintColors(color.RedString, format, a...))))
-	os.Exit(code)
+	libutil.Exit(code)
 }

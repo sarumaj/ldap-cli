@@ -8,6 +8,40 @@ import (
 	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
+func TestBindParametersToAndFromKeyring(t *testing.T) {
+	libutil.SkipOAT(t)
+
+	for _, tt := range []struct {
+		name string
+		args *BindParameters
+		want *BindParameters
+	}{
+		{"test#1",
+			NewBindParameters().SetType(SIMPLE).SetUser("domain\\user").SetPassword("pass"),
+			NewBindParameters().SetType(SIMPLE).SetUser("domain\\user").SetPassword("pass")},
+		{"test#2",
+			NewBindParameters().SetType(NTLM).SetDomain("example.com").SetUser("user").SetPassword("pass"),
+			NewBindParameters().SetType(NTLM).SetDomain("example.com").SetUser("user").SetPassword("pass")},
+	} {
+
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.args.ToKeyring(); err != nil {
+				t.Errorf(`(%T).ToKeyring() failed: %v`, tt.args, err)
+			}
+
+			got := NewBindParameters()
+			if err := got.FromKeyring(); err != nil {
+				t.Errorf(`(%T).FromKeyring() failed: %v`, tt.want, err)
+				return
+			}
+
+			if !reflect.DeepEqual(*got, *tt.want) {
+				t.Errorf(`(%T).FromKeyring() failed: got: %#v, want: %#v`, tt.want, *got, *tt.want)
+			}
+		})
+	}
+}
+
 func TestBind(t *testing.T) {
 	libutil.SkipOAT(t)
 
@@ -52,23 +86,25 @@ func TestBind(t *testing.T) {
 func TestBindParameterDefaults(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		args BindParameters
-		want BindParameters
+		args *BindParameters
+		want *BindParameters
 	}{
 		{"test#1",
-			BindParameters{},
-			BindParameters{UNAUTHENTICATED, "", "", ""}},
+			NewBindParameters().SetType(AuthType(-1)),
+			NewBindParameters().SetType(UNAUTHENTICATED)},
 		{"test#2",
-			BindParameters{NTLM, "example.com", "user", "pass"},
-			BindParameters{NTLM, "example.com", "user", "pass"}},
+			NewBindParameters().SetType(NTLM).SetDomain("example.com").SetUser("user").SetPassword("pass"),
+			NewBindParameters().SetType(NTLM).SetDomain("example.com").SetUser("user").SetPassword("pass")},
+		{"test#3",
+			NewBindParameters().SetType(SIMPLE).SetUser("domain\\\\user").SetPassword("pass"),
+			NewBindParameters().SetType(SIMPLE).SetUser("domain\\user").SetPassword("pass")},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			opts := &tt.args
-			err := defaults.Set(opts)
+			err := defaults.Set(tt.args)
 			if err != nil {
 				t.Errorf(`defaults.Set(%v) failed: %v`, tt.args, err)
-			} else if !reflect.DeepEqual(*opts, tt.want) {
-				t.Errorf(`defaults.Set(%v) failed: did not expect %v`, tt.args, *opts)
+			} else if !reflect.DeepEqual(*tt.args, *tt.want) {
+				t.Errorf(`defaults.Set(%v) failed: did not expect %v`, *tt.args, *tt.want)
 			}
 		})
 	}
