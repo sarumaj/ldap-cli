@@ -3,8 +3,6 @@ package util
 import (
 	"testing"
 	"time"
-
-	"bou.ke/monkey"
 )
 
 func TestTimeAfter1601(t *testing.T) {
@@ -16,7 +14,7 @@ func TestTimeAfter1601(t *testing.T) {
 		{"test#1", 128271382742968750, time.Date(2007, 6, 24, 5, 57, 54, 296875000, time.UTC)},
 		{"test#2", 1<<63 - 1, time.Date(30828, 9, 14, 2, 48, 5, 477587000, time.UTC)},
 	} {
-		t.Log(Time1601.Add(time.Duration(tt.args*100) * time.Nanosecond))
+		t.Log(Time1601().Add(time.Duration(tt.args*100) * time.Nanosecond))
 		t.Run(tt.name, func(t *testing.T) {
 			got := TimeAfter1601(tt.args)
 			if !got.Equal(tt.want) {
@@ -27,10 +25,8 @@ func TestTimeAfter1601(t *testing.T) {
 }
 
 func TestTimeSince1601(t *testing.T) {
-	defer monkey.Patch(
-		time.Now,
-		func() time.Time { return time.Date(2023, 9, 12, 16, 27, 13, 0, time.UTC) },
-	).Unpatch()
+	Now = func() time.Time { return time.Date(2023, 9, 12, 16, 27, 13, 0, time.UTC) }
+	t.Cleanup(func() { Now = time.Now })
 
 	for _, tt := range []struct {
 		name string

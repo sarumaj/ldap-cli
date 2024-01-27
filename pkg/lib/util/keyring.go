@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 
 	keyring "github.com/99designs/keyring"
@@ -92,15 +93,22 @@ var Config = func() keyring.Config {
 	return *cfg
 }()
 
+// OpenKeyring is a reference to keyring.Open (can be overwritten for testing)
+var OpenKeyring = keyring.Open
+
 // GetFromKeyring retrieves a value from the keyring
 func GetFromKeyring(key string) (string, error) {
-	ring, err := keyring.Open(Config)
+	ring, err := OpenKeyring(Config)
 	if err != nil {
 		return "", err
 	}
 
 	item, err := ring.Get(key)
 	if err != nil {
+		if ErrorIs(err, keyring.ErrKeyNotFound, os.ErrNotExist) {
+			return "", nil
+		}
+
 		return "", err
 	}
 
@@ -132,23 +140,31 @@ func passwordFunc(s string) (string, error) {
 
 // RemoveFromKeyRing removes a value from the keyring
 func RemoveFromKeyRing(key string) error {
-	ring, err := keyring.Open(Config)
+	ring, err := OpenKeyring(Config)
 	if err != nil {
 		return err
 	}
 
-	return ring.Remove(key)
+	if err := ring.Remove(key); err != nil && !ErrorIs(err, keyring.ErrKeyNotFound, os.ErrNotExist) {
+		return err
+	}
+
+	return nil
 }
 
 // SetToKeyring sets a value to the keyring
 func SetToKeyring(key, value string) error {
-	if value == "" {
-		return nil
-	}
-
-	ring, err := keyring.Open(Config)
+	ring, err := OpenKeyring(Config)
 	if err != nil {
 		return err
+	}
+
+	if value == "" {
+		if err := ring.Remove(key); err != nil && !ErrorIs(err, keyring.ErrKeyNotFound, os.ErrNotExist) {
+			return err
+		}
+
+		return nil
 	}
 
 	return ring.Set(keyring.Item{

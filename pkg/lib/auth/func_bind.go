@@ -45,7 +45,7 @@ func (p *BindParameters) FromKeyring() error {
 		}
 	}
 
-	if p.AuthType == 0 || !p.AuthType.IsValid() {
+	if p.AuthType <= UNAUTHENTICATED || !p.AuthType.IsValid() {
 		authType, err := libutil.GetFromKeyring("type")
 		if err != nil {
 			return err

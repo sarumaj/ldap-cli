@@ -20,22 +20,41 @@ func TestModifyGroupMembersRequest(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	defer conn.Close()
 
-	memberUIDs := []string{"uix00002"}
-	request := ModifyGroupMembersRequest("cn=group02,dc=mock,dc=ad,dc=com", memberUIDs, nil, nil, attributes.Attribute{LDAPDisplayName: "memberUid"})
-	if err := conn.Modify(request); err != nil {
-		t.Error(err)
+	t.Cleanup(func() {
+		_ = conn.Modify(ModifyGroupMembersRequest(
+			"cn=group02,dc=mock,dc=ad,dc=com",
+			nil, []string{"uix00002"}, nil,
+			attributes.Attribute{LDAPDisplayName: "memberUid"},
+		))
+		_ = conn.Close()
+	})
+
+	type args struct {
+		add, delete, replace []string
 	}
 
-	request = ModifyGroupMembersRequest("cn=group02,dc=mock,dc=ad,dc=com", nil, memberUIDs, nil, attributes.Attribute{LDAPDisplayName: "memberUid"})
-	if err := conn.Modify(request); err != nil {
-		t.Error(err)
-	}
-
-	request = ModifyGroupMembersRequest("cn=group02,dc=mock,dc=ad,dc=com", nil, nil, memberUIDs, attributes.Attribute{LDAPDisplayName: "memberUid"})
-	if err := conn.Modify(request); err != nil {
-		t.Error(err)
+	for _, tt := range []struct {
+		name string
+		args args
+	}{
+		{"test#1", args{[]string{"uix00002"}, nil, nil}},
+		{"test#2", args{nil, []string{"uix00002"}, nil}},
+		{"test#3", args{nil, nil, []string{"uix00002"}}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			request := ModifyGroupMembersRequest(
+				"cn=group02,dc=mock,dc=ad,dc=com",
+				tt.args.add, tt.args.delete, tt.args.replace,
+				attributes.Attribute{LDAPDisplayName: "memberUid"},
+			)
+			if err := libutil.Handle(conn.Modify(request)); err != nil {
+				t.Errorf(
+					`ModifyGroupMembersRequest("cn=group02,dc=mock,dc=ad,dc=com", %v, %v, %v, attributes.Attribute{LDAPDisplayName: "memberUid"}) failed: %v`,
+					tt.args.add, tt.args.delete, tt.args.replace, err,
+				)
+			}
+		})
 	}
 }
 

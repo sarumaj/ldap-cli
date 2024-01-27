@@ -7,6 +7,38 @@ import (
 	ldap "github.com/go-ldap/ldap/v3"
 )
 
+func TestErrorIs(t *testing.T) {
+	type args struct {
+		err  error
+		errs []error
+	}
+
+	for _, tt := range []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"test#1", args{nil, nil}, false},
+		{"test#2", args{nil, []error{ErrOperationFailed}}, false},
+		{"test#3", args{ErrOperationFailed, []error{ErrOperationFailed}}, true},
+		{"test#4", args{ErrOperationFailed, []error{ErrOperationFailed, ErrAuthenticationFailed}}, true},
+		{"test#5", args{ErrOperationFailed, []error{ErrAuthenticationFailed}}, false},
+		{"test#6", args{ErrOperationFailed, []error{nil, ErrOperationFailed}}, true},
+		{"test#7", args{ErrOperationFailed, []error{nil, ErrAuthenticationFailed}}, false},
+		{"test#8", args{ErrOperationFailed, []error{nil, nil}}, false},
+		{"test#9", args{ErrOperationFailed, []error{nil}}, false},
+		{"test#10", args{ErrOperationFailed, []error{ErrOperationFailed, nil}}, true},
+		{"test#11", args{ErrOperationFailed, []error{ErrOperationFailed, nil, ErrAuthenticationFailed}}, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ErrorIs(tt.args.err, tt.args.errs...)
+			if got != tt.want {
+				t.Errorf(`ErrorIs(%s, %v) failed: got: %t, want: %t`, tt.args.err, tt.args.errs, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestHandle(t *testing.T) {
 	pass := ldap.NewError(321, errors.New("pass"))
 	for _, tt := range []struct {
@@ -50,7 +82,7 @@ func TestHandle(t *testing.T) {
 		{"test#34", ldap.NewError(ldap.LDAPResultObjectClassViolation, errors.New("")), ErrOperationFailed},
 		{"test#35", ldap.NewError(ldap.LDAPResultNotAllowedOnNonLeaf, errors.New("")), ErrOperationFailed},
 		{"test#36", ldap.NewError(ldap.LDAPResultNotAllowedOnRDN, errors.New("")), ErrOperationFailed},
-		{"test#37", ldap.NewError(ldap.LDAPResultEntryAlreadyExists, errors.New("")), ErrOperationFailed},
+		{"test#37", ldap.NewError(ldap.LDAPResultEntryAlreadyExists, errors.New("")), nil},
 		{"test#38", ldap.NewError(ldap.LDAPResultObjectClassModsProhibited, errors.New("")), ErrOperationFailed},
 		{"test#39", ldap.NewError(ldap.LDAPResultResultsTooLarge, errors.New("")), ErrQuotaExceeded},
 		{"test#40", ldap.NewError(ldap.LDAPResultAffectsMultipleDSAs, errors.New("")), ErrOperationFailed},

@@ -3,7 +3,6 @@ module github.com/sarumaj/ldap-cli/v2
 go 1.21.0
 
 require (
-	bou.ke/monkey v1.0.2
 	github.com/99designs/keyring v1.2.2
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/blang/semver v3.5.1+incompatible

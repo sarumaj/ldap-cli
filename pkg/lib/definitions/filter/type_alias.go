@@ -57,8 +57,8 @@ func (a Alias) findMatches(indexes [][]int, raw []byte) (matches [][]byte) {
 	return
 }
 
-// findOccurences returns the indexes of all occurrences of an alias expression in a sequence of bytes
-func (a Alias) findOccurences(raw []byte) (indexes [][]int) {
+// findOccurrences returns the indexes of all occurrences of an alias expression in a sequence of bytes
+func (a Alias) findOccurrences(raw []byte) (indexes [][]int) {
 	for _, index := range regexp.MustCompile(regexp.QuoteMeta(a.ID)).FindAllIndex(raw, -1) {
 		// skip if the alias expression is part of a longer alias expression (avoid collisions of aliases)
 		// raw[index[0]+1:index[1]+1] is the alias expression without the first character
@@ -120,7 +120,7 @@ func (a Alias) Register() Alias {
 
 // replace replaces all occurrences of an alias expression in a sequence of bytes
 func (a Alias) replace(raw []byte) []byte {
-	indexes := a.findOccurences(raw)
+	indexes := a.findOccurrences(raw)
 	replaced := len(indexes) > 0
 
 	switch {
@@ -169,7 +169,7 @@ func (a Alias) replace(raw []byte) []byte {
 	}
 
 	// check if there are any aliases left to substitute and call recursively
-	if left := a.findOccurences(raw); len(left) > 0 {
+	if left := a.findOccurrences(raw); len(left) > 0 {
 		return a.replace(raw)
 	}
 

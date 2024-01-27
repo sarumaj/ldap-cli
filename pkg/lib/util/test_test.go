@@ -6,7 +6,7 @@ import (
 )
 
 func TestSkipOAT(t *testing.T) {
-	defer func() { _ = os.Unsetenv("TEST_OAT") }()
+	t.Cleanup(func() { _ = os.Unsetenv("TEST_OAT") })
 
 	_ = os.Setenv("TEST_OAT", "true")
 	SkipOAT(t)

@@ -13,7 +13,7 @@ func TestKeys(t *testing.T) {
 		args Map
 		want Attributes
 	}{
-		{"test#1", Map{name: "", accountExpires: 0}, Attributes{accountExpires, name}},
+		{"test#2", Map{name: "", accountExpires: 0}, Attributes{accountExpires, name}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.args.Keys()
@@ -31,7 +31,7 @@ func TestParseBool(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"true"}, true},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}
@@ -50,7 +50,7 @@ func TestParseDecimal(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"12345678.9"}, 12345678.9},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}
@@ -69,7 +69,7 @@ func TestParseGroupType(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"10"}, []string{"DISTRIBUTION", "GLOBAL", "UNIVERSAL"}},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}
@@ -88,7 +88,7 @@ func TestParseInt(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"10"}, int64(10)},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}
@@ -107,7 +107,7 @@ func TestParseIPv4Address(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"2130706433"}, net.IP{127, 0, 0, 1}},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}
@@ -126,7 +126,7 @@ func TestParseTime(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"72057594037927936"}, time.Date(1829, 5, 5, 23, 50, 3, 792799000, time.UTC)},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}
@@ -145,7 +145,7 @@ func TestParseSAMAccountType(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"805306368"}, []string{"NORMAL_USER_ACCOUNT", "USER_OBJECT"}},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}
@@ -164,7 +164,7 @@ func TestParseUserAccountControl(t *testing.T) {
 		want any
 	}{
 		{"test#1", []string{"514"}, []string{"ACCOUNT_DISABLE", "NORMAL_ACCOUNT"}},
-		{"test#1", []string{"invalid"}, []string{"invalid"}},
+		{"test#2", []string{"invalid"}, []string{"invalid"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			v, a := make(Map), Attribute{LDAPDisplayName: "test"}

@@ -21,7 +21,8 @@ func TestSearch(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	defer conn.Close()
+
+	t.Cleanup(func() { _ = conn.Close() })
 
 	result, _, err := Search(
 		conn,
