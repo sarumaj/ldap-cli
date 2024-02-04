@@ -19,12 +19,14 @@ import (
 
 // rootFlags holds the command line flags for the root command.
 var rootFlags struct {
-	address        string `flag:"url"`
-	authType       string `flag:"auth-type"`
-	bindParameters auth.BindParameters
-	debug          int `flag:"Debug"`
-	dialOptions    auth.DialOptions
-	disableTLS     bool `flag:"disable-tls"`
+	address         string `flag:"url"`
+	authType        string `flag:"auth-type"`
+	bindParameters  auth.BindParameters
+	debug           int `flag:"debug"`
+	dialOptions     auth.DialOptions
+	disableTLS      bool   `flag:"disable-tls"`
+	privateKeyFile  string `flag:"key-file"`
+	certificateFile string `flag:"cert-file"`
 }
 
 // rootCmd represents the base command when called without any subcommands.
@@ -46,6 +48,9 @@ var rootCmd = func() *cobra.Command {
 	flags.Int64Var(&rootFlags.dialOptions.SizeLimit, "size-limit", 2000, "Specify query size limit (-1: unlimited)")
 	flags.DurationVar(&rootFlags.dialOptions.TimeLimit, "timeout", 10*time.Minute, "Specify query timeout")
 	flags.BoolVar(&rootFlags.disableTLS, "disable-tls", false, "Disable TLS (not recommended)")
+	flags.StringVar(&rootFlags.privateKeyFile, "key-file", "", "Path to the key file")
+	flags.StringVar(&rootFlags.certificateFile, "cert-file", "", "Path to the certificate file")
+	rootCmd.MarkFlagsRequiredTogether("key-file", "cert-file")
 
 	// bind parameters
 	flags.StringVar(&rootFlags.address, "url", auth.URL{Scheme: auth.LDAP, Host: "localhost", Port: auth.LDAP_RW}.String(), "Provide address of the directory server")
@@ -77,6 +82,16 @@ func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
 		libutil.GetExecutablePath(),
 		libutil.Config.AllowedBackends,
 	)
+
+	if rootFlags.privateKeyFile != "" && rootFlags.certificateFile != "" {
+		cert, err := tls.LoadX509KeyPair(rootFlags.certificateFile, rootFlags.privateKeyFile)
+		if err != nil {
+			apputil.PrintlnAndExit(1, "Failed to load certificate and key files: %v", err)
+		}
+
+		rootFlags.dialOptions.TLSConfig = &tls.Config{Certificates: []tls.Certificate{cert}}
+		rootFlags.dialOptions.URL.Scheme = auth.LDAPS
+	}
 
 	if err := rootFlags.bindParameters.FromKeyring(); err != nil {
 		apputil.Logger.Debugf("Failed to access keyring: %v", err)

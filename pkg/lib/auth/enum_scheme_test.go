@@ -11,6 +11,8 @@ func TestSchemeIsValid(t *testing.T) {
 		{"test#1", "ldap", true},
 		{"test#2", "ldaps", true},
 		{"test#3", "http", false},
+		{"test#4", "ldapi", true},
+		{"test#5", "cldap", true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.args.IsValid()

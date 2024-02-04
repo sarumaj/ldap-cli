@@ -13,6 +13,7 @@ const (
 	SIMPLE
 	MD5
 	NTLM
+	EXTERNAL
 )
 
 // typeTranslation is a map of AuthType to string
@@ -32,7 +33,7 @@ type AuthType int
 func (t AuthType) IsValid() bool {
 	switch t {
 
-	case UNAUTHENTICATED, SIMPLE, MD5, NTLM:
+	case UNAUTHENTICATED, SIMPLE, MD5, NTLM, EXTERNAL:
 		return true
 
 	default:

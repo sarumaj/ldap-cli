@@ -4,6 +4,12 @@
 [![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/sarumaj/ldap-cli.svg)](https://codeclimate.com/github/sarumaj/ldap-cli/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/147f265284b27931c2d2/test_coverage)](https://codeclimate.com/github/sarumaj/ldap-cli/test_coverage)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sarumaj/ldap-cli/v2.svg)](https://pkg.go.dev/github.com/sarumaj/ldap-cli/v2)
+![Go version](https://img.shields.io/github/go-mod/go-version/sarumaj/ldap-cli)
+![Release](https://img.shields.io/github/v/release/sarumaj/ldap-cli)
+![Release Date](https://img.shields.io/github/release-date/sarumaj/ldap-cli)
+![Commits since latest release](https://img.shields.io/github/commits-since/sarumaj/ldap-cli/latest)
+![Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sarumaj/ldap-cli/total)
+![Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sarumaj/ldap-cli/latest/total)
 
 ---
 
@@ -48,6 +54,7 @@ $ chmod +x /usr/local/bin/ldap-cli
   - [x] NTLM (**not tested**)
   - [x] UNAUTHENTICATED
   - [x] MD5 (**not tested**)
+  - [ ] ~~GSSAPI SASL~~ (**not supported**)
   - [x] Preserve credentials in a keyring
 - [x] Search directory objects
   - [x] Track progress of search operations

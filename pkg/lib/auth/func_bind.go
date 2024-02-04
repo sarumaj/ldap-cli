@@ -157,6 +157,9 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 	case NTLM:
 		err = libutil.Handle(ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password))
 
+	case EXTERNAL:
+		err = libutil.Handle(ldapConn.ExternalBind())
+
 	}
 	if err != nil {
 		return nil, err

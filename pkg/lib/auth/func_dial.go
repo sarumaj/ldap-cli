@@ -72,6 +72,11 @@ func Dial(opts *DialOptions) (conn net.Conn, err error) {
 		return nil, err
 	}
 
+	if opts.URL.Scheme == LDAPI {
+		conn, err = net.DialTimeout("unix", "/var/run/slapd/ldapi", opts.TimeLimit)
+		return conn, libutil.Handle(err)
+	}
+
 	switch opts.URL.Host {
 	case "localhost": // ignore
 
@@ -88,16 +93,22 @@ func Dial(opts *DialOptions) (conn net.Conn, err error) {
 	}
 
 	// switch over to TLS if necessary
-	if opts.URL.Scheme == LDAPS {
+	switch opts.URL.Scheme {
+	case LDAPS:
 		if opts.TLSConfig == nil {
 			opts.TLSConfig = &tls.Config{}
 		}
 
 		conn, err = tls.DialWithDialer(&net.Dialer{Timeout: opts.TimeLimit}, "tcp", opts.URL.HostPort(), opts.TLSConfig)
-		return conn, libutil.Handle(err)
+
+	case CLDAP:
+		conn, err = net.DialTimeout("udp", opts.URL.HostPort(), opts.TimeLimit)
+
+	default:
+		conn, err = net.DialTimeout("tcp", opts.URL.HostPort(), opts.TimeLimit)
+
 	}
 
-	conn, err = net.DialTimeout("tcp", opts.URL.HostPort(), opts.TimeLimit)
 	return conn, libutil.Handle(err)
 }
 

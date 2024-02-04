@@ -2,6 +2,8 @@
 Aivazis
 apputil
 blang
+cldap
+CLDAP
 CLICOLOR
 CODECLIMATE
 COLORTERM
@@ -36,6 +38,8 @@ jszwec
 Keychain
 KEYCTL
 keydetails
+ldapi
+LDAPI
 LDAPS
 ldflags
 LDIF

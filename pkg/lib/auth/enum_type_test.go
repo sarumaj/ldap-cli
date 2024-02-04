@@ -32,6 +32,9 @@ func TestTypeIsValid(t *testing.T) {
 		{"test#1", SIMPLE, true},
 		{"test#2", NTLM, true},
 		{"test#3", 0, false},
+		{"test#4", EXTERNAL, true},
+		{"test#5", UNAUTHENTICATED, true},
+		{"test#6", MD5, true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.args.IsValid()
