@@ -233,74 +233,94 @@ $ go test -v ./...
 
 ```mermaid
 graph TB
-    CLI_Tool[LDAP CLI Tool] -->|Program entry point executor| App
-    CLI_Tool -->|CLI command & flag definitions| App
+    CLI_Tool["`**LDAP CLI Tool**`"] -->|Program entry point executor| Main["`**main Package**`"]
+    Main -->|CLI command & flag definitions| App
     App -->|Authentication Schemes| Auth
     App -->|Search & modify request operations| Client
     Client -->|Directory object properties| Attributes
     App -->|Directory object properties| Attributes
     App -->|Parser, schema validation & custom filter syntax| Filter
-    subgraph Lib[lib Package]
-        Auth[auth Package]
-        Client[client Package]
-        Definitions[definitions Package]
-        UtilLib[util Package]
+    subgraph Lib["`**lib Package**`"]
+        Auth["`**auth Package**`"]
+        Client["`**client Package**`"]
+        Definitions["`**definitions Package**`"]
+        UtilLib["`
+            **util Package**
+            error definitions,
+            GUID generation,
+            hex code conversion,
+            keyring interfaces,
+            DNS resolving,
+            custom CSV reader,
+            test utilities,
+            text case alignment,
+            time-base-oriented parsing,
+            validating user input
+        `"]
     end
-    subgraph App[app Package]
-        Commands[commands Package]
-        UtilApp[util Package]
+    subgraph App["`**app Package**`"]
+        Commands["`**commands Package**`"]
+        UtilApp["`
+            **util Package**
+            console utils,
+            input/output format definitions,
+            command help annotations,
+            logging middleware,
+            user interactive interfaces
+        `"]
         Commands -->|Use| UtilApp
     end
-    subgraph Definitions[definitions Package]
-        Attributes[attributes Package]
-        Filter[filter Package]
+    subgraph Definitions["`**definitions Package**`"]
+        Attributes["`
+            **attributes Package**
+            common attribute definitions & parsers,
+            group type definitions,
+            user account type definitions,
+            user control definitions,
+            extensible match rules
+        `"]
+        Filter["`
+            **filter Package**
+            filter implementations,
+            filter parsing,
+            custom filter syntax
+        `"]
     end
-    subgraph Commands[commands Package]
-        EditCmd[edit command]
-        GetCmd[get command]
-        VersionCmd[version command]
-        EditCmd ~~~ GetCmd
-        GetCmd ~~~ VersionCmd
+    subgraph Commands["`**commands Package**`"]
+        EditCmd["`**edit command**`"]
+        GetCmd["`**get command**`"]
+        VersionCmd["`
+            **version command**
+            verify app version,
+            update to the latest
+        `"]
     end
-    subgraph EditCmd[edit command]
-        EditCustom[custom sub-command]
-        EditGroup[group sub-command]
-        EditUser[user sub-command]
+    subgraph EditCmd["`**edit command**`"]
+        EditCustom["`
+            **custom sub-command**
+            modify any object
+        `"]
+        EditGroup["`
+            **group sub-command**
+            modify group object
+        `"]
+        EditUser["`
+            **user sub-command**
+            modify user object
+        `"]
     end
-    subgraph GetCmd[get command]
-        GetCustom[custom sub-command]
-        GetGroup[group sub-command]
-        GetUser[user sub-command]
-    end
-    subgraph UtilApp[util Package]
-        ConsoleUtils[console utils]
-        Formats[input/output format definitions]
-        HelpAnnotations[command help annotations]
-        Logger[logging middleware]
-        Survey[user interactive interfaces]
-    end
-    subgraph Filter[filter Package]
-        FilterImpl[filter implementations]
-        FilterParser[filter parsing]
-        FilterAlias[custom filter syntax]
-    end
-    subgraph Attributes[attributes Package]
-        Attribute[common attribute definitions & parsers]
-        GroupAttribute[group type definitions]
-        UserTypeAttribute[user account type definitions]
-        UserControlAttribute[user control definitions]
-        MatchingRule[extensible match rules]
-    end
-    subgraph UtilLib[lib Package]
-        Errors[error definitions]
-        Guid[GUID generation]
-        Hex[Hex code conversion]
-        Keyring[keyring interfaces]
-        Net[DNS resolving]
-        Path[custom CSV parser]
-        Test[test utilities]
-        Text[Text case alignment]
-        Time[Time base-oriented parsing]
-        Validation[Validating user input]
+    subgraph GetCmd["`**get command**`"]
+        GetCustom["`
+            **custom sub-command**
+            query any object
+        `"]
+        GetGroup["`
+            **group sub-command**
+            query group objects
+        `"]
+        GetUser["`
+            **user sub-command**
+            query user objects
+        `"]
     end
 ```
