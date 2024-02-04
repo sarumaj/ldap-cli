@@ -115,7 +115,7 @@ $ ldap-cli --help
 
 ### Custom filter syntax
 
-E.g. following filter expression: 
+E.g. following filter expression:
 
 ```
 $AND($USER; $MEMBER_OF(CN=LocalUsers,DC=example,DC=com; true); $NOT($MEMBER_OF(CN=Employers,DC=example,DC=com; true)))
@@ -178,9 +178,9 @@ $ ldap-cli \
     --path "DC=sales,DC=example,DC=com" \
     --select "dn" \
   custom \
-    --filter '$AND($USER; $ID(12345))'       
+    --filter '$AND($USER; $ID(12345))'
 
-> distinguishedName: CN=Mustermann Max (12345),OU=Users,DC=example,DC=com                                                                                                                       
+> distinguishedName: CN=Mustermann Max (12345),OU=Users,DC=example,DC=com
 ```
 
 Reuse credentials from keyring and find a group object:
@@ -227,4 +227,77 @@ $ cd ldap-cli/oat
 $ docker compose up
 $ cd ..
 $ go test -v ./...
+```
+
+### Software Architecture
+
+```mermaid
+graph TB
+    CLI_Tool[LDAP CLI Tool] -->|CLI command & flag definitions| App
+    CLI_Tool -->|Program entry point executor| App
+    App -->|Authentication Schemes| Auth
+    App -->|Search & modify request operations| Client
+    Client -->|Directory object properties| Attributes
+    App -->|Directory object properties| Attributes
+    App -->|Parser, schema validation & custom filter syntax| Filter
+    subgraph Lib[lib Package]
+        Auth[auth Package]
+        Client[client Package]
+        Definitions[definitions Package]
+        UtilLib[util Package]
+    end
+    subgraph App[app Package]
+        Commands[commands Package]
+        UtilApp[util Package]
+    end
+    subgraph Definitions[definitions Package]
+        Attributes[attributes Package]
+        Filter[filter Package]
+    end
+    subgraph Commands[commands Package]
+        EditCmd[edit command]
+        GetCmd[get command]
+        VersionCmd[version command]
+    end
+    subgraph EditCmd[edit command]
+        EditCustom[custom sub-command]
+        EditGroup[group sub-command]
+        EditUser[user sub-command]
+    end
+    subgraph GetCmd[get command]
+        GetCustom[custom sub-command]
+        GetGroup[group sub-command]
+        GetUser[user sub-command]
+    end
+    subgraph UtilApp[util Package]
+        ConsoleUtils[console utils]
+        Formats[input/output format definitions]
+        HelpAnnotations[command help annotations]
+        Logger[logging middleware]
+        Survey[user interactive interfaces]
+    end
+    subgraph Filter[filter Package]
+        FilterImpl[filter implementations]
+        FilterParser[filter parsing]
+        FilterAlias[custom filter syntax]
+    end
+    subgraph Attributes[attributes Package]
+        Attribute[common attribute definitions & parsers]
+        GroupAttribute[group type definitions]
+        UserTypeAttribute[user account type definitions]
+        UserControlAttribute[user control definitions]
+        MatchingRule[extensible match rules]
+    end
+    subgraph UtilLib[lib Package]
+        Errors[error definitions]
+        Guid[GUID generation]
+        Hex[Hex code conversion]
+        Keyring[keyring interfaces]
+        Net[DNS resolving]
+        Path[custom CSV parser]
+        Test[test utilities]
+        Text[Text case alignment]
+        Time[Time base-oriented parsing]
+        Validation[Validating user input]
+    end
 ```
