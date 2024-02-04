@@ -4,7 +4,7 @@
 [![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/sarumaj/ldap-cli.svg)](https://codeclimate.com/github/sarumaj/ldap-cli/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/147f265284b27931c2d2/test_coverage)](https://codeclimate.com/github/sarumaj/ldap-cli/test_coverage)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sarumaj/ldap-cli/v2.svg)](https://pkg.go.dev/github.com/sarumaj/ldap-cli/v2)
-[![Go version](https://img.shields.io/github/go-mod/go-version/sarumaj/ldap-cli)](https://go.dev)
+[![Go version](https://img.shields.io/github/go-mod/go-version/sarumaj/ldap-cli?logo=go&label=&labelColor=gray)](https://go.dev)
 [![Release](https://img.shields.io/github/v/release/sarumaj/ldap-cli?logo=github)](https://github.com/sarumaj/ldap-cli/releases/latest)
 [![Release Date](https://img.shields.io/github/release-date/sarumaj/ldap-cli?logo=github)](https://github.com/sarumaj/ldap-cli/releases/latest)
 [![Commits since latest release](https://img.shields.io/github/commits-since/sarumaj/ldap-cli/latest?logo=github)](https://github.com/sarumaj/ldap-cli/releases/latest)
