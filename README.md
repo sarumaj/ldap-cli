@@ -232,20 +232,45 @@ $ go test -v ./...
 ### Software Architecture
 
 ```mermaid
+%%{init: { "flowchart": { "htmlLabels": true } } }%%
 graph TB
-    CLI_Tool["`**LDAP CLI Tool**`"] -->|Program entry point executor| Main["`**main Package**`"]
+    CLI_Tool["<b>LDAP CLI Tool</b>"] -->|Program entry point executor| Main["<b>main Package</b>"]
     Main -->|CLI command & flag definitions| App
-    App -->|Authentication Schemes| Auth
+    App -->|Authentication schemes| Auth
     App -->|Search & modify request operations| Client
+    Client -->|Bind requests| Auth
     Client -->|Directory object properties| Attributes
     App -->|Directory object properties| Attributes
     App -->|Parser, schema validation & custom filter syntax| Filter
-    subgraph Lib["`**lib Package**`"]
-        Auth["`**auth Package**`"]
-        Client["`**client Package**`"]
-        Definitions["`**definitions Package**`"]
-        UtilLib["`
-            **util Package**
+    Commands -->|Use| UtilApp
+    EditCustom ~~~ EditGroup
+    EditGroup ~~~ EditUser
+    GetCustom ~~~ GetGroup
+    GetGroup ~~~ GetUser
+    subgraph Lib["<b>lib Package</b>"]
+        Auth["<b>auth Package</b>"]
+        Client["<b>client Package</b>"]
+        subgraph Definitions["<b>definitions Package</b>"]
+            Attributes["
+                <b>attributes Package</b>
+
+                common attribute definitions & parsers,
+                group type definitions,
+                user account type definitions,
+                user control definitions,
+                extensible match rules
+            "]
+            Filter["
+                <b>filter Package</b>
+
+                filter implementations,
+                filter parsing,
+                custom filter syntax
+            "]
+        end
+        UtilLib["
+            <b>util Package</b>
+
             error definitions,
             GUID generation,
             hex code conversion,
@@ -256,71 +281,61 @@ graph TB
             text case alignment,
             time-base-oriented parsing,
             validating user input
-        `"]
+        "]
     end
-    subgraph App["`**app Package**`"]
-        Commands["`**commands Package**`"]
-        UtilApp["`
-            **util Package**
+    subgraph App["<b>app Package</b>"]
+        subgraph Commands["<b>commands Package</b>"]
+            subgraph EditCmd["<b>edit command</b>"]
+                direction TB
+                EditCustom["
+                    <b>custom sub-command</b>
+
+                    modify any object
+                "]
+                EditGroup["
+                    <b>group sub-command</b>
+
+                    modify group object
+                "]
+                EditUser["
+                    <b>user sub-command</b>
+
+                    modify user object
+                "]
+            end
+            subgraph GetCmd["get command"]
+                direction TB
+                GetCustom["
+                    <b>custom sub-command</b>
+
+                    query any object
+                "]
+                GetGroup["
+                    <b>group sub-command</b>
+
+                    query group objects
+                "]
+                GetUser["
+                    <b>user sub-command</b>
+
+                    query user objects
+                "]
+            end
+            VersionCmd["
+                <b>version command</b>
+
+                verify app version,
+                update to the latest
+            "]
+        end
+        UtilApp["
+            <b>util Package</b>
+
             console utils,
             input/output format definitions,
             command help annotations,
             logging middleware,
             user interactive interfaces
-        `"]
-        Commands -->|Use| UtilApp
-    end
-    subgraph Definitions["`**definitions Package**`"]
-        Attributes["`
-            **attributes Package**
-            common attribute definitions & parsers,
-            group type definitions,
-            user account type definitions,
-            user control definitions,
-            extensible match rules
-        `"]
-        Filter["`
-            **filter Package**
-            filter implementations,
-            filter parsing,
-            custom filter syntax
-        `"]
-    end
-    subgraph Commands["`**commands Package**`"]
-        EditCmd["`**edit command**`"]
-        GetCmd["`**get command**`"]
-        VersionCmd["`
-            **version command**
-            verify app version,
-            update to the latest
-        `"]
-    end
-    subgraph EditCmd["`**edit command**`"]
-        EditCustom["`
-            **custom sub-command**
-            modify any object
-        `"]
-        EditGroup["`
-            **group sub-command**
-            modify group object
-        `"]
-        EditUser["`
-            **user sub-command**
-            modify user object
-        `"]
-    end
-    subgraph GetCmd["`**get command**`"]
-        GetCustom["`
-            **custom sub-command**
-            query any object
-        `"]
-        GetGroup["`
-            **group sub-command**
-            query group objects
-        `"]
-        GetUser["`
-            **user sub-command**
-            query user objects
-        `"]
+        "]
     end
 ```
