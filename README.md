@@ -233,8 +233,8 @@ $ go test -v ./...
 
 ```mermaid
 graph TB
-    CLI_Tool[LDAP CLI Tool] -->|CLI command & flag definitions| App
-    CLI_Tool -->|Program entry point executor| App
+    CLI_Tool[LDAP CLI Tool] -->|Program entry point executor| App
+    CLI_Tool -->|CLI command & flag definitions| App
     App -->|Authentication Schemes| Auth
     App -->|Search & modify request operations| Client
     Client -->|Directory object properties| Attributes
@@ -249,6 +249,7 @@ graph TB
     subgraph App[app Package]
         Commands[commands Package]
         UtilApp[util Package]
+        Commands -->|Use| UtilApp
     end
     subgraph Definitions[definitions Package]
         Attributes[attributes Package]
@@ -258,6 +259,8 @@ graph TB
         EditCmd[edit command]
         GetCmd[get command]
         VersionCmd[version command]
+        EditCmd ~~~ GetCmd
+        GetCmd ~~~ VersionCmd
     end
     subgraph EditCmd[edit command]
         EditCustom[custom sub-command]
