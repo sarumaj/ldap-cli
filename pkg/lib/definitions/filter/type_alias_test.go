@@ -47,6 +47,18 @@ func TestAlias_findMatches(t *testing.T) {
 		{"test#23", args{AliasForAttr(), ".....$NOT($ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST))........"}, []string{"$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)"}},
 		{"test#24", args{AliasForAttr(), ".....$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)..$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)........"},
 			[]string{"$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)", "$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)"}},
+		{"test#25", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com)........"}, []string{"$EQ(dn;CN=SuperUser,...,DC=com)"}},
+		{"test#26", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com;$BAND)........"}, []string{"$EQ(dn;CN=SuperUser,...,DC=com;$BAND)"}},
+		{"test#27", args{AliasForGreaterThan(), ".....$GT(createdOn;0)........"}, []string{"$GT(createdOn;0)"}},
+		{"test#28", args{AliasForGreaterThanOrEqual(), "....$GT(createdOn;0).$GTE(createdOn;0).$GT(createdOn;0)......."}, []string{"$GTE(createdOn;0)"}},
+		{"test#29", args{AliasForLessThan(), ".....$LT(createdOn;0)........"}, []string{"$LT(createdOn;0)"}},
+		{"test#30", args{AliasForLessThanOrEqual(), "....$LT(createdOn;0).$LTE(createdOn;0).$LT(createdOn;0)......."}, []string{"$LTE(createdOn;0)"}},
+		{"test#31", args{AliasForContains(), ".....$CONTAINS(commonName;user)........"}, []string{"$CONTAINS(commonName;user)"}},
+		{"test#32", args{AliasForStartsWith(), ".....$STARTS_WITH(commonName;user)........"}, []string{"$STARTS_WITH(commonName;user)"}},
+		{"test#33", args{AliasForEndsWith(), ".....$ENDS_WITH(commonName;user)........"}, []string{"$ENDS_WITH(commonName;user)"}},
+		{"test#34", args{AliasForNotExists(), ".....$NOT_EXISTS(commonName)........"}, []string{"$NOT_EXISTS(commonName)"}},
+		{"test#35", args{AliasForExists(), ".....$EXISTS(commonName)........"}, []string{"$EXISTS(commonName)"}},
+		{"test#36", args{AliasForLike(), ".....$LIKE(commonName;user)........"}, []string{"$LIKE(commonName;user)"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.args.alias.findMatches(tt.args.alias.findOccurrences([]byte(tt.args.raw)), []byte(tt.args.raw))
@@ -96,6 +108,18 @@ func TestAlias_findOccurrences(t *testing.T) {
 		{"test#27", args{AliasForAttr(), ".....$ATTR(dn;CN=SuperUser,...,DC=com;=*)........"}, [][]int{{5, 10}}},
 		{"test#28", args{AliasForAttr(), ".....$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)........"}, [][]int{{5, 10}}},
 		{"test#29", args{AliasForAttr(), ".....$NOT($ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST))........"}, [][]int{{10, 15}}},
+		{"test#30", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com)........"}, [][]int{{5, 8}}},
+		{"test#31", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com;$BAND)........"}, [][]int{{5, 8}}},
+		{"test#32", args{AliasForGreaterThan(), ".....$GT(createdOn;0)........"}, [][]int{{5, 8}}},
+		{"test#33", args{AliasForGreaterThanOrEqual(), "....$GT(createdOn;0).$GTE(createdOn;0).$GT(createdOn;0)......."}, [][]int{{21, 25}}},
+		{"test#34", args{AliasForLessThan(), ".....$LT(createdOn;0)........"}, [][]int{{5, 8}}},
+		{"test#35", args{AliasForLessThanOrEqual(), "....$LT(createdOn;0).$LTE(createdOn;0).$LT(createdOn;0)......."}, [][]int{{21, 25}}},
+		{"test#36", args{AliasForContains(), ".....$CONTAINS(commonName;user)........"}, [][]int{{5, 14}}},
+		{"test#37", args{AliasForStartsWith(), ".....$STARTS_WITH(commonName;user)........"}, [][]int{{5, 17}}},
+		{"test#38", args{AliasForEndsWith(), ".....$ENDS_WITH(commonName;user)........"}, [][]int{{5, 15}}},
+		{"test#39", args{AliasForNotExists(), ".....$NOT_EXISTS(commonName)........"}, [][]int{{5, 16}}},
+		{"test#40", args{AliasForExists(), ".....$EXISTS(commonName)........"}, [][]int{{5, 12}}},
+		{"test#41", args{AliasForLike(), ".....$LIKE(commonName;user)........"}, [][]int{{5, 10}}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.alias.findOccurrences([]byte(tt.args.raw)); !reflect.DeepEqual(got, tt.want) {
@@ -141,6 +165,18 @@ func TestAlias_findSplitPositions(t *testing.T) {
 		{"test#23", args{AliasForAttr(), ".....$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)........"}, []int{13, 37, 39, 46}},
 		{"test#24", args{AliasForAttr(), ".....$NOT($ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST))........"}, []int{52}},
 		{"test#25", args{AliasForAttr(), ".....$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)..$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)........"}, []int{13, 37, 39, 46}},
+		{"test#26", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com)........"}, []int{11, 36}},
+		{"test#27", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com;$BAND)........"}, []int{11, 35, 42}},
+		{"test#28", args{AliasForGreaterThan(), ".....$GT(createdOn;0)........"}, []int{18, 21}},
+		{"test#29", args{AliasForGreaterThanOrEqual(), "....$GT(createdOn;0).$GTE(createdOn;0).$GT(createdOn;0)......."}, []int{17, 20}},
+		{"test#30", args{AliasForLessThan(), ".....$LT(createdOn;0)........"}, []int{18, 21}},
+		{"test#31", args{AliasForLessThanOrEqual(), "....$LT(createdOn;0).$LTE(createdOn;0).$LT(createdOn;0)......."}, []int{17, 20}},
+		{"test#32", args{AliasForContains(), ".....$CONTAINS(commonName;user)........"}, []int{25, 31}},
+		{"test#33", args{AliasForStartsWith(), ".....$STARTS_WITH(commonName;user)........"}, []int{28, 34}},
+		{"test#34", args{AliasForEndsWith(), ".....$ENDS_WITH(commonName;user)........"}, []int{26, 32}},
+		{"test#35", args{AliasForNotExists(), ".....$NOT_EXISTS(commonName)........"}, []int{28}},
+		{"test#36", args{AliasForExists(), ".....$EXISTS(commonName)........"}, []int{24}},
+		{"test#37", args{AliasForLike(), ".....$LIKE(commonName;user)........"}, []int{21, 27}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.alias.findSplitPositions([]byte(tt.args.raw)); !reflect.DeepEqual(got, tt.want) {
@@ -221,6 +257,20 @@ func TestAlias_replace(t *testing.T) {
 		{"test#27", args{AliasForAttr(), ".....$ATTR(dn;CN=SuperUser,...,DC=com;=*)........"}, ".....(DistinguishedName=*CN=SuperUser,...,DC=com)........"},
 		{"test#28", args{AliasForAttr(), ".....$ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST)........"}, ".....(DistinguishedName:$TEST:=CN=SuperUser,...,DC=com)........"},
 		{"test#29", args{AliasForAttr(), ".....$NOT($ATTR(dn;CN=SuperUser,...,DC=com;=;$TEST))........"}, ".....$NOT((DistinguishedName:$TEST:=CN=SuperUser,...,DC=com))........"},
+		{"test#30", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com)........"}, ".....(DistinguishedName=CN=SuperUser,...,DC=com)........"},
+		{"test#31", args{AliasForEquals(), ".....$EQ(dn;CN=SuperUser,...,DC=com;$BAND)........"}, ".....(DistinguishedName:$BAND:=CN=SuperUser,...,DC=com)........"},
+		{"test#32", args{AliasForGreaterThan(), ".....$GT(createdOn;0)........"}, ".....(CreatedOn=>0)........"},
+		{"test#33", args{AliasForGreaterThanOrEqual(), "....$GT(createdOn;0).$GTE(createdOn;0).$GT(createdOn;0)......."},
+			"....$GT(createdOn;0).(CreatedOn>=0).$GT(createdOn;0)......."},
+		{"test#34", args{AliasForLessThan(), ".....$LT(createdOn;0)........"}, ".....(CreatedOn=<0)........"},
+		{"test#35", args{AliasForLessThanOrEqual(), "....$LT(createdOn;0).$LTE(createdOn;0).$LT(createdOn;0)......."},
+			"....$LT(createdOn;0).(CreatedOn<=0).$LT(createdOn;0)......."},
+		{"test#36", args{AliasForContains(), ".....$CONTAINS(commonName;user)........"}, ".....(CN=*user*)........"},
+		{"test#37", args{AliasForStartsWith(), ".....$STARTS_WITH(commonName;user)........"}, ".....(CN=user*)........"},
+		{"test#38", args{AliasForEndsWith(), ".....$ENDS_WITH(commonName;user)........"}, ".....(CN=*user)........"},
+		{"test#39", args{AliasForNotExists(), ".....$NOT_EXISTS(commonName)........"}, ".....(!(CN=*))........"},
+		{"test#40", args{AliasForExists(), ".....$EXISTS(commonName)........"}, ".....(CN=*)........"},
+		{"test#41", args{AliasForLike(), ".....$LIKE(commonName;user)........"}, ".....(CN~=user)........"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.alias.replace([]byte(tt.args.raw)); string(got) != tt.want {
@@ -231,25 +281,21 @@ func TestAlias_replace(t *testing.T) {
 }
 
 func TestAlias_splitParameters(t *testing.T) {
-	type args struct {
-		alias  Alias
-		params string
-	}
-
 	for _, tt := range []struct {
 		name string
-		args args
+		args string
 		want []string
 	}{
-		{"test#1", args{AliasForId(), "(12345)"}, []string{"12345"}},
-		{"test#2", args{AliasForId(), "(12345;67890)"}, []string{"12345", "67890"}},
-		{"test#3", args{AliasForId(), "(12345;67890;12345)"}, []string{"12345", "67890", "12345"}},
-		{"test#4", args{AliasForId(), "(12345;67890;12345;67890)"}, []string{"12345", "67890", "12345", "67890"}},
-		{"test#5", args{AliasForId(), "(12345;67890;12345; ;67890 ; 12345)"}, []string{"12345", "67890", "12345", "", "67890", "12345"}},
-		{"test#6", args{AliasForId(), "((12345;67890;12345;67890;12345);34567)"}, []string{"(12345;67890;12345;67890;12345)", "34567"}},
+		{"test#1", "(12345)", []string{"12345"}},
+		{"test#2", "(12345;67890)", []string{"12345", "67890"}},
+		{"test#3", "(12345;67890;12345)", []string{"12345", "67890", "12345"}},
+		{"test#4", "(12345;67890;12345;67890)", []string{"12345", "67890", "12345", "67890"}},
+		{"test#5", "(12345;67890;12345; ;67890 ; 12345)", []string{"12345", "67890", "12345", "", "67890", "12345"}},
+		{"test#6", "((12345;67890;12345;67890;12345);34567)", []string{"(12345;67890;12345;67890;12345)", "34567"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.args.alias.splitParameters([]byte(tt.args.params), tt.args.alias.findSplitPositions([]byte(tt.args.params))); !reflect.DeepEqual(got, tt.want) {
+			alias := Alias{}
+			if got := alias.splitParameters([]byte(tt.args), alias.findSplitPositions([]byte(tt.args))); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("splitParameters() = %v, want %v", got, tt.want)
 			}
 		})
@@ -293,7 +339,7 @@ func TestReplaceAliases(t *testing.T) {
 					`(AccountExpires=*)`) +
 				`)`) +
 				`)`},
-		{"test#8", "$OR($ID(12345)$ID(12346))",
+		{"test#8", "$OR($ID(12345);$ID(12346))",
 			(`(|` +
 				(`(|` +
 					`(CN=12345)` +
@@ -348,6 +394,11 @@ func TestReplaceAliases(t *testing.T) {
 				`)`) +
 				`)`},
 		{"test#17", "$NOT($ATTR(test;value))", "(!(Test=value))"},
+		{"test#18", "$AND($GT(expiresOn;0);$LTE(expiresOn;9999);$EXISTS(expiresOn))", "(&(ExpiresOn=>0)(ExpiresOn<=9999)(ExpiresOn=*))"},
+		{"test#19", "$AND($CONTAINS(cn;user);$STARTS_WITH(cn;prefix);$ENDS_WITH(cn;suffix))", "(&(CN=*user*)(CN=prefix*)(CN=*suffix))"},
+		{"test#20", "$AND($NOT_EXISTS(cn);$EXISTS(cn))", "(&(!(CN=*))(CN=*))"},
+		{"test#21", "$AND($LIKE(cn;user);$EQ(cn;user);$GT(cn;user);$GTE(cn;user);$LT(cn;user);$LTE(cn;user))",
+			"(&(CN~=user)(CN=user)(CN=>user)(CN=user)(CN=<user)(CN=user))"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := ReplaceAliases(tt.args); got != tt.want {
