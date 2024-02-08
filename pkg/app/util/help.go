@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"strings"
 
 	filter "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/filter"
 )
@@ -22,10 +23,21 @@ func HelpAliases(msg *string) {
 	}
 
 	for _, alias := range aliases {
+		subst := alias.Substitution(alias.Parameters)
+
+		// mitigate improper formatting of the substitution
+		for key, value := range map[string]string{
+			"=<?operator>": "<?operator>",
+			"<Attribute>":  "<attribute>",
+		} {
+			subst = strings.Replace(subst, key, value, 1)
+		}
+
 		*msg += fmt.Sprintf(
 			fmt.Sprintf(" - %%-%ds: %%s\n", longest),
-			alias.String(), alias.Substitution(alias.Parameters),
+			alias.String(), subst,
 		)
 	}
+
 	*msg += "Parameters beginning with a question mark are optional.\n"
 }

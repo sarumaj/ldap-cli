@@ -145,25 +145,36 @@ corresponds with the following LDAP filter expression:
 
 Following expressions are supported:
 
-| Filter expression                           | Corresponding LDAP filter expression                                                                                            |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `$ATTR(attribute; value; ?operator; ?rule)` | `(Attribute:?rule:=?operatorvalue)`                                                                                             |
-| `$DC`                                       | `(&(ObjectClass=computer)(UserAccountControl:1.2.840.113556.1.4.803:=8192))`                                                    |
-| `$DISABLED`                                 | `(UserAccountControl:1.2.840.113556.1.4.803:=2)`                                                                                |
-| `$ENABLED`                                  | `(!(UserAccountControl:1.2.840.113556.1.4.803:=2))`                                                                             |
-| `$EXPIRED`                                  | `(&(AccountExpires=>0)(AccountExpires=<9223372036854775807)(AccountExpires=<92233720368547758)(AccountExpires=*))`              |
-| `$GROUP`                                    | `(\|(ObjectClass=group)(ObjectClass=posixGroup))`                                                                               |
-| `$ID(id)`                                   | `(\|(CN=id)(DisplayName=id)(\|(DistinguishedName=id)(DN=id))(Name=id)(SAMAccountName=id)(UserPrincipalName=id)(ObjectGuid=id))` |
-| `$MEMBER_OF(dn; ?recurse)`                  | `(MemberOf=dn)`                                                                                                                 |
-| `$NOT_EXPIRED`                              | `(!(&(AccountExpires=>0)(AccountExpires=<9223372036854775807)(AccountExpires=<92233720368547758)(AccountExpires=*)))`           |
-| `$USER`                                     | `(\|(ObjectClass=user)(ObjectClass=posixAccount))`                                                                              |
-| `$BAND`                                     | `1.2.840.113556.1.4.803`                                                                                                        |
-| `$BOR`                                      | `1.2.840.113556.1.4.804`                                                                                                        |
-| `$DATA`                                     | `1.2.840.113556.1.4.2253`                                                                                                       |
-| `$RECURSIVE`                                | `1.2.840.113556.1.4.1941`                                                                                                       |
-| `$AND((filter1); ...; (filterN))`           | `(&(filter1)...(filterN))`                                                                                                      |
-| `$NOT((filter))`                            | `(!(filter))`                                                                                                                   |
-| `$OR((filter1); ...; (filterN))`            | `(\|(filter1)...(filterN))`                                                                                                     |
+| Filter expression                                   | Corresponding LDAP filter expression                                                                                                          |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `$ATTR(<attribute>; <value>; <?operator>; <?rule>)` | `(<attribute>:<?rule>:<?operator><value>)`                                                                                                   |
+| `$CONTAINS(<attribute>; <value>; <?rule>)`          | `(<attribute>:<?rule>:=*<value>*)`                                                                                                            |
+| `$ENDS_WITH(<attribute>; <value>; <?rule>)`         | `(<attribute>:<?rule>:=*<value>)`                                                                                                             |
+| `$BAND`                                             | `1.2.840.113556.1.4.803`                                                                                                                      |
+| `$BOR`                                              | `1.2.840.113556.1.4.804`                                                                                                                      |
+| `$DATA`                                             | `1.2.840.113556.1.4.2253`                                                                                                                     |
+| `$RECURSIVE`                                        | `1.2.840.113556.1.4.1941`                                                                                                                     |
+| `$AND((filter1); ...; (filterN))`                   | `(&(filter1)...(filterN))`                                                                                                                    |
+| `$NOT((filter))`                                    | `(!(filter))`                                                                                                                                 |
+| `$OR((filter1); ...; (filterN))`                    | `(|(filter1)...(filterN))`                                                                                                                    |
+| `$DC`                                               | `(&(ObjectClass=computer)(UserAccountControl:1.2.840.113556.1.4.803:=8192))`                                                                  |
+| `$DISABLED`                                         | `(UserAccountControl:1.2.840.113556.1.4.803:=2)`                                                                                              |
+| `$ENABLED`                                          | `(!(UserAccountControl:1.2.840.113556.1.4.803:=2))`                                                                                           |
+| `$EQ(<attribute>; <value>; <?rule>)`                | `(<attribute>:<?rule>:=<value>)`                                                                                                              |
+| `$EXISTS(<attribute>)`                              | `(<attribute>=*)`                                                                                                                             |
+| `$EXPIRED`                                          | `(&(AccountExpires=>0)(AccountExpires=<9223372036854775807)(AccountExpires=<92233720368547758)(AccountExpires=*))`                            |
+| `$GROUP`                                            | `(|(ObjectClass=group)(ObjectClass=posixGroup))`                                                                                              |
+| `$GT(<attribute>; <value>; <?rule>)`                | `(<attribute>:<?rule>:=><value>)`                                                                                                             |
+| `$GTE(<attribute>; <value>; <?rule>)`               | `(<attribute>:<?rule>:>=<value>)`                                                                                                             |
+| `$ID(<id>)`                                         | `(|(CN=<id>)(DisplayName=<id>)(|(DistinguishedName=<id>)(DN=<id>))(Name=<id>)(SAMAccountName=<id>)(UserPrincipalName=<id>)(ObjectGuid=<id>))` |
+| `$LIKE(<attribute>; <value>; <?rule>)`              | `(<attribute>:<?rule>:~=<value>)`                                                                                                             |
+| `$LT(<attribute>; <value>; <?rule>)`                | `(<attribute>:<?rule>:=<<value>)`                                                                                                             |
+| `$LTE(<attribute>; <value>; <?rule>)`               | `(<attribute>:<?rule>:<=<value>)`                                                                                                             |
+| `$MEMBER_OF(<dn>; <?recurse>)`                      | `(MemberOf=<dn>)`                                                                                                                             |
+| `$NOT_EXISTS(<attribute>)`                          | `(!(<attribute>=*))`                                                                                                                          |
+| `$NOT_EXPIRED`                                      | `(!(&(AccountExpires=>0)(AccountExpires=<9223372036854775807)(AccountExpires=<92233720368547758)(AccountExpires=*)))`                         |
+| `$STARTS_WITH(<attribute>; <value>; <?rule>)`       | `(<attribute>:<?rule>:=<value>*)`                                                                                                             |
+| `$USER`                                             | `(|(ObjectClass=user)(ObjectClass=posixAccount))`                                                                                             |
 
 Parameters beginning with a question mark are optional.
 
