@@ -2,6 +2,7 @@
 Aivazis
 apputil
 blang
+Ciepiela
 cldap
 CLDAP
 CLICOLOR
@@ -12,6 +13,7 @@ coverprofile
 creasty
 creativeprojects
 csvutil
+Dawid
 Debugf
 Decompile
 derivated
