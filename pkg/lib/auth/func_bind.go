@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -13,8 +14,10 @@ import (
 type BindParameters struct {
 	// AuthType is the authentication type
 	AuthType AuthType `validate:"required,is_valid"` // default: SIMPLE
-	// Domain is user's domain (required for NTLM authentication)
-	Domain string `validate:"required_if=AuthType NTLM"`
+	// Domain is user's domain (for NTLM authentication)
+	Domain string
+	// Use NTLM hash instead of password
+	AsHash bool
 	// User's password
 	Password string `validate:"required_unless=AuthType UNAUTHENTICATED"`
 	// Username
@@ -26,6 +29,13 @@ func (p *BindParameters) FromKeyring() error {
 	var err error
 	if p.User == "" {
 		p.User, err = libutil.GetFromKeyring("user")
+		if err != nil {
+			return err
+		}
+	}
+
+	if raw, err := libutil.GetFromKeyring("hash"); err == nil {
+		_, err := fmt.Sscanf(raw, "%t", &p.AsHash)
 		if err != nil {
 			return err
 		}
@@ -83,6 +93,10 @@ func (p *BindParameters) SetPassword(password string) *BindParameters {
 // ToKeyring saves credentials to keyring
 func (p BindParameters) ToKeyring() error {
 	if err := libutil.SetToKeyring("user", p.User); err != nil {
+		return err
+	}
+
+	if err := libutil.SetToKeyring("hash", fmt.Sprintf("%t", p.AsHash)); err != nil {
 		return err
 	}
 
@@ -155,10 +169,20 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 		err = libutil.Handle(ldapConn.MD5Bind(options.URL.Host, parameters.User, parameters.Password))
 
 	case NTLM:
-		err = libutil.Handle(ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password))
+		if parameters.AsHash {
+			err = libutil.Handle(ldapConn.NTLMBindWithHash(parameters.Domain, parameters.User, parameters.Password))
+		} else {
+			err = libutil.Handle(ldapConn.NTLMBind(parameters.Domain, parameters.User, parameters.Password))
+		}
 
-	case EXTERNAL:
+	case SASL:
 		err = libutil.Handle(ldapConn.ExternalBind())
+
+	case KERBEROS:
+		// TODO: implement GSSAPI
+		if parameters.AuthType.IsValid() {
+			err = libutil.Handle(ldapConn.GSSAPIBind(&GSSAPIClient{}, "TODO", "TODO"))
+		}
 
 	}
 	if err != nil {

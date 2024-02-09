@@ -13,7 +13,8 @@ const (
 	SIMPLE
 	MD5
 	NTLM
-	EXTERNAL
+	SASL
+	KERBEROS // not supported yet, to be implemented
 )
 
 // typeTranslation is a map of AuthType to string
@@ -22,6 +23,7 @@ var typeTranslation = map[AuthType]string{
 	SIMPLE:          "SIMPLE",
 	MD5:             "MD5",
 	NTLM:            "NTLM",
+	SASL:            "SASL",
 }
 
 var _ libutil.ValidatorInterface = AuthType(0)
@@ -33,7 +35,7 @@ type AuthType int
 func (t AuthType) IsValid() bool {
 	switch t {
 
-	case UNAUTHENTICATED, SIMPLE, MD5, NTLM, EXTERNAL:
+	case UNAUTHENTICATED, SIMPLE, MD5, NTLM, SASL:
 		return true
 
 	default:
