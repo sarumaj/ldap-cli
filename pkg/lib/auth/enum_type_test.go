@@ -11,8 +11,8 @@ func TestListSupportedAuthTypes(t *testing.T) {
 		args bool
 		want []string
 	}{
-		{"test#1", false, []string{"MD5", "NTLM", "SIMPLE", "UNAUTHENTICATED"}},
-		{"test#2", true, []string{"\"MD5\"", "\"NTLM\"", "\"SIMPLE\"", "\"UNAUTHENTICATED\""}},
+		{"test#1", false, []string{"MD5", "NTLM", "SASL", "SIMPLE", "UNAUTHENTICATED"}},
+		{"test#2", true, []string{"\"MD5\"", "\"NTLM\"", "\"SASL\"", "\"SIMPLE\"", "\"UNAUTHENTICATED\""}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ListSupportedAuthTypes(tt.args)
@@ -32,7 +32,7 @@ func TestTypeIsValid(t *testing.T) {
 		{"test#1", SIMPLE, true},
 		{"test#2", NTLM, true},
 		{"test#3", 0, false},
-		{"test#4", EXTERNAL, true},
+		{"test#4", SASL, true},
 		{"test#5", UNAUTHENTICATED, true},
 		{"test#6", MD5, true},
 	} {

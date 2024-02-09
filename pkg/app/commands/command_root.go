@@ -55,7 +55,8 @@ var rootCmd = func() *cobra.Command {
 	// bind parameters
 	flags.StringVar(&rootFlags.address, "url", auth.URL{Scheme: auth.LDAP, Host: "localhost", Port: auth.LDAP_RW}.String(), "Provide address of the directory server")
 	flags.StringVar(&rootFlags.authType, "auth-type", auth.UNAUTHENTICATED.String(), fmt.Sprintf("Set authentication schema (supported: [%v])", strings.Join(auth.ListSupportedAuthTypes(true), ", ")))
-	flags.StringVar(&rootFlags.bindParameters.Domain, "domain", "", fmt.Sprintf("Set domain (required for %s authentication schema)", auth.NTLM))
+	flags.StringVar(&rootFlags.bindParameters.Domain, "domain", "", fmt.Sprintf("Set domain (used for %s authentication schema)", auth.NTLM))
+	flags.BoolVar(&rootFlags.bindParameters.AsHash, "password-as-hash", false, fmt.Sprintf("Provide NTLM hash instead of password (used for %s authentication schema)", auth.NTLM))
 	flags.StringVar(&rootFlags.bindParameters.Password, "password", "", fmt.Sprintf("Set password (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
 	flags.StringVar(&rootFlags.bindParameters.User, "user", "", fmt.Sprintf("Set username (will be ignored if authentication schema is set to %s)", auth.UNAUTHENTICATED))
 
