@@ -244,7 +244,7 @@ $ git clone https://github.com/sarumaj/ldap-cli
 $ cd ldap-cli/oat
 $ docker compose up
 $ cd ..
-$ go test -v ./...
+$ TEST_OAT="true" go test -v ./...
 ```
 
 ### Software Architecture
