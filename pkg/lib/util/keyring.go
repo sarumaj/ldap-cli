@@ -28,6 +28,22 @@ const (
 	KEYCTL_PERM_PROCESS
 )
 
+var availableBackends = keyring.AvailableBackends()
+
+var backendOrder = []keyring.BackendType{
+	// Windows
+	keyring.WinCredBackend,
+	// Linux
+	keyring.SecretServiceBackend,
+	keyring.KWalletBackend,
+	keyring.KeyCtlBackend,
+	// MacOS
+	keyring.KeychainBackend,
+	// General
+	keyring.PassBackend,
+	keyring.FileBackend,
+}
+
 // Config is the configuration for the keyring
 var Config = func() keyring.Config {
 	cfg := &keyring.Config{
@@ -56,9 +72,20 @@ var Config = func() keyring.Config {
 
 	// evaluate available backends
 	var backends []keyring.BackendType
-	for _, backend := range keyring.AvailableBackends() {
-		// skip file backend, since it is supposed to be always available
-		if backend == keyring.FileBackend {
+	for _, backend := range backendOrder {
+		// skip backend if not available
+		if !func() bool {
+			for _, available := range availableBackends {
+				if backend == available {
+					return true
+				}
+			}
+
+			return false
+		}() ||
+			// skip file backend, since it is supposed to be always available
+			backend == keyring.FileBackend {
+
 			continue
 		}
 
