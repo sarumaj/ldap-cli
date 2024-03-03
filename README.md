@@ -69,7 +69,7 @@ $ chmod +x /usr/local/bin/ldap-cli
     - [x] LDIF edit mode
   - [x] Edit user's password
     - [x] Support arbitrary password attribute
-    - [ ] Option to pass old password (**not available in LDIF mode**)
+    - [ ] ~~Option to pass old password~~ (**not supported**)
     - [x] LDIF edit mode
   - [x] Edit custom objects
     - [x] LDIF edit mode
@@ -78,6 +78,13 @@ $ chmod +x /usr/local/bin/ldap-cli
   - [x] Utilize ANSI code sequences if available
 - [x] Support multiple output formats (CSV, LDIF, YAML)
 - [x] Custom filter syntax
+
+## TODO
+
+- [ ] Implement LDAP Password Modify Extended Operation
+- [ ] Test interactive UI
+- [ ] Support AD object creation
+- [ ] Support AD object disposal
 
 ## Usage
 
@@ -234,6 +241,10 @@ $ ldap-cli \
 
 > Successfully applied modifications
 ```
+
+#### Interactive UI Demonstration
+
+[![ldap-cli demo](doc/screenshot.png)](https://youtu.be/Lr1pnHph24s)
 
 ### Testing
 
