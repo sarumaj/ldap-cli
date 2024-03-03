@@ -115,6 +115,7 @@ func Search(conn *auth.Connection, args SearchArguments, bar *progressbar.Progre
 	}
 
 	if bar != nil {
+		defer func() { _ = bar.Clear() }()
 		bar.Describe("searching")
 	}
 
