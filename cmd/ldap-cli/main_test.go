@@ -15,7 +15,6 @@ import (
 	godog "github.com/cucumber/godog"
 	supererrors "github.com/sarumaj/go-super/errors"
 	app "github.com/sarumaj/ldap-cli/v2/pkg/app"
-	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
 	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
 
@@ -78,7 +77,7 @@ func InitializeScenario(scx *godog.ScenarioContext) {
 			}
 		})
 
-		apputil.Logger.SetOutput(io.Discard)
+		app.Logger.SetOutput(io.Discard)
 		supererrors.Except(os.Setenv("NO_COLOR", "true"))
 
 		return args.Add(ctx, []string{}), nil
@@ -87,7 +86,7 @@ func InitializeScenario(scx *godog.ScenarioContext) {
 	scx.After(func(ctx context.Context, sc *godog.Scenario, err error) (context.Context, error) {
 		supererrors.RestoreCallback()
 		libutil.Exit, os.Stdout, os.Stderr = os.Exit, stdOut, stdErr
-		apputil.Logger.SetOutput(os.Stdout)
+		app.Logger.SetOutput(os.Stdout)
 		supererrors.Except(os.Unsetenv("NO_COLOR"))
 
 		return ctx, err

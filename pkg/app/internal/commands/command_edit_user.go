@@ -2,7 +2,7 @@ package commands
 
 import (
 	supererrors "github.com/sarumaj/go-super/errors"
-	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
+	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/internal/util"
 	client "github.com/sarumaj/ldap-cli/v2/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
 	filter "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/filter"

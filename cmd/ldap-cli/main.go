@@ -40,7 +40,6 @@ package main
 
 import (
 	app "github.com/sarumaj/ldap-cli/v2/pkg/app"
-	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
 )
 
 // Version holds the application version.
@@ -52,6 +51,6 @@ var Version = "v2.6.9"
 var BuildDate = "2024-03-03 19:09:15 UTC"
 
 func main() {
-	apputil.Logger.Debugf("version: %q, build date: %q", Version, BuildDate)
+	app.Logger.Debugf("version: %q, build date: %q", Version, BuildDate)
 	app.Execute(Version, BuildDate)
 }

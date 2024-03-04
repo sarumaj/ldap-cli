@@ -313,58 +313,60 @@ graph TB
         "]
     end
     subgraph App["<b>app Package</b>"]
-        subgraph Commands["<b>commands Package</b>"]
-            subgraph EditCmd["<b>edit command</b>"]
-                direction TB
-                EditCustom["
-                    <b>custom sub-command</b>
+      subgraph Internal["<b>internal Package</b>"]
+          subgraph Commands["<b>commands Package</b>"]
+              subgraph EditCmd["<b>edit command</b>"]
+                  direction TB
+                  EditCustom["
+                      <b>custom sub-command</b>
 
-                    modify any object
-                "]
-                EditGroup["
-                    <b>group sub-command</b>
+                      modify any object
+                  "]
+                  EditGroup["
+                      <b>group sub-command</b>
 
-                    modify group object
-                "]
-                EditUser["
-                    <b>user sub-command</b>
+                      modify group object
+                  "]
+                  EditUser["
+                      <b>user sub-command</b>
 
-                    modify user object
-                "]
-            end
-            subgraph GetCmd["get command"]
-                direction TB
-                GetCustom["
-                    <b>custom sub-command</b>
+                      modify user object
+                  "]
+              end
+              subgraph GetCmd["get command"]
+                  direction TB
+                  GetCustom["
+                      <b>custom sub-command</b>
 
-                    query any object
-                "]
-                GetGroup["
-                    <b>group sub-command</b>
+                      query any object
+                  "]
+                  GetGroup["
+                      <b>group sub-command</b>
 
-                    query group objects
-                "]
-                GetUser["
-                    <b>user sub-command</b>
+                      query group objects
+                  "]
+                  GetUser["
+                      <b>user sub-command</b>
 
-                    query user objects
-                "]
-            end
-            VersionCmd["
-                <b>version command</b>
+                      query user objects
+                  "]
+              end
+              VersionCmd["
+                  <b>version command</b>
 
-                verify app version,
-                update to the latest
-            "]
-        end
-        UtilApp["
-            <b>util Package</b>
+                  verify app version,
+                  update to the latest
+              "]
+          end
+          UtilApp["
+              <b>util Package</b>
 
-            console utils,
-            input/output format definitions,
-            command help annotations,
-            logging middleware,
-            user interactive interfaces
-        "]
+              console utils,
+              input/output format definitions,
+              command help annotations,
+              logging middleware,
+              user interactive interfaces
+          "]
+      end
     end
 ```

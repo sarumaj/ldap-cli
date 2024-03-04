@@ -5,7 +5,7 @@ import (
 	"os"
 
 	supererrors "github.com/sarumaj/go-super/errors"
-	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
+	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/internal/util"
 	auth "github.com/sarumaj/ldap-cli/v2/pkg/lib/auth"
 	client "github.com/sarumaj/ldap-cli/v2/pkg/lib/client"
 	attributes "github.com/sarumaj/ldap-cli/v2/pkg/lib/definitions/attributes"
