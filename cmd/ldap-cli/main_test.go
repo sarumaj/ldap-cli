@@ -14,7 +14,7 @@ import (
 
 	godog "github.com/cucumber/godog"
 	supererrors "github.com/sarumaj/go-super/errors"
-	commands "github.com/sarumaj/ldap-cli/v2/pkg/app/commands"
+	app "github.com/sarumaj/ldap-cli/v2/pkg/app"
 	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
 	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
 )
@@ -122,7 +122,7 @@ func InitializeScenario(scx *godog.ScenarioContext) {
 			reader, writer := supererrors.ExceptFn2(supererrors.W2(os.Pipe()))
 			os.Stdout, os.Stderr = writer, writer
 
-			commands.Execute(Version, BuildDate, args.Get(ctx)...)
+			app.Execute(Version, BuildDate, args.Get(ctx)...)
 
 			supererrors.Except(writer.Close())
 			buffer := bytes.NewBuffer(nil)

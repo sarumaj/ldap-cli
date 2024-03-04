@@ -39,7 +39,7 @@ Use "ldap-cli [command] --help" for more information about a command.
 package main
 
 import (
-	commands "github.com/sarumaj/ldap-cli/v2/pkg/app/commands"
+	app "github.com/sarumaj/ldap-cli/v2/pkg/app"
 	apputil "github.com/sarumaj/ldap-cli/v2/pkg/app/util"
 )
 
@@ -53,5 +53,5 @@ var BuildDate = "2024-03-03 19:09:15 UTC"
 
 func main() {
 	apputil.Logger.Debugf("version: %q, build date: %q", Version, BuildDate)
-	commands.Execute(Version, BuildDate)
+	app.Execute(Version, BuildDate)
 }
