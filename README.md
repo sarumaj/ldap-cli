@@ -271,7 +271,7 @@ graph TB
     Client -->|Directory object properties| Attributes
     App -->|Directory object properties| Attributes
     App -->|Parser, schema validation & custom filter syntax| Filter
-    App -->|Logger| UtilApp
+    App -->|Use| UtilLib
     Commands -->|Use| UtilApp
     EditCustom ~~~ EditGroup
     EditGroup ~~~ EditUser
