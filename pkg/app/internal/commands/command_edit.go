@@ -103,7 +103,7 @@ func editChildCommandPostRun(cmd *cobra.Command, _ []string) {
 		}
 	}
 
-	apputil.PrintlnAndExit(0, apputil.PrintColors(color.HiGreenString, "Successfully applied modifications"))
+	apputil.PrintlnAndExit(0, "%s", apputil.PrintColors(color.HiGreenString, "Successfully applied modifications"))
 }
 
 // Runs prior to "run" and sets search query options (inherited by child commands)
