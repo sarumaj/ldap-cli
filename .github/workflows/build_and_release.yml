@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go: [1.21]
+        go: [1.23.4]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     name: Build and release ldap-cli
@@ -63,7 +63,7 @@ jobs:
           coverageLocations: ./c.out:gocov
           debug: true
           prefix: ${{ steps.export_module_name.outputs.MODULE_NAME }}
-          
+
       - name: Precompile binaries and upload assets
         uses: cli/gh-extension-precompile@v1
         with:

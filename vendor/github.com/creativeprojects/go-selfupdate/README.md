@@ -4,6 +4,11 @@ Self-Update library for Github, Gitea and Gitlab hosted applications in Go
 [![Godoc reference](https://godoc.org/github.com/creativeprojects/go-selfupdate?status.svg)](http://godoc.org/github.com/creativeprojects/go-selfupdate)
 [![Build](https://github.com/creativeprojects/go-selfupdate/workflows/Build/badge.svg)](https://github.com/creativeprojects/go-selfupdate/actions)
 [![codecov](https://codecov.io/gh/creativeprojects/go-selfupdate/branch/main/graph/badge.svg?token=3FejM0fkw2)](https://codecov.io/gh/creativeprojects/go-selfupdate)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=creativeprojects_go-selfupdate&metric=bugs)](https://sonarcloud.io/summary/new_code?id=creativeprojects_go-selfupdate)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=creativeprojects_go-selfupdate&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=creativeprojects_go-selfupdate)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=creativeprojects_go-selfupdate&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=creativeprojects_go-selfupdate)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=creativeprojects_go-selfupdate&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=creativeprojects_go-selfupdate)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=creativeprojects_go-selfupdate&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=creativeprojects_go-selfupdate)
 
 <!--ts-->
 * [Self\-Update library for Github, Gitea and Gitlab hosted applications in Go](#self-update-library-for-github-gitea-and-gitlab-hosted-applications-in-go)
@@ -26,16 +31,19 @@ Self-Update library for Github, Gitea and Gitlab hosted applications in Go
   * [SHA256](#sha256)
   * [ECDSA](#ecdsa)
   * [Using a single checksum file for all your assets](#using-a-single-checksum-file-for-all-your-assets)
+* [macOS universal binaries](#macos-universal-binaries)
 * [Other providers than Github](#other-providers-than-github)
 * [GitLab](#gitlab)
   * [Example:](#example-1)
+* [Http Based Repository](#http-based-repository)
+  * [Example:](#example-2)
 * [Copyright](#copyright)
 
 <!--te-->
 
 # Introduction
 
-go-selfupdate detects the information of the latest release via a source provider and
+`go-selfupdate` detects the information of the latest release via a source provider and
 checks the current version. If a newer version than itself is detected, it downloads the released binary from
 the source provider and replaces itself.
 
@@ -43,17 +51,19 @@ the source provider and replaces itself.
 - Retrieve the proper binary for the OS and arch where the binary is running
 - Update the binary with rollback support on failure
 - Tested on Linux, macOS and Windows
-- Many archive and compression formats are supported (zip, tar, gzip, xzip, bzip2)
+- Support for different versions of ARM architecture
+- Support macOS universal binaries
+- Many archive and compression formats are supported (zip, tar, gzip, xz, bzip2)
 - Support private repositories
 - Support hash, signature validation
 
-Two source providers are available:
+Three source providers are available:
 - GitHub
 - Gitea
 - Gitlab
 
 This library started as a fork of https://github.com/rhysd/go-github-selfupdate. A few things have changed from the original implementation:
-- don't expose an external semver.Version type, but provide the same functionality through the API: LessThan, Equal and GreaterThan
+- don't expose an external `semver.Version` type, but provide the same functionality through the API: `LessThan`, `Equal` and `GreaterThan`
 - use an interface to send logs (compatible with standard log.Logger)
 - able to detect different ARM CPU architectures (the original library wasn't working on my different versions of raspberry pi)
 - support for assets compressed with bzip2 (.bz2)
@@ -80,7 +90,7 @@ func update(version string) error {
 		return nil
 	}
 
-	exe, err := os.Executable()
+	exe, err := selfupdate.ExecutablePath()
 	if err != nil {
 		return errors.New("could not locate executable path")
 	}
@@ -301,6 +311,18 @@ Tools like [goreleaser][] produce a single checksum file for all your assets. A 
 updater, _ := NewUpdater(Config{Validator: &ChecksumValidator{UniqueFilename: "checksums.txt"}})
 ```
 
+# macOS universal binaries
+
+You can ask the updater to choose a macOS universal binary as a fallback if the native architecture wasn't found.
+
+You need to provide the architecture name for the universal binary in the `Config` struct:
+
+```go
+updater, _ := NewUpdater(Config{UniversalArch: "all"})
+```
+
+Default is empty, which means no fallback.
+
 # Other providers than Github
 
 This library can be easily extended by providing a new source and release implementation for any git provider
@@ -353,7 +375,53 @@ func update() {
 	}
 	fmt.Printf("found release %s\n", release.Version())
 
-	exe, err := os.Executable()
+	exe, err := selfupdate.ExecutablePath()
+	if err != nil {
+		return errors.New("could not locate executable path")
+	}
+	err = updater.UpdateTo(context.Background(), release, exe)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+# Http Based Repository
+
+Support for http based repositories landed in version 1.4.0.
+
+The HttpSource is designed to work with repositories built using [goreleaser-http-repo-builder](https://github.com/GRMrGecko/goreleaser-http-repo-builder?tab=readme-ov-file). This provides a simple way to add self-update support to software that is not open source, allowing you to host your own updates. It requires that you still use the owner/project url style, and you can set custom headers to be used with requests to authenticate.
+
+## Example:
+
+If your repository is at example.com/repo/project, then you'd use the following example.
+
+```go
+func update() {
+	source, err := selfupdate.NewHttpSource(selfupdate.HttpConfig{
+		BaseURL: "https://example.com/",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	updater, err := selfupdate.NewUpdater(selfupdate.Config{
+		Source:    source,
+		Validator: &selfupdate.ChecksumValidator{UniqueFilename: "checksums.txt"}, // checksum from goreleaser
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	release, found, err := updater.DetectLatest(context.Background(), selfupdate.NewRepositorySlug("repo", "project"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !found {
+		log.Print("Release not found")
+		return
+	}
+	fmt.Printf("found release %s\n", release.Version())
+
+	exe, err := selfupdate.ExecutablePath()
 	if err != nil {
 		return errors.New("could not locate executable path")
 	}

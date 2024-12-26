@@ -27,24 +27,25 @@ type EventType string
 
 // List of available event types.
 const (
-	EventConfidentialIssue EventType = "Confidential Issue Hook"
-	EventConfidentialNote  EventType = "Confidential Note Hook"
-	EventTypeBuild         EventType = "Build Hook"
-	EventTypeDeployment    EventType = "Deployment Hook"
-	EventTypeFeatureFlag   EventType = "Feature Flag Hook"
-	EventTypeIssue         EventType = "Issue Hook"
-	EventTypeJob           EventType = "Job Hook"
-	EventTypeMember        EventType = "Member Hook"
-	EventTypeMergeRequest  EventType = "Merge Request Hook"
-	EventTypeNote          EventType = "Note Hook"
-	EventTypePipeline      EventType = "Pipeline Hook"
-	EventTypePush          EventType = "Push Hook"
-	EventTypeRelease       EventType = "Release Hook"
-	EventTypeServiceHook   EventType = "Service Hook"
-	EventTypeSubGroup      EventType = "Subgroup Hook"
-	EventTypeSystemHook    EventType = "System Hook"
-	EventTypeTagPush       EventType = "Tag Push Hook"
-	EventTypeWikiPage      EventType = "Wiki Page Hook"
+	EventConfidentialIssue       EventType = "Confidential Issue Hook"
+	EventConfidentialNote        EventType = "Confidential Note Hook"
+	EventTypeBuild               EventType = "Build Hook"
+	EventTypeDeployment          EventType = "Deployment Hook"
+	EventTypeFeatureFlag         EventType = "Feature Flag Hook"
+	EventTypeIssue               EventType = "Issue Hook"
+	EventTypeJob                 EventType = "Job Hook"
+	EventTypeMember              EventType = "Member Hook"
+	EventTypeMergeRequest        EventType = "Merge Request Hook"
+	EventTypeNote                EventType = "Note Hook"
+	EventTypePipeline            EventType = "Pipeline Hook"
+	EventTypePush                EventType = "Push Hook"
+	EventTypeRelease             EventType = "Release Hook"
+	EventTypeResourceAccessToken EventType = "Resource Access Token Hook"
+	EventTypeServiceHook         EventType = "Service Hook"
+	EventTypeSubGroup            EventType = "Subgroup Hook"
+	EventTypeSystemHook          EventType = "System Hook"
+	EventTypeTagPush             EventType = "Tag Push Hook"
+	EventTypeWikiPage            EventType = "Wiki Page Hook"
 )
 
 const (
@@ -71,6 +72,13 @@ type serviceEvent struct {
 	ObjectKind string `json:"object_kind"`
 }
 
+const eventTokenHeader = "X-Gitlab-Token"
+
+// HookEventToken returns the token for the given request.
+func HookEventToken(r *http.Request) string {
+	return r.Header.Get(eventTokenHeader)
+}
+
 const eventTypeHeader = "X-Gitlab-Event"
 
 // HookEventType returns the event type for the given request.
@@ -83,7 +91,7 @@ func HookEventType(r *http.Request) EventType {
 // Example usage:
 //
 //	func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-//	    payload, err := ioutil.ReadAll(r.Body)
+//	    payload, err := io.ReadAll(r.Body)
 //	    if err != nil { ... }
 //	    event, err := gitlab.ParseHook(gitlab.HookEventType(r), payload)
 //	    if err != nil { ... }
@@ -111,7 +119,7 @@ func ParseHook(eventType EventType, payload []byte) (event interface{}, err erro
 // Example usage:
 //
 //	func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-//	    payload, err := ioutil.ReadAll(r.Body)
+//	    payload, err := io.ReadAll(r.Body)
 //	    if err != nil { ... }
 //	    event, err := gitlab.ParseSystemhook(payload)
 //	    if err != nil { ... }
@@ -195,7 +203,7 @@ func WebhookEventType(r *http.Request) EventType {
 // Example usage:
 //
 //	func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-//	    payload, err := ioutil.ReadAll(r.Body)
+//	    payload, err := io.ReadAll(r.Body)
 //	    if err != nil { ... }
 //	    event, err := gitlab.ParseWebhook(gitlab.HookEventType(r), payload)
 //	    if err != nil { ... }
@@ -252,6 +260,24 @@ func ParseWebhook(eventType EventType, payload []byte) (event interface{}, err e
 		event = &PushEvent{}
 	case EventTypeRelease:
 		event = &ReleaseEvent{}
+	case EventTypeResourceAccessToken:
+		data := map[string]interface{}{}
+		err := json.Unmarshal(payload, &data)
+		if err != nil {
+			return nil, err
+		}
+
+		_, groupEvent := data["group"]
+		_, projectEvent := data["project"]
+
+		switch {
+		case groupEvent:
+			event = &GroupResourceAccessTokenEvent{}
+		case projectEvent:
+			event = &ProjectResourceAccessTokenEvent{}
+		default:
+			return nil, fmt.Errorf("unexpected resource access token payload")
+		}
 	case EventTypeServiceHook:
 		service := &serviceEvent{}
 		err := json.Unmarshal(payload, service)

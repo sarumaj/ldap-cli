@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go: [1.21]
+        go: [1.23.4]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     name: Test and report maintainability of ldap-cli
@@ -29,7 +29,7 @@ jobs:
       - name: Install pass keyring
         run: ./scripts/setup/keyring.sh
         shell: bash
-          
+
       - name: Install go
         uses: actions/setup-go@v4
         with:
