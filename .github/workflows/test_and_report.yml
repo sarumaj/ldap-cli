@@ -53,13 +53,11 @@ jobs:
         with:
           compose-file: "./oat/docker-compose.yml"
 
-      - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v5.0.0
-        env:
-          TEST_OAT: "true"
-          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPORTER_ID }}
+      - name: Test & publish code coverage  
+        uses: qltysh/qlty-action/coverage@v1
         with:
-          coverageCommand: gocov test ./... -coverprofile=c.out
-          coverageLocations: ./c.out:gocov
-          debug: true
-          prefix: ${{ steps.export_module_name.outputs.MODULE_NAME }}
+          files: ./c.out
+          format: coverprofile
+          add-prefix: ${{ steps.export_module_name.outputs.MODULE_NAME }}
+          verbose: true
+          oidc: true
