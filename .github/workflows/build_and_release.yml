@@ -63,12 +63,12 @@ jobs:
           files: coverage.out
           add-prefix: ${{ steps.export_module_name.outputs.MODULE_NAME }}
           verbose: true
-          oidc: true
+          token: "{{ secrets.QLTY_COVERAGE_TOKEN }}"
 
       - name: Mark coverage as complete
         uses: qltysh/qlty-action/coverage@v1
         with:
-          oidc: true
+          token: "{{ secrets.QLTY_COVERAGE_TOKEN }}"
           command: complete
 
       - name: Precompile binaries and upload assets
