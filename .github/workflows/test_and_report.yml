@@ -38,8 +38,7 @@ jobs:
       - name: Install go tools
         run: |
           go install golang.org/x/tools/gopls@latest && \
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest && \
-          go install github.com/axw/gocov/gocov@latest
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
       - name: Export Module Name
         id: export_module_name
@@ -54,15 +53,20 @@ jobs:
           compose-file: "./oat/docker-compose.yml"
 
       - name: Run tests with coverage
-        run: gocov test ./... -coverprofile=c.out
+        run: go test -coverprofile=coverage.out
         env:
           TEST_OAT: "true"
 
       - name: Publish code coverage  
         uses: qltysh/qlty-action/coverage@v1
         with:
-          files: ./c.out
-          format: coverprofile
+          files: coverage.out
           add-prefix: ${{ steps.export_module_name.outputs.MODULE_NAME }}
           verbose: true
           oidc: true
+
+      - name: Mark coverage as complete
+        uses: qltysh/qlty-action/coverage@v1
+        with:
+          oidc: true
+          command: complete
