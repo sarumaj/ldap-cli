@@ -44,11 +44,11 @@ import (
 
 // Version holds the application version.
 // It gets filled automatically at build time.
-var Version = "v2.6.9"
+var Version = "v2.7.3"
 
 // BuildDate holds the date and time at which the application was build.
 // It gets filled automatically at build time.
-var BuildDate = "2024-03-03 19:09:15 UTC"
+var BuildDate = "2025-07-21 14:55:16 UTC"
 
 func main() {
 	app.Logger.Debugf("version: %q, build date: %q", Version, BuildDate)

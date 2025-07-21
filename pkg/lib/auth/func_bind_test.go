@@ -25,6 +25,13 @@ func TestBindParametersToAndFromKeyring(t *testing.T) {
 	} {
 
 		t.Run(tt.name, func(t *testing.T) {
+			// Clean up keyring data before test
+			_ = libutil.RemoveFromKeyRing("user")
+			_ = libutil.RemoveFromKeyRing("hash")
+			_ = libutil.RemoveFromKeyRing("password")
+			_ = libutil.RemoveFromKeyRing("domain")
+			_ = libutil.RemoveFromKeyRing("type")
+
 			if err := tt.args.ToKeyring(); err != nil {
 				t.Errorf(`(%T).ToKeyring() failed: %v`, tt.args, err)
 			}
@@ -38,6 +45,13 @@ func TestBindParametersToAndFromKeyring(t *testing.T) {
 			if !reflect.DeepEqual(*got, *tt.want) {
 				t.Errorf(`(%T).FromKeyring() failed: got: %#v, want: %#v`, tt.want, *got, *tt.want)
 			}
+
+			// Clean up keyring data after the test
+			_ = libutil.RemoveFromKeyRing("user")
+			_ = libutil.RemoveFromKeyRing("hash")
+			_ = libutil.RemoveFromKeyRing("password")
+			_ = libutil.RemoveFromKeyRing("domain")
+			_ = libutil.RemoveFromKeyRing("type")
 		})
 	}
 }

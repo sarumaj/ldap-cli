@@ -6,7 +6,7 @@ Feature: App version
         When I execute the application
         Then I expect the output to be:
         """
-        Version: v\d+.\d+.\d+ .*
+        Version: v\d+.\d+.\d+.*
         Built at: .+
         Executable path: .+
         """
