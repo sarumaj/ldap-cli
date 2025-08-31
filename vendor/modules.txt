@@ -82,7 +82,7 @@ github.com/go-fed/httpsig
 # github.com/go-ldap/ldap/v3 v3.4.9
 ## explicit; go 1.14
 github.com/go-ldap/ldap/v3
-# github.com/go-ldap/ldif v0.0.0-20200320164324-fd88d9b715b3
+# github.com/go-ldap/ldif v0.0.0-20250820211448-1f8b40bda3a0
 ## explicit; go 1.14
 github.com/go-ldap/ldif
 # github.com/go-playground/locales v0.14.1

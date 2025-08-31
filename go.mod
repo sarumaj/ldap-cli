@@ -11,7 +11,7 @@ require (
 	github.com/cucumber/godog v0.14.0
 	github.com/fatih/color v1.18.0
 	github.com/go-ldap/ldap/v3 v3.4.9
-	github.com/go-ldap/ldif v0.0.0-20200320164324-fd88d9b715b3
+	github.com/go-ldap/ldif v0.0.0-20250820211448-1f8b40bda3a0
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/goccy/go-yaml v1.15.13
 	github.com/r3labs/diff/v3 v3.0.1
