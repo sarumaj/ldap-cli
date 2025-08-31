@@ -120,17 +120,32 @@ func (c *context) next() bool {
 }
 
 func (c *context) insertNullToken(tk *Token) *Token {
-	nullToken := c.createNullToken(tk)
+	nullToken := c.createImplicitNullToken(tk)
 	c.insertToken(nullToken)
 	c.goNext()
 
 	return nullToken
 }
 
-func (c *context) createNullToken(base *Token) *Token {
+func (c *context) addNullValueToken(tk *Token) *Token {
+	nullToken := c.createImplicitNullToken(tk)
+	rawTk := nullToken.RawToken()
+
+	// add space for map or sequence value.
+	rawTk.Position.Column++
+
+	c.addToken(nullToken)
+	c.goNext()
+
+	return nullToken
+}
+
+func (c *context) createImplicitNullToken(base *Token) *Token {
 	pos := *(base.RawToken().Position)
 	pos.Column++
-	return &Token{Token: token.New("null", "null", &pos)}
+	tk := token.New("null", " null", &pos)
+	tk.Type = token.ImplicitNullType
+	return &Token{Token: tk}
 }
 
 func (c *context) insertToken(tk *Token) {
@@ -155,5 +170,18 @@ func (c *context) insertToken(tk *Token) {
 
 	ref.tokens = append(ref.tokens[:idx+1], ref.tokens[idx:]...)
 	ref.tokens[idx] = tk
+	ref.size = len(ref.tokens)
+}
+
+func (c *context) addToken(tk *Token) {
+	ref := c.tokenRef
+	lastTk := ref.tokens[ref.size-1]
+	if lastTk.Group != nil {
+		lastTk = lastTk.Group.Last()
+	}
+	lastTk.RawToken().Next = tk.RawToken()
+	tk.RawToken().Prev = lastTk.RawToken()
+
+	ref.tokens = append(ref.tokens, tk)
 	ref.size = len(ref.tokens)
 }
