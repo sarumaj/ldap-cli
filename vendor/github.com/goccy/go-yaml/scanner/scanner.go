@@ -98,6 +98,11 @@ func (s *Scanner) progressColumn(ctx *Context, num int) {
 	s.progress(ctx, num)
 }
 
+func (s *Scanner) progressOnly(ctx *Context, num int) {
+	s.offset += num
+	s.progress(ctx, num)
+}
+
 func (s *Scanner) progressLine(ctx *Context) {
 	s.prevLineIndentNum = s.indentNum
 	s.column = 1
@@ -517,6 +522,17 @@ func (s *Scanner) scanDoubleQuote(ctx *Context) (*token.Token, error) {
 				s.progressLine(ctx)
 				idx++
 				continue
+			case '\r':
+				isFirstLineChar = true
+				isNewLine = true
+				ctx.addOriginBuf(nextChar)
+				s.progressLine(ctx)
+				progress = 1
+				// Skip \n after \r in CRLF sequences
+				if idx+2 < size && src[idx+2] == '\n' {
+					ctx.addOriginBuf('\n')
+					progress = 2
+				}
 			case '\t':
 				progress = 1
 				ctx.addOriginBuf(nextChar)
@@ -961,6 +977,12 @@ func (s *Scanner) scanMapDelim(ctx *Context) (bool, error) {
 	if s.startedFlowMapNum > 0 && nc == '/' {
 		// like http://
 		return false, nil
+	}
+	if s.startedFlowMapNum > 0 {
+		tk := ctx.lastToken()
+		if tk != nil && tk.Type == token.MappingValueType {
+			return false, nil
+		}
 	}
 
 	if strings.HasPrefix(strings.TrimPrefix(string(ctx.obuf), " "), "\t") && !strings.HasPrefix(string(ctx.buf), "\t") {
@@ -1430,13 +1452,13 @@ func (s *Scanner) scan(ctx *Context) error {
 				// tab indent for plain text (yaml-test-suite's spec-example-7-12-plain-lines).
 				s.indentNum++
 				ctx.addOriginBuf(c)
-				s.progressColumn(ctx, 1)
+				s.progressOnly(ctx, 1)
 				continue
 			}
 			if s.lastDelimColumn < s.column {
 				s.indentNum++
 				ctx.addOriginBuf(c)
-				s.progressColumn(ctx, 1)
+				s.progressOnly(ctx, 1)
 				continue
 			}
 			if err := s.scanTab(ctx, c); err != nil {

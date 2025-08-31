@@ -95,7 +95,7 @@ func newParser(tokens token.Tokens, mode Mode, opts []Option) (*parser, error) {
 			filteredTokens = append(filteredTokens, tk)
 		}
 	}
-	tks, err := createGroupedTokens(token.Tokens(filteredTokens))
+	tks, err := CreateGroupedTokens(token.Tokens(filteredTokens))
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +304,7 @@ func (p *parser) parseScalarValue(ctx *context, tk *Token) (ast.ScalarNode, erro
 	switch tk.Type() {
 	case token.MergeKeyType:
 		return newMergeKeyNode(ctx, tk)
-	case token.NullType:
+	case token.NullType, token.ImplicitNullType:
 		return newNullNode(ctx, tk)
 	case token.BoolType:
 		return newBoolNode(ctx, tk)
@@ -341,7 +341,9 @@ func (p *parser) parseFlowMap(ctx *context) (*ast.MappingNode, error) {
 			break
 		}
 
+		var entryTk *Token
 		if tk.Type() == token.CollectEntryType {
+			entryTk = tk
 			ctx.goNext()
 		} else if !isFirst {
 			return nil, errors.ErrSyntax("',' or '}' must be specified", tk.RawToken())
@@ -357,7 +359,7 @@ func (p *parser) parseFlowMap(ctx *context) (*ast.MappingNode, error) {
 		mapKeyTk := ctx.currentToken()
 		switch mapKeyTk.GroupType() {
 		case TokenGroupMapKeyValue:
-			value, err := p.parseMapKeyValue(ctx.withGroup(mapKeyTk.Group), mapKeyTk.Group)
+			value, err := p.parseMapKeyValue(ctx.withGroup(mapKeyTk.Group), mapKeyTk.Group, entryTk)
 			if err != nil {
 				return nil, err
 			}
@@ -375,7 +377,7 @@ func (p *parser) parseFlowMap(ctx *context) (*ast.MappingNode, error) {
 				if err != nil {
 					return nil, err
 				}
-				mapValue, err := newMappingValueNode(ctx, colonTk, key, value)
+				mapValue, err := newMappingValueNode(ctx, colonTk, entryTk, key, value)
 				if err != nil {
 					return nil, err
 				}
@@ -390,7 +392,7 @@ func (p *parser) parseFlowMap(ctx *context) (*ast.MappingNode, error) {
 				if err != nil {
 					return nil, err
 				}
-				mapValue, err := newMappingValueNode(ctx, colonTk, key, value)
+				mapValue, err := newMappingValueNode(ctx, colonTk, entryTk, key, value)
 				if err != nil {
 					return nil, err
 				}
@@ -398,7 +400,11 @@ func (p *parser) parseFlowMap(ctx *context) (*ast.MappingNode, error) {
 			}
 		default:
 			if !p.isFlowMapDelim(ctx.nextToken()) {
-				return nil, errors.ErrSyntax("could not find flow map content", mapKeyTk.RawToken())
+				errTk := mapKeyTk
+				if errTk == nil {
+					errTk = tk
+				}
+				return nil, errors.ErrSyntax("could not find flow map content", errTk.RawToken())
 			}
 			key, err := p.parseScalarValue(ctx, mapKeyTk)
 			if err != nil {
@@ -408,7 +414,7 @@ func (p *parser) parseFlowMap(ctx *context) (*ast.MappingNode, error) {
 			if err != nil {
 				return nil, err
 			}
-			mapValue, err := newMappingValueNode(ctx, mapKeyTk, key, value)
+			mapValue, err := newMappingValueNode(ctx, mapKeyTk, entryTk, key, value)
 			if err != nil {
 				return nil, err
 			}
@@ -435,7 +441,7 @@ func (p *parser) parseMap(ctx *context) (*ast.MappingNode, error) {
 	}
 	var keyValueNode *ast.MappingValueNode
 	if keyTk.GroupType() == TokenGroupMapKeyValue {
-		node, err := p.parseMapKeyValue(ctx.withGroup(keyTk.Group), keyTk.Group)
+		node, err := p.parseMapKeyValue(ctx.withGroup(keyTk.Group), keyTk.Group, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -460,7 +466,7 @@ func (p *parser) parseMap(ctx *context) (*ast.MappingNode, error) {
 		if err != nil {
 			return nil, err
 		}
-		node, err := newMappingValueNode(ctx, keyTk.Group.Last(), key, value)
+		node, err := newMappingValueNode(ctx, keyTk.Group.Last(), nil, key, value)
 		if err != nil {
 			return nil, err
 		}
@@ -533,7 +539,10 @@ func (p *parser) validateMapKeyValueNextToken(ctx *context, keyTk, tk *Token) er
 	if tk.Column() <= keyTk.Column() {
 		return nil
 	}
-	if ctx.isFlow && tk.Type() == token.CollectEntryType {
+	if ctx.isComment() {
+		return nil
+	}
+	if ctx.isFlow && (tk.Type() == token.CollectEntryType || tk.Type() == token.SequenceEndType) {
 		return nil
 	}
 	// a: b
@@ -549,7 +558,7 @@ func (p *parser) isMapToken(tk *Token) bool {
 	return g.Type == TokenGroupMapKey || g.Type == TokenGroupMapKeyValue
 }
 
-func (p *parser) parseMapKeyValue(ctx *context, g *TokenGroup) (*ast.MappingValueNode, error) {
+func (p *parser) parseMapKeyValue(ctx *context, g *TokenGroup, entryTk *Token) (*ast.MappingValueNode, error) {
 	if g.Type != TokenGroupMapKeyValue {
 		return nil, errors.ErrSyntax("unexpected map key-value pair", g.RawToken())
 	}
@@ -561,11 +570,13 @@ func (p *parser) parseMapKeyValue(ctx *context, g *TokenGroup) (*ast.MappingValu
 	if err != nil {
 		return nil, err
 	}
-	value, err := p.parseToken(ctx.withChild(p.mapKeyText(key)), g.Last())
+
+	c := ctx.withChild(p.mapKeyText(key))
+	value, err := p.parseToken(c, g.Last())
 	if err != nil {
 		return nil, err
 	}
-	return newMappingValueNode(ctx, keyGroup.Last(), key, value)
+	return newMappingValueNode(c, keyGroup.Last(), entryTk, key, value)
 }
 
 func (p *parser) parseMapKey(ctx *context, g *TokenGroup) (ast.MapKeyNode, error) {
@@ -697,7 +708,7 @@ func (p *parser) mapKeyText(n ast.Node) string {
 	case *ast.AnchorNode:
 		return p.mapKeyText(nn.Value)
 	case *ast.AliasNode:
-		return p.mapKeyText(nn.Value)
+		return ""
 	}
 	return n.GetToken().Value
 }
@@ -705,7 +716,7 @@ func (p *parser) mapKeyText(n ast.Node) string {
 func (p *parser) parseMapValue(ctx *context, key ast.MapKeyNode, colonTk *Token) (ast.Node, error) {
 	tk := ctx.currentToken()
 	if tk == nil {
-		return newNullNode(ctx, ctx.insertNullToken(colonTk))
+		return newNullNode(ctx, ctx.addNullValueToken(colonTk))
 	}
 
 	if ctx.isComment() {
@@ -739,7 +750,7 @@ func (p *parser) parseMapValue(ctx *context, key ast.MapKeyNode, colonTk *Token)
 		// next
 		group := &TokenGroup{
 			Type:   TokenGroupAnchor,
-			Tokens: []*Token{tk, ctx.createNullToken(tk)},
+			Tokens: []*Token{tk, ctx.createImplicitNullToken(tk)},
 		}
 		anchor, err := p.parseAnchor(ctx.withGroup(group), group)
 		if err != nil {
@@ -776,7 +787,7 @@ func (p *parser) parseMapValue(ctx *context, key ast.MapKeyNode, colonTk *Token)
 		// next
 		group := &TokenGroup{
 			Type:   TokenGroupAnchor,
-			Tokens: []*Token{tk, ctx.createNullToken(tk)},
+			Tokens: []*Token{tk, ctx.createImplicitNullToken(tk)},
 		}
 		anchor, err := p.parseAnchor(ctx.withGroup(group), group)
 		if err != nil {
@@ -968,7 +979,7 @@ func (p *parser) parseTag(ctx *context) (*ast.TagNode, error) {
 
 func (p *parser) parseTagValue(ctx *context, tagRawTk *token.Token, tk *Token) (ast.Node, error) {
 	if tk == nil {
-		return newNullNode(ctx, ctx.createNullToken(&Token{Token: tagRawTk}))
+		return newNullNode(ctx, ctx.createImplicitNullToken(&Token{Token: tagRawTk}))
 	}
 	switch token.ReservedTagKeyword(tagRawTk.Value) {
 	case token.MappingTag, token.SetTag:
@@ -1015,10 +1026,12 @@ func (p *parser) parseFlowSequence(ctx *context) (*ast.SequenceNode, error) {
 			break
 		}
 
+		var entryTk *Token
 		if tk.Type() == token.CollectEntryType {
 			if isFirst {
 				return nil, errors.ErrSyntax("expected sequence element, but found ','", tk.RawToken())
 			}
+			entryTk = tk
 			ctx.goNext()
 		} else if !isFirst {
 			return nil, errors.ErrSyntax("',' or ']' must be specified", tk.RawToken())
@@ -1035,11 +1048,19 @@ func (p *parser) parseFlowSequence(ctx *context) (*ast.SequenceNode, error) {
 			break
 		}
 
-		value, err := p.parseToken(ctx.withIndex(uint(len(node.Values))), ctx.currentToken())
+		ctx := ctx.withIndex(uint(len(node.Values)))
+		value, err := p.parseToken(ctx, ctx.currentToken())
 		if err != nil {
 			return nil, err
 		}
 		node.Values = append(node.Values, value)
+		seqEntry := ast.SequenceEntry(entryTk.RawToken(), value, nil)
+		if err := setLineComment(ctx, seqEntry, entryTk); err != nil {
+			return nil, err
+		}
+		seqEntry.SetPath(ctx.path)
+		node.Entries = append(node.Entries, seqEntry)
+
 		isFirst = false
 	}
 	if node.End == nil {
@@ -1059,15 +1080,22 @@ func (p *parser) parseSequence(ctx *context) (*ast.SequenceNode, error) {
 	tk := seqTk
 	for tk.Type() == token.SequenceEntryType && tk.Column() == seqTk.Column() {
 		seqTk := tk
-		comment := p.parseHeadComment(ctx)
+		headComment := p.parseHeadComment(ctx)
 		ctx.goNext() // skip sequence entry token
 
-		value, err := p.parseSequenceValue(ctx.withIndex(uint(len(seqNode.Values))), seqTk)
+		ctx := ctx.withIndex(uint(len(seqNode.Values)))
+		value, err := p.parseSequenceValue(ctx, seqTk)
 		if err != nil {
 			return nil, err
 		}
-		seqNode.ValueHeadComments = append(seqNode.ValueHeadComments, comment)
+		seqEntry := ast.SequenceEntry(seqTk.RawToken(), value, headComment)
+		if err := setLineComment(ctx, seqEntry, seqTk); err != nil {
+			return nil, err
+		}
+		seqEntry.SetPath(ctx.path)
+		seqNode.ValueHeadComments = append(seqNode.ValueHeadComments, headComment)
 		seqNode.Values = append(seqNode.Values, value)
+		seqNode.Entries = append(seqNode.Entries, seqEntry)
 
 		if ctx.isComment() {
 			tk = ctx.nextNotCommentToken()
@@ -1091,7 +1119,7 @@ func (p *parser) parseSequence(ctx *context) (*ast.SequenceNode, error) {
 func (p *parser) parseSequenceValue(ctx *context, seqTk *Token) (ast.Node, error) {
 	tk := ctx.currentToken()
 	if tk == nil {
-		return newNullNode(ctx, ctx.insertNullToken(seqTk))
+		return newNullNode(ctx, ctx.addNullValueToken(seqTk))
 	}
 
 	if ctx.isComment() {
@@ -1116,7 +1144,7 @@ func (p *parser) parseSequenceValue(ctx *context, seqTk *Token) (ast.Node, error
 		// -
 		group := &TokenGroup{
 			Type:   TokenGroupAnchor,
-			Tokens: []*Token{tk, ctx.createNullToken(tk)},
+			Tokens: []*Token{tk, ctx.createImplicitNullToken(tk)},
 		}
 		anchor, err := p.parseAnchor(ctx.withGroup(group), group)
 		if err != nil {
@@ -1153,7 +1181,7 @@ func (p *parser) parseSequenceValue(ctx *context, seqTk *Token) (ast.Node, error
 		// next
 		group := &TokenGroup{
 			Type:   TokenGroupAnchor,
-			Tokens: []*Token{tk, ctx.createNullToken(tk)},
+			Tokens: []*Token{tk, ctx.createImplicitNullToken(tk)},
 		}
 		anchor, err := p.parseAnchor(ctx.withGroup(group), group)
 		if err != nil {
