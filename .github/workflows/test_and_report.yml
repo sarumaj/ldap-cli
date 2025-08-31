@@ -48,7 +48,7 @@ jobs:
         run: gofmt -s -d ./ && golangci-lint run -v
 
       - name: Setup openldap mock-up
-        uses: isbang/compose-action@v1.5.1
+        uses: isbang/compose-action@v2.3.0
         with:
           compose-file: "./oat/docker-compose.yml"
 
