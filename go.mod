@@ -7,7 +7,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/creasty/defaults v1.8.0
-	github.com/creativeprojects/go-selfupdate v1.4.0
+	github.com/creativeprojects/go-selfupdate v1.5.1
 	github.com/cucumber/godog v0.14.0
 	github.com/fatih/color v1.18.0
 	github.com/go-ldap/ldap/v3 v3.4.11
