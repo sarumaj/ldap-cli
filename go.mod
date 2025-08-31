@@ -8,7 +8,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/creasty/defaults v1.8.0
 	github.com/creativeprojects/go-selfupdate v1.4.0
-	github.com/cucumber/godog v0.14.0
+	github.com/cucumber/godog v0.15.1
 	github.com/fatih/color v1.18.0
 	github.com/go-ldap/ldap/v3 v3.4.11
 	github.com/go-ldap/ldif v0.0.0-20250820211448-1f8b40bda3a0
@@ -62,7 +62,7 @@ require (
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
