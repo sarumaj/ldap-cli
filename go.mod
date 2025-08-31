@@ -16,7 +16,7 @@ require (
 	github.com/goccy/go-yaml v1.15.13
 	github.com/r3labs/diff/v3 v3.0.1
 	github.com/sarumaj/go-super v1.0.0
-	github.com/schollz/progressbar/v3 v3.17.1
+	github.com/schollz/progressbar/v3 v3.18.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/ztrue/tracerr v0.4.0
