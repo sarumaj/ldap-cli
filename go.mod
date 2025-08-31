@@ -14,7 +14,7 @@ require (
 	github.com/go-ldap/ldif v0.0.0-20250820211448-1f8b40bda3a0
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/goccy/go-yaml v1.15.13
-	github.com/r3labs/diff/v3 v3.0.1
+	github.com/r3labs/diff/v3 v3.0.2
 	github.com/sarumaj/go-super v1.0.0
 	github.com/schollz/progressbar/v3 v3.17.1
 	github.com/sirupsen/logrus v1.9.3
