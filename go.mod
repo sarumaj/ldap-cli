@@ -21,7 +21,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/ztrue/tracerr v0.4.0
 	golang.org/x/term v0.30.0
-	golang.org/x/text v0.23.0
+	golang.org/x/text v0.29.0
 )
 
 require (
