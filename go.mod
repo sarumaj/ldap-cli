@@ -15,7 +15,7 @@ require (
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/goccy/go-yaml v1.15.13
 	github.com/jcmturner/gokrb5/v8 v8.4.4
-	github.com/r3labs/diff/v3 v3.0.1
+	github.com/r3labs/diff/v3 v3.0.2
 	github.com/sarumaj/go-super v1.0.0
 	github.com/schollz/progressbar/v3 v3.17.1
 	github.com/sirupsen/logrus v1.9.3
