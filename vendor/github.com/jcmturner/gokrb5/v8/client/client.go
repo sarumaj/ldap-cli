@@ -300,10 +300,10 @@ func (cl *Client) Diagnostics(w io.Writer) error {
 		fmt.Fprintf(w, "TCP KDCs: %s\n", string(b))
 	}
 
-	if len(errs) < 1 {
+	if errs == nil || len(errs) < 1 {
 		return nil
 	}
-	err = fmt.Errorf("%s", strings.Join(errs, "\n"))
+	err = fmt.Errorf(strings.Join(errs, "\n"))
 	return err
 }
 

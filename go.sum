@@ -58,6 +58,8 @@ github.com/go-ldap/ldap/v3 v3.4.11 h1:4k0Yxweg+a3OyBLjdYn5OKglv18JNvfDykSoI8bW0g
 github.com/go-ldap/ldap/v3 v3.4.11/go.mod h1:bY7t0FLK8OAVpp/vV6sSlpz3EQDGcQwc8pF0ujLgKvM=
 github.com/go-ldap/ldif v0.0.0-20250820211448-1f8b40bda3a0 h1:nGkPlOSgWC0vrANQafhtCQyrMmCUs389tpEo9zuMGdE=
 github.com/go-ldap/ldif v0.0.0-20250820211448-1f8b40bda3a0/go.mod h1:ZXFhGda43Z2TVbfGZefXyMJzsDHhCh0go3bZUcwTx7o=
+github.com/go-ldap/ldif v0.0.0-20250910174327-aa3bc3095c92 h1:Eu8/ko8bvygFvum/PWUg5JrGQuWYNahEph8r3SErkSM=
+github.com/go-ldap/ldif v0.0.0-20250910174327-aa3bc3095c92/go.mod h1:F640vUoSS6Qg4nmesnVfHeZSJ0ArdMJ9eb0xB7wcitU=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
 github.com/go-playground/assert/v2 v2.2.0/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.14.1 h1:EWaQ/wswjilfKLTECiXz7Rh+3BjFhfDFKv/oXslEjJA=
