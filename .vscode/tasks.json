@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Install gokrb5 for GSSAPI",
+			"type": "shell",
+			"command": "go get github.com/jcmturner/gokrb5/v8@latest",
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

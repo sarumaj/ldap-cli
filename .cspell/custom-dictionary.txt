@@ -38,6 +38,7 @@ gocyclo
 godbus
 gofmt
 gofrs
+gokrb
 golangci
 gopkg
 gopls
@@ -50,6 +51,7 @@ Infof
 INTERDOMAIN
 isatty
 isbang
+jcmturner
 jszwec
 kballard
 Keychain
@@ -99,6 +101,8 @@ SETATTR
 shellquote
 sirupsen
 SMARTCARD
+spnego
+SPNEGO
 Subkey
 submatch
 supererrors

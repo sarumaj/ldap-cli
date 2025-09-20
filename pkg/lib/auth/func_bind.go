@@ -8,6 +8,9 @@ import (
 	defaults "github.com/creasty/defaults"
 	ldap "github.com/go-ldap/ldap/v3"
 	libutil "github.com/sarumaj/ldap-cli/v2/pkg/lib/util"
+
+	krb5client "github.com/jcmturner/gokrb5/v8/client"
+	krb5config "github.com/jcmturner/gokrb5/v8/config"
 )
 
 // BindParameters are parameters for binding to the server
@@ -179,9 +182,40 @@ func Bind(parameters *BindParameters, options *DialOptions) (*Connection, error)
 		err = libutil.Handle(ldapConn.ExternalBind())
 
 	case KERBEROS:
-		// TODO: implement GSSAPI
+		// Kerberos (GSSAPI) bind using gokrb5
 		if parameters.AuthType.IsValid() {
-			err = libutil.Handle(ldapConn.GSSAPIBind(&GSSAPIClient{}, "TODO", "TODO"))
+			// Load krb5.conf from default location
+			krb5conf, errConf := krb5config.Load("/etc/krb5.conf")
+			if errConf != nil {
+				err = fmt.Errorf("failed to load krb5.conf: %w", errConf)
+				break
+			}
+
+			// Use domain as realm if provided, else try to extract from user
+			realm := parameters.Domain
+			if realm == "" && parameters.User != "" {
+				if idx := strings.Index(parameters.User, "@"); idx > 0 {
+					realm = parameters.User[idx+1:]
+				}
+			}
+
+			// Username without realm
+			username := parameters.User
+			if idx := strings.Index(username, "@"); idx > 0 {
+				username = username[:idx]
+			}
+
+			// Create gokrb5 client
+			krbClient := krb5client.NewWithPassword(username, realm, parameters.Password, krb5conf)
+
+			// Build service principal: ldap/host@REALM
+			servicePrincipal := "ldap/" + options.URL.Host
+			if realm != "" {
+				servicePrincipal += "@" + realm
+			}
+
+			gssapiClient := &GSSAPIClient{krbClient: krbClient}
+			err = libutil.Handle(ldapConn.GSSAPIBind(gssapiClient, servicePrincipal, ""))
 		}
 
 	}
