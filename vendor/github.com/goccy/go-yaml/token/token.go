@@ -102,6 +102,10 @@ const (
 	SpaceType
 	// NullType type for Null token
 	NullType
+	// ImplicitNullType type for implicit Null token.
+	// This is used when explicit keywords such as null or ~ are not specified.
+	// It is distinguished during encoding and output as an empty string.
+	ImplicitNullType
 	// InfinityType type for Infinity token
 	InfinityType
 	// NanType type for Nan token
@@ -187,6 +191,8 @@ func (t Type) String() string {
 		return "Float"
 	case NullType:
 		return "Null"
+	case ImplicitNullType:
+		return "ImplicitNull"
 	case InfinityType:
 		return "Infinity"
 	case NanType:
@@ -679,6 +685,9 @@ func IsNeedQuoted(value string) bool {
 	if isNumber(value) {
 		return true
 	}
+	if value == "-" {
+		return true
+	}
 	first := value[0]
 	switch first {
 	case '*', '&', '[', '{', '}', ']', ',', '!', '|', '>', '%', '\'', '"', '@', ' ', '`':
@@ -696,7 +705,7 @@ func IsNeedQuoted(value string) bool {
 		switch c {
 		case '#', '\\':
 			return true
-		case ':':
+		case ':', '-':
 			if i+1 < len(value) && value[i+1] == ' ' {
 				return true
 			}
