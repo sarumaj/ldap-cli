@@ -95,11 +95,12 @@ github.com/go-playground/universal-translator
 # github.com/go-playground/validator/v10 v10.23.0
 ## explicit; go 1.18
 github.com/go-playground/validator/v10
-# github.com/goccy/go-yaml v1.15.13
+# github.com/goccy/go-yaml v1.18.0
 ## explicit; go 1.21.0
 github.com/goccy/go-yaml
 github.com/goccy/go-yaml/ast
 github.com/goccy/go-yaml/internal/errors
+github.com/goccy/go-yaml/internal/format
 github.com/goccy/go-yaml/lexer
 github.com/goccy/go-yaml/parser
 github.com/goccy/go-yaml/printer

@@ -13,7 +13,7 @@ require (
 	github.com/go-ldap/ldap/v3 v3.4.11
 	github.com/go-ldap/ldif v0.0.0-20250820211448-1f8b40bda3a0
 	github.com/go-playground/validator/v10 v10.23.0
-	github.com/goccy/go-yaml v1.15.13
+	github.com/goccy/go-yaml v1.18.0
 	github.com/jcmturner/gokrb5/v8 v8.4.4
 	github.com/r3labs/diff/v3 v3.0.1
 	github.com/sarumaj/go-super v1.0.0
