@@ -10,7 +10,7 @@ require (
 	github.com/creativeprojects/go-selfupdate v1.5.1
 	github.com/cucumber/godog v0.15.1
 	github.com/fatih/color v1.18.0
-	github.com/go-ldap/ldap/v3 v3.4.11
+	github.com/go-ldap/ldap/v3 v3.4.12
 	github.com/go-ldap/ldif v0.0.0-20250910174327-aa3bc3095c92
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/goccy/go-yaml v1.18.0
