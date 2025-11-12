@@ -16,13 +16,13 @@ require (
 	github.com/goccy/go-yaml v1.18.0
 	github.com/jcmturner/gokrb5/v8 v8.4.4
 	github.com/r3labs/diff/v3 v3.0.2
-	github.com/sarumaj/go-super v1.0.0
+	github.com/sarumaj/go-super v1.0.1
 	github.com/schollz/progressbar/v3 v3.18.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.10.1
 	github.com/ztrue/tracerr v0.4.0
-	golang.org/x/term v0.36.0
-	golang.org/x/text v0.30.0
+	golang.org/x/term v0.37.0
+	golang.org/x/text v0.31.0
 )
 
 require (
@@ -78,7 +78,7 @@ require (
 	golang.org/x/crypto v0.42.0 // indirect
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/oauth2 v0.31.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.13.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
