@@ -1,19 +1,19 @@
 module github.com/sarumaj/ldap-cli/v2
 
-go 1.24.6
+go 1.24.11
 
 require (
 	github.com/99designs/keyring v1.2.2
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/creasty/defaults v1.8.0
-	github.com/creativeprojects/go-selfupdate v1.5.1
+	github.com/creativeprojects/go-selfupdate v1.5.2
 	github.com/cucumber/godog v0.15.1
 	github.com/fatih/color v1.18.0
 	github.com/go-ldap/ldap/v3 v3.4.12
 	github.com/go-ldap/ldif v0.0.0-20250910174327-aa3bc3095c92
-	github.com/go-playground/validator/v10 v10.28.0
-	github.com/goccy/go-yaml v1.19.0
+	github.com/go-playground/validator/v10 v10.30.0
+	github.com/goccy/go-yaml v1.19.1
 	github.com/jcmturner/gokrb5/v8 v8.4.4
 	github.com/r3labs/diff/v3 v3.0.2
 	github.com/sarumaj/go-super v1.0.2
