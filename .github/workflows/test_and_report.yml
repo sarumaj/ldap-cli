@@ -46,7 +46,10 @@ jobs:
         run: echo "MODULE_NAME=$(go mod edit -json | jq -r '.Module.Path')" >> "$GITHUB_OUTPUT"
 
       - name: Run linters
-        run: gofmt -s -d ./ && golangci-lint run -v --exclude-dirs-use-default
+        run: |
+          gofmt -s -d $(find . -type f -name '*.go'| grep -v "/vendor/")
+          golangci-lint run -v && golangci-lint run -v --exclude-dirs-use-default
+        shell: bash
 
       - name: Setup openldap mock-up
         uses: isbang/compose-action@v2.4.2
