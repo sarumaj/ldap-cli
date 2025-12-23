@@ -1,6 +1,6 @@
 module github.com/sarumaj/ldap-cli/v2
 
-go 1.24.6
+go 1.24.11
 
 require (
 	github.com/99designs/keyring v1.2.2
