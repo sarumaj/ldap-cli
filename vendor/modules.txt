@@ -1,4 +1,4 @@
-# code.gitea.io/sdk/gitea v0.22.0
+# code.gitea.io/sdk/gitea v0.22.1
 ## explicit; go 1.23.0
 code.gitea.io/sdk/gitea
 # github.com/42wim/httpsig v1.2.3
@@ -27,8 +27,8 @@ github.com/blang/semver
 # github.com/creasty/defaults v1.8.0
 ## explicit; go 1.14
 github.com/creasty/defaults
-# github.com/creativeprojects/go-selfupdate v1.5.1
-## explicit; go 1.24.6
+# github.com/creativeprojects/go-selfupdate v1.5.2
+## explicit; go 1.24.11
 github.com/creativeprojects/go-selfupdate
 github.com/creativeprojects/go-selfupdate/internal
 github.com/creativeprojects/go-selfupdate/update
@@ -51,7 +51,7 @@ github.com/cucumber/godog/internal/utils
 # github.com/cucumber/messages/go/v21 v21.0.1
 ## explicit; go 1.19
 github.com/cucumber/messages/go/v21
-# github.com/danieljoos/wincred v1.2.2
+# github.com/danieljoos/wincred v1.2.3
 ## explicit; go 1.18
 github.com/danieljoos/wincred
 # github.com/davidmz/go-pageant v1.0.2
@@ -70,7 +70,7 @@ github.com/dvsekhvalnov/jose2go/padding
 # github.com/fatih/color v1.18.0
 ## explicit; go 1.17
 github.com/fatih/color
-# github.com/gabriel-vasile/mimetype v1.4.10
+# github.com/gabriel-vasile/mimetype v1.4.12
 ## explicit; go 1.21
 github.com/gabriel-vasile/mimetype
 github.com/gabriel-vasile/mimetype/internal/charset
@@ -98,10 +98,10 @@ github.com/go-playground/locales/currency
 # github.com/go-playground/universal-translator v0.18.1
 ## explicit; go 1.18
 github.com/go-playground/universal-translator
-# github.com/go-playground/validator/v10 v10.28.0
+# github.com/go-playground/validator/v10 v10.30.0
 ## explicit; go 1.24.0
 github.com/go-playground/validator/v10
-# github.com/goccy/go-yaml v1.19.0
+# github.com/goccy/go-yaml v1.19.1
 ## explicit; go 1.21.0
 github.com/goccy/go-yaml
 github.com/goccy/go-yaml/ast
@@ -118,9 +118,9 @@ github.com/godbus/dbus
 # github.com/gofrs/uuid v4.4.0+incompatible
 ## explicit
 github.com/gofrs/uuid
-# github.com/google/go-github/v30 v30.1.0
-## explicit; go 1.13
-github.com/google/go-github/v30/github
+# github.com/google/go-github/v74 v74.0.0
+## explicit; go 1.23.0
+github.com/google/go-github/v74/github
 # github.com/google/go-querystring v1.1.0
 ## explicit; go 1.10
 github.com/google/go-querystring/query
@@ -145,7 +145,7 @@ github.com/hashicorp/go-retryablehttp
 # github.com/hashicorp/go-uuid v1.0.3
 ## explicit
 github.com/hashicorp/go-uuid
-# github.com/hashicorp/go-version v1.7.0
+# github.com/hashicorp/go-version v1.8.0
 ## explicit
 github.com/hashicorp/go-version
 # github.com/hashicorp/golang-lru v1.0.2
@@ -267,13 +267,13 @@ github.com/vmihailenco/msgpack/v5/msgpcode
 github.com/vmihailenco/tagparser/v2
 github.com/vmihailenco/tagparser/v2/internal
 github.com/vmihailenco/tagparser/v2/internal/parser
-# github.com/xanzy/go-gitlab v0.115.0
-## explicit; go 1.19
-github.com/xanzy/go-gitlab
 # github.com/ztrue/tracerr v0.4.0
 ## explicit
 github.com/ztrue/tracerr
-# golang.org/x/crypto v0.42.0
+# gitlab.com/gitlab-org/api/client-go v1.9.1
+## explicit; go 1.24.0
+gitlab.com/gitlab-org/api/client-go
+# golang.org/x/crypto v0.46.0
 ## explicit; go 1.24.0
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
@@ -297,10 +297,10 @@ golang.org/x/crypto/sha3
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/agent
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
-# golang.org/x/net v0.44.0
+# golang.org/x/net v0.47.0
 ## explicit; go 1.24.0
 golang.org/x/net/http2/hpack
-# golang.org/x/oauth2 v0.31.0
+# golang.org/x/oauth2 v0.34.0
 ## explicit; go 1.24.0
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
@@ -324,7 +324,7 @@ golang.org/x/text/language
 golang.org/x/text/transform
 golang.org/x/text/unicode/norm
 golang.org/x/text/width
-# golang.org/x/time v0.13.0
+# golang.org/x/time v0.14.0
 ## explicit; go 1.24.0
 golang.org/x/time/rate
 # gopkg.in/yaml.v3 v3.0.1
