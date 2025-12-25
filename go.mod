@@ -12,7 +12,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/go-ldap/ldap/v3 v3.4.12
 	github.com/go-ldap/ldif v0.0.0-20250910174327-aa3bc3095c92
-	github.com/go-playground/validator/v10 v10.30.0
+	github.com/go-playground/validator/v10 v10.30.1
 	github.com/goccy/go-yaml v1.19.1
 	github.com/jcmturner/gokrb5/v8 v8.4.4
 	github.com/r3labs/diff/v3 v3.0.2
