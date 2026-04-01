@@ -26,7 +26,7 @@ jobs:
         shell: bash
 
       - name: Install upx
-        uses: crazy-max/ghaction-upx@v3
+        uses: crazy-max/ghaction-upx@v4
         with:
           install-only: true
 
