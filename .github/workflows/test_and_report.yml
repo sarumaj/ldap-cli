@@ -52,7 +52,7 @@ jobs:
         shell: bash
 
       - name: Setup openldap mock-up
-        uses: isbang/compose-action@v2.5.0
+        uses: isbang/compose-action@v2.6.0
         with:
           compose-file: "./oat/docker-compose.yml"
 
