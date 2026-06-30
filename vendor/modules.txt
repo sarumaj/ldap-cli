@@ -218,8 +218,8 @@ github.com/leodido/go-urn/scim/schema
 # github.com/mattn/go-colorable v0.1.14
 ## explicit; go 1.18
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.20
-## explicit; go 1.15
+# github.com/mattn/go-isatty v0.0.22
+## explicit; go 1.21
 github.com/mattn/go-isatty
 # github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 ## explicit
@@ -241,8 +241,8 @@ github.com/rivo/uniseg
 # github.com/sarumaj/go-super v1.0.2
 ## explicit; go 1.21.0
 github.com/sarumaj/go-super/errors
-# github.com/schollz/progressbar/v3 v3.19.0
-## explicit; go 1.22
+# github.com/schollz/progressbar/v3 v3.19.1
+## explicit; go 1.25.0
 github.com/schollz/progressbar/v3
 # github.com/sirupsen/logrus v1.9.4
 ## explicit; go 1.17
