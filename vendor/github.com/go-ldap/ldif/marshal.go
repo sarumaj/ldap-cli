@@ -228,13 +228,30 @@ func MarshalStreaming(l *LDIF, writer io.Writer) (err error) {
 }
 
 func encodeValue(value string) (string, bool) {
+	if value == "" {
+		return value, false
+	}
+
 	required := false
-	for _, r := range value {
-		if r < ' ' || r > '~' || value[len(value)-1:] == " " { // ~ = 0x7E, <DEL> = 0x7F
-			required = true
-			break
+	switch value[0] {
+	// SAFE-INIT-CHAR (RFC 2849): a value MUST be base64 encoded when it
+	// begins with SPACE, ':' or '<', otherwise it cannot be read back.
+	case ' ', ':', '<':
+		required = true
+	}
+	// A value that ends in SPACE SHOULD be base64 encoded (RFC 2849 note 8).
+	if value[len(value)-1] == ' ' {
+		required = true
+	}
+	if !required {
+		for _, r := range value {
+			if r < ' ' || r > '~' { // not a printable ASCII SAFE-CHAR
+				required = true
+				break
+			}
 		}
 	}
+
 	if !required {
 		return value, false
 	}
@@ -266,8 +283,7 @@ func foldLine(line string, fw int) (folded string) {
 // Dump writes the given entries to the io.Writer.
 //
 // The entries argument can be *ldap.Entry or a mix of *ldap.AddRequest,
-// *ldap.DelRequest, *ldap.ModifyRequest and *ldap.ModifyDNRequest or slices
-// of any of those.
+// *ldap.DelRequest and *ldap.ModifyRequest or slices of any of those.
 //
 // See Marshal() for the fw argument.
 func Dump(fh io.Writer, fw int, entries ...interface{}) error {
@@ -283,8 +299,7 @@ func Dump(fh io.Writer, fw int, entries ...interface{}) error {
 // ToLDIF puts the given arguments in an LDIF struct and returns it.
 //
 // The entries argument can be *ldap.Entry or a mix of *ldap.AddRequest,
-// *ldap.DelRequest, *ldap.ModifyRequest and *ldap.ModifyDNRequest or slices
-// of any of those.
+// *ldap.DelRequest and *ldap.ModifyRequest or slices of any of those.
 func ToLDIF(entries ...interface{}) (*LDIF, error) {
 	l := &LDIF{}
 	for _, e := range entries {
