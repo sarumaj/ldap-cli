@@ -1,0 +1,55 @@
+# Converted from .github/workflows/test_and_report.yml for Forgejo by
+# scripts/github_to_forgejo.py (HomeLab); --move-ci rewrites it. Jobs needing
+# GitHub, macOS, Windows or secrets Forgejo lacks stay in the GitHub file.
+name: test_and_report
+'on':
+  push:
+    branches:
+    - main
+    - renovate/all-patch
+  workflow_dispatch: null
+jobs:
+  test_and_report:
+    strategy:
+      fail-fast: false
+      matrix:
+        go:
+        - 1.26
+        os:
+        - ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    name: Test and report maintainability of ldap-cli
+    steps:
+    - name: Check out repository
+      uses: https://github.com/actions/checkout@v7
+      with:
+        fetch-depth: 0
+    - name: Install pass keyring
+      run: ./scripts/setup/keyring.sh
+      shell: bash
+    - name: Install go
+      uses: https://github.com/actions/setup-go@v7
+      with:
+        go-version: ${{ matrix.go }}
+    - name: Install go tools
+      run: |
+        go install golang.org/x/tools/gopls@latest && \
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    - name: Run linters
+      run: |
+        gofmt -s -d $(find . -type f -name '*.go'| grep -v "/vendor/")
+        golangci-lint run -v && golangci-lint run -v --exclude-dirs-use-default
+      shell: bash
+    - name: Setup openldap mock-up
+      uses: https://github.com/isbang/compose-action@v3.2.0
+      with:
+        compose-file: ./oat/docker-compose.yml
+    - name: Wait for LDAP server to be ready
+      run: |
+        echo "Waiting for LDAP server to be ready..."
+        timeout 60 bash -c 'until timeout 5 bash -c "</dev/tcp/localhost/389" 2>/dev/null; do sleep 2; done'
+        echo "LDAP server is ready!"
+    - name: Run tests with coverage
+      run: go test ./... -coverprofile=coverage.out
+      env:
+        TEST_OAT: 'true'
