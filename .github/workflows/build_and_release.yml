@@ -47,7 +47,7 @@ jobs:
       - name: Run linters
         run: |
           gofmt -s -d $(find . -type f -name '*.go'| grep -v "/vendor/")
-          golangci-lint run -v && golangci-lint run -v --exclude-dirs-use-default
+          golangci-lint run -v --timeout 5m && golangci-lint run -v --timeout 5m --exclude-dirs-use-default
         shell: bash
 
       - name: Setup openldap mock-up
