@@ -1,15 +1,9 @@
-[![test_and_report](https://github.com/sarumaj/ldap-cli/actions/workflows/test_and_report.yml/badge.svg)](https://github.com/sarumaj/ldap-cli/actions/workflows/test_and_report.yml)
-[![build_and_release](https://github.com/sarumaj/ldap-cli/actions/workflows/build_and_release.yml/badge.svg)](https://github.com/sarumaj/ldap-cli/actions/workflows/build_and_release.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/sarumaj/ldap-cli)](https://goreportcard.com/report/github.com/sarumaj/ldap-cli)
+[![test_and_report](https://git.ciepiela.org/dawid/ldap-cli/actions/workflows/test_and_report.yml/badge.svg)](https://git.ciepiela.org/dawid/ldap-cli/actions?workflow=test_and_report.yml)
 [![Maintainability](https://qlty.sh/gh/sarumaj/projects/ldap-cli/maintainability.svg)](https://qlty.sh/gh/sarumaj/projects/ldap-cli)
-[![Code Coverage](https://qlty.sh/gh/sarumaj/projects/ldap-cli/coverage.svg)](https://qlty.sh/gh/sarumaj/projects/ldap-cli)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sarumaj/ldap-cli/v2.svg)](https://pkg.go.dev/github.com/sarumaj/ldap-cli/v2)
 [![Go version](https://img.shields.io/github/go-mod/go-version/sarumaj/ldap-cli?logo=go&label=&labelColor=gray)](https://go.dev)
-[![Release](https://img.shields.io/github/v/release/sarumaj/ldap-cli?logo=github)](https://github.com/sarumaj/ldap-cli/releases/latest)
-[![Release Date](https://img.shields.io/github/release-date/sarumaj/ldap-cli?logo=github)](https://github.com/sarumaj/ldap-cli/releases/latest)
-[![Commits since latest release](https://img.shields.io/github/commits-since/sarumaj/ldap-cli/latest?logo=github)](https://github.com/sarumaj/ldap-cli/releases/latest)
+[![Release](https://img.shields.io/gitea/v/release/dawid/ldap-cli?gitea_url=https%3A%2F%2Fgit.ciepiela.org&logo=forgejo)](https://git.ciepiela.org/dawid/ldap-cli/releases/latest)
 [![Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sarumaj/ldap-cli/total?logo=github)](https://github.com/sarumaj/ldap-cli/releases)
-[![Downloads (all assets, latest release)](https://img.shields.io/github/downloads/sarumaj/ldap-cli/latest/total?logo=github)](https://github.com/sarumaj/ldap-cli/releases/latest)
 
 ---
 
