@@ -40,7 +40,7 @@ jobs:
         golangci-lint run -v --timeout 5m && golangci-lint run -v --timeout 5m --exclude-dirs-use-default
       shell: bash
     - name: Setup openldap mock-up
-      uses: https://github.com/isbang/compose-action@v3.2.0
+      uses: https://github.com/isbang/compose-action@v3.2.1
       with:
         compose-file: ./oat/docker-compose.yml
     - name: Wait for LDAP server to be ready
